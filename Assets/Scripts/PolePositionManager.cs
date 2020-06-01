@@ -106,4 +106,10 @@ public class PolePositionManager : NetworkBehaviour
 
         return minArcL;
     }
+
+    // Use the position of the debug sphere to recolocate the car
+    public Vector3 ResetPosition(int ID)
+    {
+        return this.m_DebuggingSpheres[ID].transform.position;
+    }
 }
