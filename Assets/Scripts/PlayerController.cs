@@ -26,6 +26,7 @@ public class PlayerController : NetworkBehaviour
     private float InputAcceleration { get; set; }
     private float InputSteering { get; set; }
     private float InputBrake { get; set; }
+    private Boolean InputReset { get; set; }
 
     private PlayerInfo m_PlayerInfo;
 
@@ -34,6 +35,8 @@ public class PlayerController : NetworkBehaviour
 
 
     private float m_CurrentSpeed = 0;
+
+    private PolePositionManager m_PolePositionManager;
 
     private float Speed
     {
@@ -59,6 +62,7 @@ public class PlayerController : NetworkBehaviour
     {
         m_Rigidbody = GetComponent<Rigidbody>();
         m_PlayerInfo = GetComponent<PlayerInfo>();
+        m_PolePositionManager = FindObjectOfType<PolePositionManager>();
     }
 
     public void Update()
@@ -66,6 +70,7 @@ public class PlayerController : NetworkBehaviour
         InputAcceleration = Input.GetAxis("Vertical");
         InputSteering = Input.GetAxis(("Horizontal"));
         InputBrake = Input.GetAxis("Jump");
+        InputReset = Input.GetKey(KeyCode.Escape);
         Speed = m_Rigidbody.velocity.magnitude;
     }
 
@@ -76,52 +81,73 @@ public class PlayerController : NetworkBehaviour
         InputBrake = Mathf.Clamp(InputBrake, 0, 1);
 
         float steering = maxSteeringAngle * InputSteering;
-
-        foreach (AxleInfo axleInfo in axleInfos)
+        //If esc key is pressed the car is recolocated in the middle of the track
+        if (InputReset)
         {
-            if (axleInfo.steering)
-            {
-                axleInfo.leftWheel.steerAngle = steering;
-                axleInfo.rightWheel.steerAngle = steering;
-            }
-
-            if (axleInfo.motor)
-            {
-                if (InputAcceleration > float.Epsilon)
-                {
-                    axleInfo.leftWheel.motorTorque = forwardMotorTorque;
-                    axleInfo.leftWheel.brakeTorque = 0;
-                    axleInfo.rightWheel.motorTorque = forwardMotorTorque;
-                    axleInfo.rightWheel.brakeTorque = 0;
-                }
-
-                if (InputAcceleration < -float.Epsilon)
-                {
-                    axleInfo.leftWheel.motorTorque = -backwardMotorTorque;
-                    axleInfo.leftWheel.brakeTorque = 0;
-                    axleInfo.rightWheel.motorTorque = -backwardMotorTorque;
-                    axleInfo.rightWheel.brakeTorque = 0;
-                }
-
-                if (Math.Abs(InputAcceleration) < float.Epsilon)
-                {
-                    axleInfo.leftWheel.motorTorque = 0;
-                    axleInfo.leftWheel.brakeTorque = engineBrake;
-                    axleInfo.rightWheel.motorTorque = 0;
-                    axleInfo.rightWheel.brakeTorque = engineBrake;
-                }
-
-                if (InputBrake > 0)
-                {
-                    axleInfo.leftWheel.brakeTorque = footBrake;
-                    axleInfo.rightWheel.brakeTorque = footBrake;
-                }
-            }
-
-            ApplyLocalPositionToVisuals(axleInfo.leftWheel);
-            ApplyLocalPositionToVisuals(axleInfo.rightWheel);
+            InputReset = false;
+            
+            //ROTAR POR SI SE DA LA VUELTA -> COLOCARLO BIEN
+            //var rot = this.m_PlayerInfo.transform.rotation;
+            //transform.rotation = rot * Quaternion.Euler(0.0f, rot.y, 0.0f);
+            
+            Vector3 newpos = this.m_PolePositionManager.ResetPosition(m_PlayerInfo.ID);
+            newpos.y += 0.5f;
+            this.m_PlayerInfo.transform.position = newpos;
+            float templimit = topSpeed;
+            topSpeed = 0;
+            System.Threading.Thread HiloEspera = new System.Threading.Thread(() => {
+                System.Threading.Tasks.Task.Delay   (1000);
+                topSpeed= templimit;
+            });
+            HiloEspera.Start();
         }
+        else
+        {
+            foreach (AxleInfo axleInfo in axleInfos)
+            {
+                if (axleInfo.steering)
+                {
+                    axleInfo.leftWheel.steerAngle = steering;
+                    axleInfo.rightWheel.steerAngle = steering;
+                }
 
+                if (axleInfo.motor)
+                {
+                    if (InputAcceleration > float.Epsilon)
+                    {
+                        axleInfo.leftWheel.motorTorque = forwardMotorTorque;
+                        axleInfo.leftWheel.brakeTorque = 0;
+                        axleInfo.rightWheel.motorTorque = forwardMotorTorque;
+                        axleInfo.rightWheel.brakeTorque = 0;
+                    }
+
+                    if (InputAcceleration < -float.Epsilon)
+                    {
+                        axleInfo.leftWheel.motorTorque = -backwardMotorTorque;
+                        axleInfo.leftWheel.brakeTorque = 0;
+                        axleInfo.rightWheel.motorTorque = -backwardMotorTorque;
+                        axleInfo.rightWheel.brakeTorque = 0;
+                    }
+
+                    if (Math.Abs(InputAcceleration) < float.Epsilon)
+                    {
+                        axleInfo.leftWheel.motorTorque = 0;
+                        axleInfo.leftWheel.brakeTorque = engineBrake;
+                        axleInfo.rightWheel.motorTorque = 0;
+                        axleInfo.rightWheel.brakeTorque = engineBrake;
+                    }
+
+                    if (InputBrake > 0)
+                    {
+                        axleInfo.leftWheel.brakeTorque = footBrake;
+                        axleInfo.rightWheel.brakeTorque = footBrake;
+                    }
+                }
+
+                ApplyLocalPositionToVisuals(axleInfo.leftWheel);
+                ApplyLocalPositionToVisuals(axleInfo.rightWheel);
+            }
+        }
         SteerHelper();
         SpeedLimiter();
         AddDownForce();

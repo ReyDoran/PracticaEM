@@ -9,8 +9,8 @@ public class CameraController : MonoBehaviour
     [SerializeField] public Vector3 m_offset = new Vector3(10, 10, 10);
 
     [SerializeField] public CircuitController m_Circuit;
-    [SerializeField] private float m_Distance = 10;
-    [SerializeField] private float m_Elevation = 8;
+    [Range(0, 20)] [SerializeField] private float m_Distance = 10;
+    [Range(0, 10)] [SerializeField] private float m_Elevation = 8;
     [Range(0, 1)] [SerializeField] private float m_Following = 0.5f;
 
     private Vector3 m_Direction = Vector3.zero;
