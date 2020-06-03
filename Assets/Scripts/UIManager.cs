@@ -56,21 +56,19 @@ public class UIManager : MonoBehaviour
 
     private void StartHost()
     {
-        m_NetworkManager.networkAddress = inputFieldIP.text;
         m_NetworkManager.StartHost();
         ActivateInGameHUD();
     }
 
     private void StartClient()
     {
-        m_NetworkManager.networkAddress = inputFieldIP.text;
         m_NetworkManager.StartClient();
+        m_NetworkManager.networkAddress = inputFieldIP.text;
         ActivateInGameHUD();
     }
 
     private void StartServer()
     {
-        m_NetworkManager.networkAddress = inputFieldIP.text;
         m_NetworkManager.StartServer();
         ActivateInGameHUD();
     }
