@@ -84,14 +84,13 @@ public class PolePositionManager : NetworkBehaviour
         // path segment and accumulate the arc-length along of the car along
         // the circuit.
         Vector3 carPos = this.m_Players[ID].transform.position;
-
         int segIdx;
         float carDist;
         Vector3 carProj;
 
         float minArcL =
             this.m_CircuitController.ComputeClosestPointArcLength(carPos, out segIdx, out carProj, out carDist);
-
+        
         this.m_DebuggingSpheres[ID].transform.position = carProj;
 
         if (this.m_Players[ID].CurrentLap == 0)
@@ -112,4 +111,27 @@ public class PolePositionManager : NetworkBehaviour
     {
         return this.m_DebuggingSpheres[ID].transform.position;
     }
+
+    public int GetTotalLaps()
+    {
+        return m_CircuitController.totalLaps;
+    }
+
+    //Use de ID and the segment of the circuit to check % of lap
+    public void CalculateLap(int ID, int segIdx)
+    {
+        bool[] controlpoints = new bool[24];
+        bool finishlap = true;
+        foreach (bool segment in controlpoints)
+        {
+            if (!segment)
+            {
+                finishlap = false;
+                break;
+            }
+        }
+        if (finishlap) this.m_Players[ID].CurrentLap++;
+        
+    }
+
 }

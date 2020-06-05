@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class CircuitController : MonoBehaviour
 {
+    public int totalLaps { get; set; }
+
     private LineRenderer m_CircuitPath;
     private Vector3[] m_PathPos;
     private float[] m_CumArcLength;
@@ -89,11 +91,9 @@ public class CircuitController : MonoBehaviour
                 }
             }
         }
-
         segIdx = minSegIdx;
         posProjOut = minProj;
         distOut = minDist;
-
         return minArcL;
     }
 }

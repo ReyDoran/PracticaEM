@@ -71,6 +71,7 @@ public class SetupPlayer : NetworkBehaviour
         {
             m_PlayerController.enabled = true;
             m_PlayerController.OnSpeedChangeHandler += OnSpeedChangeEvent;
+            m_PlayerController.OnLapChangeHandler += OnLapChangeEvent;
             ConfigureCamera();
         }
     }
@@ -78,6 +79,11 @@ public class SetupPlayer : NetworkBehaviour
     void OnSpeedChangeEvent(float speed)
     {
         m_UIManager.UpdateSpeed((int) speed * 5); // 5 for visualization purpose (km/h)
+    }
+
+    void OnLapChangeEvent(int lap, int totalLaps)
+    {
+        m_UIManager.UpdateLap((int)lap, (int)totalLaps); // 5 for visualization purpose (km/h)
     }
 
     void ConfigureCamera()

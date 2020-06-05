@@ -5,6 +5,12 @@ using UnityEngine;
 
 public class PlayerInfo : MonoBehaviour
 {
+
+    private void Start()
+    {
+        CurrentLap = 0;
+    }
+
     public string Name { get; set; }
 
     public int ID { get; set; }

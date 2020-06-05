@@ -54,6 +54,10 @@ public class PlayerController : NetworkBehaviour
 
     public event OnSpeedChangeDelegate OnSpeedChangeHandler;
 
+    public delegate void OnLapChangeDelegate(int newLap, int totalLaps);
+
+    public event OnLapChangeDelegate OnLapChangeHandler;
+
     #endregion Variables
 
     #region Unity Callbacks
@@ -63,6 +67,11 @@ public class PlayerController : NetworkBehaviour
         m_Rigidbody = GetComponent<Rigidbody>();
         m_PlayerInfo = GetComponent<PlayerInfo>();
         m_PolePositionManager = FindObjectOfType<PolePositionManager>();
+    }
+
+    public void Start()
+    {
+        GetLap();
     }
 
     public void Update()
@@ -240,6 +249,12 @@ public class PlayerController : NetworkBehaviour
         }
 
         CurrentRotation = transform.eulerAngles.y;
+    }
+
+    private void GetLap()
+    {
+        if (OnLapChangeHandler != null)
+            OnLapChangeHandler(m_PlayerInfo.CurrentLap, m_PolePositionManager.GetTotalLaps());
     }
 
     #endregion
