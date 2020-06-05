@@ -13,6 +13,8 @@ public class PlayerInfo : MonoBehaviour
 
     public int CurrentLap { get; set; }
 
+    public float[] TimePerLap { get; set; }
+
     public override string ToString()
     {
         return Name;
