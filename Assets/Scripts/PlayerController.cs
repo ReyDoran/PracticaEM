@@ -45,14 +45,14 @@ public class PlayerController : NetworkBehaviour
         {
             if (Math.Abs(m_CurrentSpeed - value) < float.Epsilon) return;
             m_CurrentSpeed = value;
-            if (OnSpeedChangeEvent != null)
-                OnSpeedChangeEvent(m_CurrentSpeed);
+            if (OnSpeedChangeHandler != null)
+                OnSpeedChangeHandler(m_CurrentSpeed);
         }
     }
 
     public delegate void OnSpeedChangeDelegate(float newVal);
 
-    public event OnSpeedChangeDelegate OnSpeedChangeEvent;
+    public event OnSpeedChangeDelegate OnSpeedChangeHandler;
 
     #endregion Variables
 
