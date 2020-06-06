@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using Mirror;
 using UnityEngine;
@@ -42,16 +43,21 @@ public class PolePositionManager : NetworkBehaviour
 
     private class PlayerInfoComparer : Comparer<PlayerInfo>
     {
+        Dictionary<int, float> playerLengths = new Dictionary<int, float>();
         float[] m_ArcLengths;
 
-        public PlayerInfoComparer(float[] arcLengths)
+        public PlayerInfoComparer(float[] arcLengths, List<PlayerInfo> m_Players)
         {
-            m_ArcLengths = arcLengths;
+            //m_ArcLengths = arcLengths;
+            for(int i = 0; i < arcLengths.Length; i++)
+            {
+                playerLengths.Add(m_Players[i].ID, arcLengths[i]);
+            }
         }
 
         public override int Compare(PlayerInfo x, PlayerInfo y)
         {
-            if (this.m_ArcLengths[x.ID] < m_ArcLengths[y.ID])
+            if (this.playerLengths[x.ID] < this.playerLengths[y.ID])
                 return 1;
             else return -1;
         }
@@ -67,7 +73,7 @@ public class PolePositionManager : NetworkBehaviour
             arcLengths[i] = ComputeCarArcLength(i);
         }
 
-        m_Players.Sort(new PlayerInfoComparer(arcLengths));
+        m_Players.Sort(new PlayerInfoComparer(arcLengths, m_Players));
 
         string myRaceOrder = "";
         foreach (var _player in m_Players)
