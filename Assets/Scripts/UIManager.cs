@@ -52,6 +52,11 @@ public class UIManager : MonoBehaviour
         textLaps.text = "LAP: " + lap + " / " + totalLaps; 
     }
 
+    public void UpdateClasification(string clasification)
+    {
+        textPosition.text = clasification;
+    }
+
     private void ActivateMainMenu()
     {
         mainMenu.SetActive(true);

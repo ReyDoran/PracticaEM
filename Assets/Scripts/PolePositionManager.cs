@@ -10,15 +10,18 @@ public class PolePositionManager : NetworkBehaviour
 {
     public int numPlayers;
     public NetworkManager networkManager;
+    public UIManager m_UIManager;
 
     private readonly List<PlayerInfo> m_Players = new List<PlayerInfo>(4);
     private CircuitController m_CircuitController;
     private GameObject[] m_DebuggingSpheres;
+    
 
     private void Awake()
     {
         if (networkManager == null) networkManager = FindObjectOfType<NetworkManager>();
         if (m_CircuitController == null) m_CircuitController = FindObjectOfType<CircuitController>();
+        if (m_UIManager == null) m_UIManager = FindObjectOfType<UIManager>();
 
         m_DebuggingSpheres = new GameObject[networkManager.maxConnections];
         for (int i = 0; i < networkManager.maxConnections; ++i)
@@ -81,7 +84,8 @@ public class PolePositionManager : NetworkBehaviour
             myRaceOrder += _player.Name + " ";
         }
 
-        Debug.Log("El orden de carrera es: " + myRaceOrder);
+        m_UIManager.UpdateClasification(myRaceOrder);
+        //Debug.Log("El orden de carrera es: " + myRaceOrder);
     }
 
     float ComputeCarArcLength(int ID)
