@@ -2,16 +2,20 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using Mirror;
+using Mirror.Examples.Basic;
 using UnityEngine;
 
 public class PolePositionManager : NetworkBehaviour
 {
     public int numPlayers;
+    private System.Timers.Timer countdown;
     public NetworkManager networkManager;
-    public UIManager m_UIManager;
+    public UIManager m_UIManager;    
 
+    private PlayerController[] m_PlayerControllers = new PlayerController[4];
     private readonly List<PlayerInfo> m_Players = new List<PlayerInfo>(4);
     private CircuitController m_CircuitController;
     private GameObject[] m_DebuggingSpheres;
@@ -42,12 +46,12 @@ public class PolePositionManager : NetworkBehaviour
     public void AddPlayer(PlayerInfo player)
     {
         m_Players.Add(player);
+        StartRace();
     }
 
     private class PlayerInfoComparer : Comparer<PlayerInfo>
     {
         Dictionary<int, float> playerLengths = new Dictionary<int, float>();
-        float[] m_ArcLengths;
 
         public PlayerInfoComparer(float[] arcLengths, List<PlayerInfo> m_Players)
         {
@@ -84,7 +88,12 @@ public class PolePositionManager : NetworkBehaviour
             myRaceOrder += _player.Name + " ";
         }
 
-        m_UIManager.UpdateClasification(myRaceOrder);
+        //m_UIManager.UpdateClasification(myRaceOrder);
+        for (int i = 0; i < m_PlayerControllers.Length; i++)
+        {
+            if (m_PlayerControllers[i] != null)
+                m_PlayerControllers[i].RpcUpdateClasification(myRaceOrder);
+        }
         //Debug.Log("El orden de carrera es: " + myRaceOrder);
     }
 
@@ -142,6 +151,32 @@ public class PolePositionManager : NetworkBehaviour
         }
         if (finishlap) this.m_Players[ID].CurrentLap++;
         
+    }
+
+    // Bloquea/desbloquea el movimiento de todos los coches de la escena
+    private void FreezeAllCars(bool freeze)
+    {
+        for (int i = 0; i < m_PlayerControllers.Length; i++)
+        {
+            if (m_PlayerControllers[i] != null)
+            {
+                m_PlayerControllers[i].RpcFreezeCar(freeze);
+            }
+        }
+    }
+
+    //Bloquea a los coches durante 5 segundos
+    public void StartRace()
+    {
+        for (int i = 0; i < m_Players.Count; i++)
+        {
+            m_PlayerControllers[i] = m_Players[i].gameObject.GetComponent<PlayerController>();
+        }
+        FreezeAllCars(true);
+        countdown = new System.Timers.Timer(5000);
+        countdown.AutoReset = false;
+        countdown.Elapsed += ((System.Object source, System.Timers.ElapsedEventArgs e) => FreezeAllCars(false));
+        countdown.Enabled = true;
     }
 
 }

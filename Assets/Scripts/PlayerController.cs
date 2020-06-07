@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Mirror;
+using System.Reflection.Emit;
 
 /*
 	Documentation: https://mirror-networking.com/docs/Guides/NetworkBehaviour.html
@@ -35,6 +36,7 @@ public class PlayerController : NetworkBehaviour
 
 
     private float m_CurrentSpeed = 0;
+    private UIManager m_UIManager;
 
     private PolePositionManager m_PolePositionManager;
 
@@ -67,6 +69,7 @@ public class PlayerController : NetworkBehaviour
         m_Rigidbody = GetComponent<Rigidbody>();
         m_PlayerInfo = GetComponent<PlayerInfo>();
         m_PolePositionManager = FindObjectOfType<PolePositionManager>();
+        m_UIManager = FindObjectOfType<UIManager>();
     }
 
     public void Start()
@@ -102,11 +105,12 @@ public class PlayerController : NetworkBehaviour
             Vector3 newpos = this.m_PolePositionManager.ResetPosition(m_PlayerInfo.ID);
             newpos.y += 0.5f;
             this.m_PlayerInfo.transform.position = newpos;
+
             float templimit = topSpeed;
             topSpeed = 0;
             System.Threading.Thread HiloEspera = new System.Threading.Thread(() => {
-                System.Threading.Tasks.Task.Delay   (1000);
-                topSpeed= templimit;
+                System.Threading.Tasks.Task.Delay(1000);
+                topSpeed = templimit;
             });
             HiloEspera.Start();
         }
@@ -206,6 +210,25 @@ public class PlayerController : NetworkBehaviour
         float speed = m_Rigidbody.velocity.magnitude;
         if (speed > topSpeed)
             m_Rigidbody.velocity = topSpeed * m_Rigidbody.velocity.normalized;
+    }
+
+    /* Asigna a topSpeed 0 para bloquear el movimiento del coche,
+     * o restaura el valor previo
+     * Es RPC para que se ejecute en los clientes, no en el servidor.
+     */
+     [ClientRpc]
+    public void RpcFreezeCar(bool freeze)
+    {
+        if (freeze == true)
+            m_Rigidbody.constraints = RigidbodyConstraints.FreezeAll;
+        else
+            m_Rigidbody.constraints = RigidbodyConstraints.None;
+    }
+
+    [ClientRpc]
+    public void RpcUpdateClasification(string clasification)
+    {
+        m_UIManager.UpdateClasification(clasification);
     }
 
 // finds the corresponding visual wheel
