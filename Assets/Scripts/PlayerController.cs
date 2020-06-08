@@ -23,6 +23,7 @@ public class PlayerController : NetworkBehaviour
     public float downForce = 100f;
     public float slipLimit = 0.2f;
 
+    private CircuitController m_CircuitController;
     private float CurrentRotation { get; set; }
     private float InputAcceleration { get; set; }
     private float InputSteering { get; set; }
@@ -70,6 +71,7 @@ public class PlayerController : NetworkBehaviour
         m_PlayerInfo = GetComponent<PlayerInfo>();
         m_PolePositionManager = FindObjectOfType<PolePositionManager>();
         m_UIManager = FindObjectOfType<UIManager>();
+        if (m_CircuitController == null) m_CircuitController = FindObjectOfType<CircuitController>();
     }
 
     public void Start()
@@ -98,14 +100,23 @@ public class PlayerController : NetworkBehaviour
         if (InputReset)
         {
             InputReset = false;
-            
-            //ROTAR POR SI SE DA LA VUELTA -> COLOCARLO BIEN
-            //var rot = this.m_PlayerInfo.transform.rotation;
-            //transform.rotation = rot * Quaternion.Euler(0.0f, rot.y, 0.0f);
-            
-            Vector3 newpos = this.m_PolePositionManager.ResetPosition(m_PlayerInfo.ID);
-            newpos.y += 0.5f;
-            this.m_PlayerInfo.transform.position = newpos;
+            int segIdx;
+            float carDist;
+            Vector3 carProj;
+            Vector3 posReset;
+            float angleReset;
+            Vector3 tempVector;
+
+            posReset = this.m_PolePositionManager.ResetPosition(m_PlayerInfo.ID);
+            posReset.y += 0.5f;
+            float minArcL =
+                this.m_CircuitController.ComputeClosestPointArcLength(posReset, out segIdx, out carProj, out carDist);
+
+            tempVector = this.m_CircuitController.GetSegment(segIdx);
+            angleReset = Vector2.Angle(new Vector2(tempVector.x, tempVector.z), new Vector2(0.0f, 1.0f));
+
+            this.m_PlayerInfo.transform.position = posReset;
+            this.m_PlayerInfo.transform.eulerAngles = new Vector3(this.m_PlayerInfo.transform.eulerAngles.x, angleReset, 0.0f);
 
             float templimit = topSpeed;
             topSpeed = 0;
