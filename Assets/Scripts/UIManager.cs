@@ -29,6 +29,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] private Text textSpeed;
     [SerializeField] private Text textLaps;
     [SerializeField] private Text textPosition;
+    [SerializeField] private Text textMyPosition;
 
     private void Awake()
     {
@@ -57,6 +58,11 @@ public class UIManager : MonoBehaviour
     public void UpdateClasification(string clasification)
     {
         textPosition.text = clasification;
+    }
+
+    public void UpdateMyPosition(int position)
+    {
+        textMyPosition.text = position.ToString() + " º";
     }
 
     public string GetName()

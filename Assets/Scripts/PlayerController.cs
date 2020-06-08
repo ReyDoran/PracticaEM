@@ -77,6 +77,7 @@ public class PlayerController : NetworkBehaviour
     public void Start()
     {
         GetLap();
+        textMyName.text = m_PlayerInfo.Name;
     }
 
     public void Update()
@@ -291,6 +292,11 @@ public class PlayerController : NetworkBehaviour
         if (OnLapChangeHandler != null)
             OnLapChangeHandler(m_PlayerInfo.CurrentLap, m_PolePositionManager.GetTotalLaps());
     }
+    [TargetRpc]
+    public void TargetUpdateMyPosition(NetworkConnection client, int position)
+    {
 
+        m_UIManager.UpdateMyPosition(position);
+    }
     #endregion
 }

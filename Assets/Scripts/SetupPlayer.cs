@@ -54,7 +54,7 @@ public class SetupPlayer : NetworkBehaviour
     {
         string name = m_UIManager.GetName();
         CmdAddPlayer(name);
-        //m_PolePositionManager.AddPlayer(m_PlayerInfo);
+
     }
 
     #endregion
@@ -101,4 +101,6 @@ public class SetupPlayer : NetworkBehaviour
         m_PlayerInfo.Name = name;
         m_PolePositionManager.AddPlayer(m_PlayerInfo);
     }
+
+
 }

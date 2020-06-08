@@ -20,6 +20,7 @@ public class PolePositionManager : NetworkBehaviour
     private CircuitController m_CircuitController;
     private GameObject[] m_DebuggingSpheres;
     
+
     private void Awake()
     {
         if (networkManager == null) networkManager = FindObjectOfType<NetworkManager>();
@@ -78,7 +79,9 @@ public class PolePositionManager : NetworkBehaviour
         {
             arcLengths[i] = ComputeCarArcLength(i);
             m_Players[i].CurrentPosition = i+1;
-            Debug.Log(m_Players[i].Name + "SU POSICION ES " + m_Players[i].CurrentPosition);
+            NetworkIdentity clientID = m_Players[i].GetComponent<NetworkIdentity>();
+            m_PlayerControllers[i].TargetUpdateMyPosition(clientID.connectionToClient , m_Players[i].CurrentPosition);
+            //Debug.Log(m_Players[i].Name + "SU POSICION ES " + m_Players[i].CurrentPosition);
         }
 
         m_Players.Sort(new PlayerInfoComparer(arcLengths, m_Players));
@@ -86,7 +89,7 @@ public class PolePositionManager : NetworkBehaviour
         string myRaceOrder = "";
         foreach (var _player in m_Players)
         {
-            myRaceOrder += _player.Name + " ";
+            myRaceOrder += _player.Name + " \n";
         }
 
         //m_UIManager.UpdateClasification(myRaceOrder);
@@ -134,11 +137,17 @@ public class PolePositionManager : NetworkBehaviour
 
     public int GetTotalLaps()
     {
+       
         return m_CircuitController.totalLaps;
+
     }
 
-    //Use de ID and the segment of the circuit to check % of lap
-    public void CalculateLap(int ID, int segIdx)
+    
+
+    
+
+        //Use de ID and the segment of the circuit to check % of lap
+        public void CalculateLap(int ID, int segIdx)
     {
         bool[] controlpoints = new bool[24];
         bool finishlap = true;
