@@ -88,7 +88,7 @@ public class PlayerController : NetworkBehaviour
         InputAcceleration = Input.GetAxis("Vertical");
         InputSteering = Input.GetAxis(("Horizontal"));
         InputBrake = Input.GetAxis("Jump");
-        InputReset = Input.GetKey(KeyCode.Escape);
+        InputReset = Input.GetKeyDown(KeyCode.Escape);
         Speed = m_Rigidbody.velocity.magnitude;
 
     }
