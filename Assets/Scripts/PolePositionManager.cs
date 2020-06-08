@@ -78,6 +78,8 @@ public class PolePositionManager : NetworkBehaviour
         for (int i = 0; i < m_Players.Count; ++i)
         {
             arcLengths[i] = ComputeCarArcLength(i);
+            m_Players[i].CurrentPosition = i+1;
+            Debug.Log(m_Players[i].Name + "SU POSICION ES " + m_Players[i].CurrentPosition);
         }
 
         m_Players.Sort(new PlayerInfoComparer(arcLengths, m_Players));

@@ -40,9 +40,10 @@ public class SetupPlayer : NetworkBehaviour
     {
         base.OnStartClient();
         m_PlayerInfo.ID = m_ID;
-        m_PlayerInfo.Name = "Player" + m_ID;
+        //m_PlayerInfo.Name = "Player" + m_ID;
+        m_PlayerInfo.Name = m_Name;
         m_PlayerInfo.CurrentLap = 0;
-        m_PolePositionManager.AddPlayer(m_PlayerInfo);
+        //m_PolePositionManager.AddPlayer(m_PlayerInfo);
     }
 
     /// <summary>
@@ -51,6 +52,9 @@ public class SetupPlayer : NetworkBehaviour
     /// </summary>
     public override void OnStartLocalPlayer()
     {
+        string name = m_UIManager.GetName();
+        CmdAddPlayer(name);
+        //m_PolePositionManager.AddPlayer(m_PlayerInfo);
     }
 
     #endregion
@@ -89,5 +93,12 @@ public class SetupPlayer : NetworkBehaviour
     void ConfigureCamera()
     {
         if (Camera.main != null) Camera.main.gameObject.GetComponent<CameraController>().m_Focus = this.gameObject;
+    }
+
+    [Command]
+    void CmdAddPlayer(string name)
+    {
+        m_PlayerInfo.Name = name;
+        m_PolePositionManager.AddPlayer(m_PlayerInfo);
     }
 }

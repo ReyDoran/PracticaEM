@@ -84,6 +84,7 @@ public class PlayerController : NetworkBehaviour
         InputBrake = Input.GetAxis("Jump");
         InputReset = Input.GetKey(KeyCode.Escape);
         Speed = m_Rigidbody.velocity.magnitude;
+
     }
 
     public void FixedUpdate()

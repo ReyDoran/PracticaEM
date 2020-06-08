@@ -13,6 +13,7 @@ public class UIManager : MonoBehaviour
 
     private NetworkManager m_NetworkManager;
     private CircuitController m_CircuitController;
+    private PlayerInfo m_PlayerInfo;
 
     [Header("Main Menu")] [SerializeField] private GameObject mainMenu;
     [SerializeField] private Button buttonHost;
@@ -20,6 +21,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] private Button buttonServer;
     [SerializeField] private InputField inputFieldIP;
     [SerializeField] private InputField textTotalLaps;
+    [SerializeField] private InputField inputFieldName;
 
     [Header("In-Game HUD")] [SerializeField]
     private GameObject inGameHUD;
@@ -56,6 +58,14 @@ public class UIManager : MonoBehaviour
     {
         textPosition.text = clasification;
     }
+
+    public string GetName()
+    {
+        name = inputFieldName.text;
+        return name;
+    }
+
+
 
     private void ActivateMainMenu()
     {
