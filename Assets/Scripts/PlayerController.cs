@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Mirror;
 using System.Reflection.Emit;
+using UnityEngine.UI;
 
 /*
 	Documentation: https://mirror-networking.com/docs/Guides/NetworkBehaviour.html
@@ -40,6 +41,8 @@ public class PlayerController : NetworkBehaviour
     private UIManager m_UIManager;
 
     private PolePositionManager m_PolePositionManager;
+
+    private Text textMyName;
 
     private float Speed
     {
