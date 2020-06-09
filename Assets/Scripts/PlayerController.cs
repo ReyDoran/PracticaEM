@@ -307,5 +307,11 @@ public class PlayerController : NetworkBehaviour
     {
         m_UIManager.ActivateInGameHUD();
     }
+
+    [ClientRpc]
+    public void RpcUpdatePlayersConnected(int players)
+    {
+        m_UIManager.UpdatePlayersConnected(players);
+    }
     #endregion
 }

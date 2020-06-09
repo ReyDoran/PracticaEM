@@ -148,6 +148,10 @@ public class PolePositionManager : NetworkBehaviour
     {
         int players = m_Players.Count;
         Debug.Log("Numero de jugadores " + players);
+        for (int i = 0; i < m_Players.Count; i++)
+        {
+            m_PlayerControllers[i].RpcUpdatePlayersConnected(players);
+        }
         return players;
     }
     

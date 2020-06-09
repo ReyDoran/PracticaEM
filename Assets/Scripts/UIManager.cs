@@ -33,6 +33,7 @@ public class UIManager : MonoBehaviour
 
     [Header("Lobby HUD")][SerializeField]
     private GameObject lobbyHUD;
+    [SerializeField] private Text textPlayersConnected;
 
     private void Awake()
     {
@@ -74,6 +75,13 @@ public class UIManager : MonoBehaviour
         return name;
     }
 
+    public void UpdatePlayersConnected(int playersConnected)
+    {
+        if (lobbyHUD.activeSelf)
+        {
+            textPlayersConnected.text = ("( " + playersConnected.ToString()+ " / 4 )");
+        }
+    }
 
 
     private void ActivateMainMenu()
