@@ -20,7 +20,6 @@ public class PolePositionManager : NetworkBehaviour
     private readonly List<PlayerInfo> m_Players = new List<PlayerInfo>(4);
     private CircuitController m_CircuitController;
     private GameObject[] m_DebuggingSpheres;
-    
 
     private void Awake()
     {
@@ -116,7 +115,7 @@ public class PolePositionManager : NetworkBehaviour
             this.m_CircuitController.ComputeClosestPointArcLength(carPos, out segIdx, out carProj, out carDist);
         
         this.m_DebuggingSpheres[ID].transform.position = carProj;
-
+        //Debug.Log(minArcL);
         if (this.m_Players[ID].CurrentLap == 0)
         {
             minArcL -= m_CircuitController.CircuitLength;

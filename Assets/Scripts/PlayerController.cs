@@ -44,6 +44,8 @@ public class PlayerController : NetworkBehaviour
 
     private Text textMyName;
 
+    System.Timers.Timer timer;
+
     private float Speed
     {
         get { return m_CurrentSpeed; }
@@ -93,16 +95,30 @@ public class PlayerController : NetworkBehaviour
 
     }
 
+
     public void FixedUpdate()
     {
         InputSteering = Mathf.Clamp(InputSteering, -1, 1);
         InputAcceleration = Mathf.Clamp(InputAcceleration, -1, 1);
         InputBrake = Mathf.Clamp(InputBrake, 0, 1);
+        CmdInputTest(InputSteering, InputAcceleration, InputBrake, InputReset);
+    }
+
+    [Command]
+    public void CmdInputTest(float InputSteeringIn, float InputAccelerationIn, float InputBrakeIn, bool InputResetIn)
+    {
+        InputSteering = InputSteeringIn;
+        InputAcceleration = InputAccelerationIn;
+        InputBrake = InputBrakeIn;
+        InputReset = InputResetIn;
+
 
         float steering = maxSteeringAngle * InputSteering;
         //If esc key is pressed the car is recolocated in the middle of the track
         if (InputReset)
         {
+            //TEST
+            //FIN TEST
             InputReset = false;
             int segIdx;
             float carDist;
@@ -110,7 +126,6 @@ public class PlayerController : NetworkBehaviour
             Vector3 posReset;
             float angleReset;
             Vector3 tempVector;
-
             posReset = this.m_PolePositionManager.ResetPosition(m_PlayerInfo.ID);
             posReset.y += 0.5f;
             float minArcL =
@@ -121,6 +136,14 @@ public class PlayerController : NetworkBehaviour
 
             this.m_PlayerInfo.transform.position = posReset;
             this.m_PlayerInfo.transform.eulerAngles = new Vector3(this.m_PlayerInfo.transform.eulerAngles.x, angleReset, 0.0f);
+
+            /*
+            FreezeCar(true);
+            timer = new System.Timers.Timer(5000);
+            timer.AutoReset = false;
+            timer.Elapsed += ((System.Object source, System.Timers.ElapsedEventArgs e) => FreezeCar(false));
+            timer.Enabled = true;
+            */
 
             float templimit = topSpeed;
             topSpeed = 0;
@@ -182,7 +205,6 @@ public class PlayerController : NetworkBehaviour
         AddDownForce();
         TractionControl();
     }
-
     #endregion
 
     #region Methods
@@ -235,6 +257,15 @@ public class PlayerController : NetworkBehaviour
      [ClientRpc]
     public void RpcFreezeCar(bool freeze)
     {
+        if (freeze == true)
+            m_Rigidbody.constraints = RigidbodyConstraints.FreezeAll;
+        else
+            m_Rigidbody.constraints = RigidbodyConstraints.None;
+    }
+
+    public void FreezeCar(bool freeze)
+    {
+        Debug.Log("Estoy en friska");
         if (freeze == true)
             m_Rigidbody.constraints = RigidbodyConstraints.FreezeAll;
         else
