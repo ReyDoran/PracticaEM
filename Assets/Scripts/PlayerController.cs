@@ -100,10 +100,12 @@ public class PlayerController : NetworkBehaviour
         InputBrake = Mathf.Clamp(InputBrake, 0, 1);
 
         float steering = maxSteeringAngle * InputSteering;
+
         //If esc key is pressed the car is recolocated in the middle of the track
         if (InputReset)
         {
             InputReset = false;
+
             int segIdx;
             float carDist;
             Vector3 carProj;
@@ -118,6 +120,11 @@ public class PlayerController : NetworkBehaviour
 
             tempVector = this.m_CircuitController.GetSegment(segIdx);
             angleReset = Vector2.Angle(new Vector2(tempVector.x, tempVector.z), new Vector2(0.0f, 1.0f));
+
+            if (segIdx > 16 || segIdx < 2)
+            {
+                angleReset = 360 - angleReset;
+            }
 
             this.m_PlayerInfo.transform.position = posReset;
             this.m_PlayerInfo.transform.eulerAngles = new Vector3(this.m_PlayerInfo.transform.eulerAngles.x, angleReset, 0.0f);
