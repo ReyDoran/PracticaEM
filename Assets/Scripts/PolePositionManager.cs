@@ -208,7 +208,7 @@ public class PolePositionManager : NetworkBehaviour
         }
         FreezeAllCars(true);
 
-        if (CalculatePlayers() == 3)
+        if (CalculatePlayers() == 2)
         {
             for (int i = 0; i < m_Players.Count; i++)
             {

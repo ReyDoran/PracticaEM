@@ -25,6 +25,7 @@ public class UIManager : MonoBehaviour
 
     [Header("In-Game HUD")] [SerializeField]
     private GameObject inGameHUD;
+    [SerializeField] private GameObject semaphore;
 
     [SerializeField] private Text textSpeed;
     [SerializeField] private Text textLaps;
@@ -36,6 +37,7 @@ public class UIManager : MonoBehaviour
     private GameObject lobbyHUD;
     [SerializeField] private Text textPlayersConnected;
     [SerializeField] private Text textPlayerListLobby;
+
 
     private void Awake()
     {
@@ -113,6 +115,7 @@ public class UIManager : MonoBehaviour
         lobbyHUD.SetActive(false);
         
     }
+
 
     
 
