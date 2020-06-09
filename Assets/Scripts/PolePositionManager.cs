@@ -11,6 +11,7 @@ using UnityEngine;
 public class PolePositionManager : NetworkBehaviour
 {
     public int numPlayers;
+    public bool startedRace = false;
     private System.Timers.Timer countdown;
     public NetworkManager networkManager;
     public UIManager m_UIManager;    
@@ -39,7 +40,7 @@ public class PolePositionManager : NetworkBehaviour
     {
         if (m_Players.Count == 0)
             return;
-
+        if(startedRace==true)
         UpdateRaceProgress();
     }
 
@@ -143,7 +144,12 @@ public class PolePositionManager : NetworkBehaviour
     }
 
     
-
+    public int CalculatePlayers()
+    {
+        int players = m_Players.Count;
+        Debug.Log("Numero de jugadores " + players);
+        return players;
+    }
     
 
         //Use de ID and the segment of the circuit to check % of lap
@@ -178,15 +184,26 @@ public class PolePositionManager : NetworkBehaviour
     //Bloquea a los coches durante 5 segundos
     public void StartRace()
     {
+
         for (int i = 0; i < m_Players.Count; i++)
         {
             m_PlayerControllers[i] = m_Players[i].gameObject.GetComponent<PlayerController>();
         }
         FreezeAllCars(true);
-        countdown = new System.Timers.Timer(5000);
-        countdown.AutoReset = false;
-        countdown.Elapsed += ((System.Object source, System.Timers.ElapsedEventArgs e) => FreezeAllCars(false));
-        countdown.Enabled = true;
+
+        if (CalculatePlayers() == 3)
+        {
+            for (int i = 0; i < m_Players.Count; i++)
+            {
+                m_PlayerControllers[i].RpcActivateMyInGameHUD();
+            }
+            startedRace = true;
+            FreezeAllCars(true);
+            countdown = new System.Timers.Timer(5000);
+            countdown.AutoReset = false;
+            countdown.Elapsed += ((System.Object source, System.Timers.ElapsedEventArgs e) => FreezeAllCars(false));
+            countdown.Enabled = true;
+        }
     }
 
 }

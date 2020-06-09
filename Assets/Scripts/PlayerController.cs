@@ -80,7 +80,7 @@ public class PlayerController : NetworkBehaviour
     public void Start()
     {
         GetLap();
-        textMyName.text = m_PlayerInfo.Name;
+       // textMyName.text = m_PlayerInfo.Name;
     }
 
     public void Update()
@@ -300,6 +300,12 @@ public class PlayerController : NetworkBehaviour
     {
 
         m_UIManager.UpdateMyPosition(position);
+    }
+
+    [ClientRpc]
+    public void RpcActivateMyInGameHUD()
+    {
+        m_UIManager.ActivateInGameHUD();
     }
     #endregion
 }

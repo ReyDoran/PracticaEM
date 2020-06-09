@@ -31,6 +31,9 @@ public class UIManager : MonoBehaviour
     [SerializeField] private Text textPosition;
     [SerializeField] private Text textMyPosition;
 
+    [Header("Lobby HUD")][SerializeField]
+    private GameObject lobbyHUD;
+
     private void Awake()
     {
         m_NetworkManager = FindObjectOfType<NetworkManager>();
@@ -77,35 +80,47 @@ public class UIManager : MonoBehaviour
     {
         mainMenu.SetActive(true);
         inGameHUD.SetActive(false);
+        lobbyHUD.SetActive(false);
     }
 
-    private void ActivateInGameHUD()
+    private void ActivateLobbyHUD()
+    {
+        mainMenu.SetActive(false);
+        inGameHUD.SetActive(false);
+        lobbyHUD.SetActive(true);
+    }
+
+    public void ActivateInGameHUD()
     {
         InitNumberLaps();
         mainMenu.SetActive(false);
         inGameHUD.SetActive(true);
+        lobbyHUD.SetActive(false);
+        
     }
+
+    
 
     private void StartHost()
     {
 
         m_NetworkManager.networkAddress = inputFieldIP.text;
         m_NetworkManager.StartHost();
-        ActivateInGameHUD();
+        ActivateLobbyHUD();
     }
 
     private void StartClient()
     {
         m_NetworkManager.networkAddress = inputFieldIP.text;
         m_NetworkManager.StartClient();
-        ActivateInGameHUD();
+        ActivateLobbyHUD();
     }
 
     private void StartServer()
     {
         m_NetworkManager.networkAddress = inputFieldIP.text;
         m_NetworkManager.StartServer();
-        ActivateInGameHUD();
+        ActivateLobbyHUD();
     }
 
     private void InitNumberLaps()
