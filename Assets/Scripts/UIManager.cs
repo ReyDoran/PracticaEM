@@ -31,11 +31,9 @@ public class UIManager : MonoBehaviour
     [SerializeField] private Text textPosition;
     [SerializeField] private Text textMyPosition;
 
-
     [Header("Lobby HUD")][SerializeField]
     private GameObject lobbyHUD;
     [SerializeField] private Text textPlayersConnected;
-    [SerializeField] private Text textPlayerListLobby;
 
     private void Awake()
     {
@@ -85,11 +83,6 @@ public class UIManager : MonoBehaviour
         }
     }
 
-
-    public void UpdatePlayerListLobby(string PlayerList)
-    {
-        textPlayerListLobby.text = PlayerList;
-    }
 
     private void ActivateMainMenu()
     {

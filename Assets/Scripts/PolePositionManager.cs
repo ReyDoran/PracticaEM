@@ -148,24 +148,11 @@ public class PolePositionManager : NetworkBehaviour
     {
         int players = m_Players.Count;
         Debug.Log("Numero de jugadores " + players);
- 
         for (int i = 0; i < m_Players.Count; i++)
         {
             m_PlayerControllers[i].RpcUpdatePlayersConnected(players);
-            m_PlayerControllers[i].RpcUpdatePlayersListLobby(CalculatePlayersList());
-            
         }
         return players;
-    }
-
-    public string CalculatePlayersList()
-    {
-        string PlayerList = "";
-        foreach (var _player in m_Players)
-        {
-           PlayerList += _player.Name + " \n";
-        }
-        return PlayerList;
     }
     
 

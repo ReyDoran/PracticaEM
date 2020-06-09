@@ -313,11 +313,5 @@ public class PlayerController : NetworkBehaviour
     {
         m_UIManager.UpdatePlayersConnected(players);
     }
-
-    [ClientRpc]
-    public void RpcUpdatePlayersListLobby(string playerList)
-    {
-        m_UIManager.UpdatePlayerListLobby(playerList);
-    }
     #endregion
 }
