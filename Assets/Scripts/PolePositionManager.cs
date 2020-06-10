@@ -20,7 +20,10 @@ public class PolePositionManager : NetworkBehaviour
     private readonly List<PlayerInfo> m_Players = new List<PlayerInfo>(4);
     private CircuitController m_CircuitController;
     private GameObject[] m_DebuggingSpheres;
-    
+
+    public delegate void OnLapChangeDelegate(int newLap);
+    public event OnLapChangeDelegate OnLapChangeHandler;
+
 
     private void Awake()
     {
@@ -34,6 +37,7 @@ public class PolePositionManager : NetworkBehaviour
             m_DebuggingSpheres[i] = GameObject.CreatePrimitive(PrimitiveType.Sphere);
             m_DebuggingSpheres[i].GetComponent<SphereCollider>().enabled = false;
         }
+
     }
 
     private void Update()
@@ -116,7 +120,7 @@ public class PolePositionManager : NetworkBehaviour
             this.m_CircuitController.ComputeClosestPointArcLength(carPos, out segIdx, out carProj, out carDist);
         
         this.m_DebuggingSpheres[ID].transform.position = carProj;
-
+        CalculateLap(this.m_Players[ID], segIdx);
         if (this.m_Players[ID].CurrentLap == 0)
         {
             minArcL -= m_CircuitController.CircuitLength;
@@ -126,7 +130,6 @@ public class PolePositionManager : NetworkBehaviour
             minArcL += m_CircuitController.CircuitLength *
                        (m_Players[ID].CurrentLap - 1);
         }
-
         return minArcL;
     }
 
@@ -138,9 +141,7 @@ public class PolePositionManager : NetworkBehaviour
 
     public int GetTotalLaps()
     {
-       
         return m_CircuitController.totalLaps;
-
     }
 
     
@@ -168,13 +169,15 @@ public class PolePositionManager : NetworkBehaviour
         return PlayerList;
     }
     
-
-        //Use de ID and the segment of the circuit to check % of lap
-        public void CalculateLap(int ID, int segIdx)
+    
+    //Use de ID and the segment of the circuit to check % of lap
+    public void CalculateLap(PlayerInfo player, int segIdx)
     {
-        bool[] controlpoints = new bool[24];
+        if(segIdx == 0 || player.controlpoints[segIdx-1] ==true )
+            player.controlpoints[segIdx] = true;
+    
         bool finishlap = true;
-        foreach (bool segment in controlpoints)
+        foreach (bool segment in player.controlpoints)
         {
             if (!segment)
             {
@@ -182,10 +185,19 @@ public class PolePositionManager : NetworkBehaviour
                 break;
             }
         }
-        if (finishlap) this.m_Players[ID].CurrentLap++;
+        if (finishlap)
+        {
+            //player.TimePerLap[player.CurrentLap] = 
+            player.CurrentLap--;
+            for (int i=0; i<player.controlpoints.Length-1;i++)
+            {
+                player.controlpoints[i]= false;
+            }
+            ChangeLap(player);
+        }
         
     }
-
+    
     // Bloquea/desbloquea el movimiento de todos los coches de la escena
     private void FreezeAllCars(bool freeze)
     {
@@ -196,6 +208,7 @@ public class PolePositionManager : NetworkBehaviour
                 m_PlayerControllers[i].RpcFreezeCar(freeze);
             }
         }
+
     }
 
     //Bloquea a los coches durante 5 segundos
@@ -213,6 +226,7 @@ public class PolePositionManager : NetworkBehaviour
             for (int i = 0; i < m_Players.Count; i++)
             {
                 m_PlayerControllers[i].RpcActivateMyInGameHUD();
+                m_Players[i].CurrentLap = m_CircuitController.totalLaps;
             }
             startedRace = true;
             FreezeAllCars(true);
@@ -223,4 +237,17 @@ public class PolePositionManager : NetworkBehaviour
         }
     }
 
+    private void ChangeLap(PlayerInfo player)
+    {
+        if (OnLapChangeHandler != null)
+            OnLapChangeHandler(player.CurrentLap);
+    }
+
+    public void InitiateLap()
+    {
+        foreach (PlayerInfo player in m_Players)
+        {
+            ChangeLap(player);
+        }
+    }   
 }

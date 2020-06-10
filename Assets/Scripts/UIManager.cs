@@ -58,9 +58,9 @@ public class UIManager : MonoBehaviour
         textSpeed.text = "Speed " + speed + " Km/h";
     }
 
-    public void UpdateLap(int lap, int totalLaps)
+    public void UpdateLap(int lap)
     {
-        textLaps.text = "LAP: " + lap + " / " + totalLaps; 
+        textLaps.text = "LAP: " + (m_CircuitController.totalLaps+lap) + " / " + m_CircuitController.totalLaps;
     }
 
     public void UpdateClasification(string clasification)
