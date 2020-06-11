@@ -24,7 +24,7 @@ public class PolePositionManager : NetworkBehaviour
 
     private void Awake()
     {
-        MaxPlayersInGame = 1; //max 4
+        MaxPlayersInGame = 2; //max 4
         if (networkManager == null) networkManager = FindObjectOfType<NetworkManager>();
         if (m_CircuitController == null) m_CircuitController = FindObjectOfType<CircuitController>();
         if (m_UIManager == null) m_UIManager = FindObjectOfType<UIManager>();
@@ -122,17 +122,16 @@ public class PolePositionManager : NetworkBehaviour
         this.m_DebuggingSpheres[ID].transform.position = carProj;
 
         CalculateLap(ID, segIdx);
-
-        if (this.m_Players[ID].CurrentLap == -1)
+        
+        if (this.m_Players[ID].CurrentLap <= -1)
         {
             minArcL -= m_CircuitController.CircuitLength;
         }
         else
         {
-            minArcL += m_CircuitController.CircuitLength *
-                       (m_Players[ID].CurrentLap);
+            minArcL = minArcL + m_CircuitController.CircuitLength * m_Players[ID].CurrentLap;
         }
-        Debug.Log("Player " + m_Players[ID].ToString() + " tiene un minArcL de: " + minArcL);
+        Debug.Log(minArcL);
         return minArcL;
     }
     
@@ -182,11 +181,10 @@ public class PolePositionManager : NetworkBehaviour
                     finishLap = false;
                     break;
                 }
-            }
+            }  
         }
-        if (finishLap)
+        if (segIdx == 0 && finishLap == true)
         {
-            //player.TimePerLap[player.CurrentLap] = 
             this.m_Players[ID].CurrentLap++;
             for (int i = 0; i < this.m_Players[ID].controlpoints.Length - 1; i++)
             {
@@ -194,7 +192,6 @@ public class PolePositionManager : NetworkBehaviour
             }
             this.m_PlayerControllers[ID].ChangeLap();
         }
-        Debug.Log("Player " + m_Players[ID].ToString() + " esta en la vuelta: " + m_Players[ID].CurrentLap);
     }
 
     // Bloquea/desbloquea el movimiento de todos los coches de la escena
