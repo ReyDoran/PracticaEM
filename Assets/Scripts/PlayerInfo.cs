@@ -6,7 +6,10 @@ using UnityEngine;
 public class PlayerInfo : MonoBehaviour
 {
 
-    public bool[] controlpoints = new bool[24];
+    private void Start()
+    {
+        CurrentLap = 0;
+    }
 
     public string Name { get; set; }
 

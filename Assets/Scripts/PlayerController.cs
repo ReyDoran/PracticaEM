@@ -20,7 +20,7 @@ public class PlayerController : NetworkBehaviour
     public float maxSteeringAngle = 15;
     public float engineBrake = 1e+12f;
     public float footBrake = 1e+24f;
-    public float topSpeed = 100f;
+    public float topSpeed = 200f;
     public float downForce = 100f;
     public float slipLimit = 0.2f;
 
@@ -60,7 +60,9 @@ public class PlayerController : NetworkBehaviour
 
     public event OnSpeedChangeDelegate OnSpeedChangeHandler;
 
-    
+    public delegate void OnLapChangeDelegate(int newLap, int totalLaps);
+
+    public event OnLapChangeDelegate OnLapChangeHandler;
 
     #endregion Variables
 
@@ -75,7 +77,12 @@ public class PlayerController : NetworkBehaviour
         if (m_CircuitController == null) m_CircuitController = FindObjectOfType<CircuitController>();
     }
 
-   
+    public void Start()
+    {
+        GetLap();
+       // textMyName.text = m_PlayerInfo.Name;
+    }
+
     public void Update()
     {
         InputAcceleration = Input.GetAxis("Vertical");
@@ -290,6 +297,11 @@ public class PlayerController : NetworkBehaviour
         CurrentRotation = transform.eulerAngles.y;
     }
 
+    private void GetLap()
+    {
+        if (OnLapChangeHandler != null)
+            OnLapChangeHandler(m_PlayerInfo.CurrentLap, m_PolePositionManager.GetTotalLaps());
+    }
     [TargetRpc]
     public void TargetUpdateMyPosition(NetworkConnection client, int position)
     {
