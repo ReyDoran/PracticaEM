@@ -75,7 +75,10 @@ public class PlayerController : NetworkBehaviour
         if (m_CircuitController == null) m_CircuitController = FindObjectOfType<CircuitController>();
     }
 
-   
+     public void Start()
+     {
+   // textMyName.text = m_PlayerInfo.Name;
+     }
     public void Update()
     {
         InputAcceleration = Input.GetAxis("Vertical");
