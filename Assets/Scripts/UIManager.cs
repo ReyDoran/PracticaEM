@@ -14,8 +14,6 @@ public class UIManager : MonoBehaviour
 
     private NetworkManager m_NetworkManager;
     private CircuitController m_CircuitController;
-    private PlayerInfo m_PlayerInfo;
-
 
     [Header("Main Menu")] [SerializeField] private GameObject mainMenu;
     [SerializeField] private Button buttonHost;
@@ -61,6 +59,7 @@ public class UIManager : MonoBehaviour
     {
         buttonHost.onClick.AddListener(() => StartHost());
         buttonClient.onClick.AddListener(() => StartClient());
+        buttonServer.onClick.AddListener(() => StartServer());
         buttongreen.onClick.AddListener(() => SetColor("green"));
         buttonred.onClick.AddListener(() => SetColor("red"));
         buttonorange.onClick.AddListener(() => SetColor("orange"));
@@ -77,9 +76,9 @@ public class UIManager : MonoBehaviour
         textSpeed.text = "Speed " + speed + " Km/h";
     }
 
-    public void UpdateLap(int lap, int totalLaps)
+    public void UpdateLap(int lap)
     {
-        textLaps.text = "LAP: " + lap + " / " + totalLaps; 
+        textLaps.text = "LAP: " + lap + " / " + m_CircuitController.totalLaps;
     }
 
     public void UpdateClasification(string clasification)
@@ -145,35 +144,33 @@ public class UIManager : MonoBehaviour
         
     }
 
-
-    
-
     private void StartHost()
     {
-
-        m_NetworkManager.networkAddress = inputFieldIP.text;
+        if (inputFieldIP.text == "") m_NetworkManager.networkAddress = "localhost";
+        else m_NetworkManager.networkAddress = inputFieldIP.text;
         m_NetworkManager.StartHost();
         ActivateLobbyHUD();
     }
 
     private void StartClient()
     {
-        m_NetworkManager.networkAddress = inputFieldIP.text;
+        if (inputFieldIP.text == "") m_NetworkManager.networkAddress = "localhost";
+        else m_NetworkManager.networkAddress = inputFieldIP.text;
         m_NetworkManager.StartClient();
         ActivateLobbyHUD();
     }
 
     private void StartServer()
     {
-        m_NetworkManager.networkAddress = inputFieldIP.text;
+        if (inputFieldIP.text == "") m_NetworkManager.networkAddress = "localhost";
+        else m_NetworkManager.networkAddress = inputFieldIP.text;
         m_NetworkManager.StartServer();
         ActivateLobbyHUD();
     }
 
     private void InitNumberLaps()
     {
-        if (textTotalLaps.text != "")
-            m_CircuitController.totalLaps = int.Parse(textTotalLaps.text);
-        else m_CircuitController.totalLaps = 5;
+        if (textTotalLaps.text == "") m_CircuitController.totalLaps = 5;
+        else m_CircuitController.totalLaps = int.Parse(textTotalLaps.text);
     }
 }

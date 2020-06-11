@@ -6,10 +6,15 @@ using UnityEngine;
 public class PlayerInfo : MonoBehaviour
 {
 
-    private void Start()
+    public void Start()
     {
-        CurrentLap = 0;
+        FirstTime = true;
+        CurrentLap = -1;
     }
+
+    public bool[] controlpoints = new bool[24]; //24 son los segmentos de la pista !!!-OJO-!!!
+
+    public bool FirstTime { get; set; }
 
     public string Name { get; set; }
 

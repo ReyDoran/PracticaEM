@@ -44,6 +44,11 @@ public class PlayerController : NetworkBehaviour
 
     private Text textMyName;
 
+    public delegate void OnLapChangeDelegate(int newLap);
+
+    public event OnLapChangeDelegate OnLapChangeHandler;
+
+
     private float Speed
     {
         get { return m_CurrentSpeed; }
@@ -60,9 +65,7 @@ public class PlayerController : NetworkBehaviour
 
     public event OnSpeedChangeDelegate OnSpeedChangeHandler;
 
-    public delegate void OnLapChangeDelegate(int newLap, int totalLaps);
-
-    public event OnLapChangeDelegate OnLapChangeHandler;
+    
 
 
     //texturas
@@ -101,12 +104,6 @@ public class PlayerController : NetworkBehaviour
         ChangeColor();
     }
 
-    public void Start()
-    {
-        GetLap();
-       // textMyName.text = m_PlayerInfo.Name;
-    }
-
     public void Update()
     {
         InputAcceleration = Input.GetAxis("Vertical");
@@ -137,7 +134,7 @@ public class PlayerController : NetworkBehaviour
             float angleReset;
             Vector3 tempVector;
 
-            posReset = this.m_PolePositionManager.ResetPosition(m_PlayerInfo.ID);
+            posReset = this.m_PolePositionManager.m_DebuggingSpheres[this.m_PlayerInfo.ID].transform.position; ;
             posReset.y += 0.5f;
             float minArcL =
                 this.m_CircuitController.ComputeClosestPointArcLength(posReset, out segIdx, out carProj, out carDist);
@@ -218,7 +215,6 @@ public class PlayerController : NetworkBehaviour
     {
         string newColor = m_UIManager.myColor;
         m_PlayerInfo.Color = newColor;
-
 
         GameObject body = transform.Find("raceCarRed").transform.Find("body").gameObject;
         Material[] Mymaterials = new Material[3];
@@ -371,8 +367,7 @@ public class PlayerController : NetworkBehaviour
 
     private void GetLap()
     {
-        if (OnLapChangeHandler != null)
-            OnLapChangeHandler(m_PlayerInfo.CurrentLap, m_PolePositionManager.GetTotalLaps());
+       
     }
     [TargetRpc]
     public void TargetUpdateMyPosition(NetworkConnection client, int position)
@@ -398,5 +393,13 @@ public class PlayerController : NetworkBehaviour
     {
         m_UIManager.UpdatePlayerListLobby(playerList);
     }
+
+    public void ChangeLap()
+    {
+        if (OnLapChangeHandler != null)
+            OnLapChangeHandler(this.m_PlayerInfo.CurrentLap);
+    }
+
+
     #endregion
 }

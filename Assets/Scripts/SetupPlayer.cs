@@ -14,7 +14,6 @@ public class SetupPlayer : NetworkBehaviour
     [SyncVar] private string m_Name;
 
     private UIManager m_UIManager;
-    private NetworkManager m_NetworkManager;
     private PlayerController m_PlayerController;
     private PlayerInfo m_PlayerInfo;
     private PolePositionManager m_PolePositionManager;
@@ -63,7 +62,6 @@ public class SetupPlayer : NetworkBehaviour
     {
         m_PlayerInfo = GetComponent<PlayerInfo>();
         m_PlayerController = GetComponent<PlayerController>();
-        m_NetworkManager = FindObjectOfType<NetworkManager>();
         m_PolePositionManager = FindObjectOfType<PolePositionManager>();
         m_UIManager = FindObjectOfType<UIManager>();
     }
@@ -76,6 +74,7 @@ public class SetupPlayer : NetworkBehaviour
             m_PlayerController.enabled = true;
             m_PlayerController.OnSpeedChangeHandler += OnSpeedChangeEvent;
             m_PlayerController.OnLapChangeHandler += OnLapChangeEvent;
+            m_PlayerController.ChangeLap();
             ConfigureCamera();
         }
     }
@@ -85,9 +84,9 @@ public class SetupPlayer : NetworkBehaviour
         m_UIManager.UpdateSpeed((int) speed * 5); // 5 for visualization purpose (km/h)
     }
 
-    void OnLapChangeEvent(int lap, int totalLaps)
+    void OnLapChangeEvent(int lap)
     {
-        m_UIManager.UpdateLap((int)lap, (int)totalLaps); // 5 for visualization purpose (km/h)
+        m_UIManager.UpdateLap((int)lap);
     }
 
     void ConfigureCamera()
