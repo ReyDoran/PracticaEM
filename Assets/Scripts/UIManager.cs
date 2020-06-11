@@ -10,10 +10,12 @@ using UnityEngine.UI;
 public class UIManager : MonoBehaviour
 {
     public bool showGUI = true;
+    public string myColor;
 
     private NetworkManager m_NetworkManager;
     private CircuitController m_CircuitController;
     private PlayerInfo m_PlayerInfo;
+
 
     [Header("Main Menu")] [SerializeField] private GameObject mainMenu;
     [SerializeField] private Button buttonHost;
@@ -22,8 +24,17 @@ public class UIManager : MonoBehaviour
     [SerializeField] private InputField inputFieldIP;
     [SerializeField] private InputField textTotalLaps;
     [SerializeField] private InputField inputFieldName;
+    [SerializeField] private Button buttongreen;
+    [SerializeField] private Button buttonred;
+    [SerializeField] private Button buttonorange;
+    [SerializeField] private Button buttonblack;
+    [SerializeField] private Button buttonblue;
+    [SerializeField] private Button buttonpurple;
+    [SerializeField] private Button buttonpink;
 
-    [Header("In-Game HUD")] [SerializeField]
+
+    [Header("In-Game HUD")]
+    [SerializeField]
     private GameObject inGameHUD;
     [SerializeField] private GameObject semaphore;
 
@@ -33,7 +44,8 @@ public class UIManager : MonoBehaviour
     [SerializeField] private Text textMyPosition;
 
 
-    [Header("Lobby HUD")][SerializeField]
+    [Header("Lobby HUD")]
+    [SerializeField]
     private GameObject lobbyHUD;
     [SerializeField] private Text textPlayersConnected;
     [SerializeField] private Text textPlayerListLobby;
@@ -49,7 +61,14 @@ public class UIManager : MonoBehaviour
     {
         buttonHost.onClick.AddListener(() => StartHost());
         buttonClient.onClick.AddListener(() => StartClient());
-        buttonServer.onClick.AddListener(() => StartServer());
+        buttongreen.onClick.AddListener(() => SetColor("green"));
+        buttonred.onClick.AddListener(() => SetColor("red"));
+        buttonorange.onClick.AddListener(() => SetColor("orange"));
+        buttonblue.onClick.AddListener(() => SetColor("blue"));
+        buttonblack.onClick.AddListener(() => SetColor("black"));
+        buttonpurple.onClick.AddListener(() => SetColor("purple"));
+        buttonpink.onClick.AddListener(() => SetColor("pink"));
+
         ActivateMainMenu();
     }
 
@@ -87,6 +106,16 @@ public class UIManager : MonoBehaviour
         }
     }
 
+
+    public void SetColor(string color)
+    {
+        myColor = color;
+    }
+
+    public string GetColor()
+    {
+        return myColor;
+    }
 
     public void UpdatePlayerListLobby(string PlayerList)
     {

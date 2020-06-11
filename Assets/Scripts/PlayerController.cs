@@ -64,6 +64,19 @@ public class PlayerController : NetworkBehaviour
 
     public event OnLapChangeDelegate OnLapChangeHandler;
 
+
+    //texturas
+    public Material blueglassMaterial;
+    public Material greyMaterial;
+    public Material greenMaterial;
+    public Material blueMaterial;
+    public Material orangeMaterial;
+    public Material purpleMaterial;
+    public Material pinkMaterial;
+    public Material blackMaterial;
+    public Material redMaterial;
+    public String color;
+
     #endregion Variables
 
     #region Unity Callbacks
@@ -75,6 +88,17 @@ public class PlayerController : NetworkBehaviour
         m_PolePositionManager = FindObjectOfType<PolePositionManager>();
         m_UIManager = FindObjectOfType<UIManager>();
         if (m_CircuitController == null) m_CircuitController = FindObjectOfType<CircuitController>();
+        greyMaterial = (Material)Resources.Load("grey", typeof(Material));
+        blueglassMaterial = (Material)Resources.Load("blueglass", typeof(Material));
+        greenMaterial = (Material)Resources.Load("green", typeof(Material));
+        blueMaterial = (Material)Resources.Load("blue", typeof(Material));
+        redMaterial = (Material)Resources.Load("red", typeof(Material));
+        orangeMaterial = (Material)Resources.Load("orange", typeof(Material));
+        blackMaterial = (Material)Resources.Load("black", typeof(Material));
+        purpleMaterial = (Material)Resources.Load("purple", typeof(Material));
+        pinkMaterial = (Material)Resources.Load("pink", typeof(Material));
+
+        ChangeColor();
     }
 
     public void Start()
@@ -188,6 +212,54 @@ public class PlayerController : NetworkBehaviour
         SpeedLimiter();
         AddDownForce();
         TractionControl();
+    }
+
+    public void ChangeColor()
+    {
+        string newColor = m_UIManager.myColor;
+        m_PlayerInfo.Color = newColor;
+
+
+        GameObject body = transform.Find("raceCarRed").transform.Find("body").gameObject;
+        Material[] Mymaterials = new Material[3];
+        Mymaterials[0] = greyMaterial;
+        Mymaterials[2] = blueglassMaterial;
+
+        switch (newColor)
+        {
+            case "green":
+                Mymaterials[1] = greenMaterial;
+                break;
+            case "blue":
+                Mymaterials[1] = blueMaterial;
+                break;
+            case "red":
+                Mymaterials[1] = redMaterial;
+                break;
+            case "orange":
+                Mymaterials[1] = orangeMaterial;
+                break;
+            case "black":
+                Mymaterials[1] = blackMaterial;
+                break;
+            case "purple":
+                Mymaterials[1] = purpleMaterial;
+                break;
+            case "pink":
+                Mymaterials[1] = pinkMaterial;
+                break;
+            case "":
+                Mymaterials[1] = redMaterial;
+                break;
+            case null:
+                Mymaterials[1] = redMaterial;
+                break;
+
+
+        }
+
+        body.GetComponent<Renderer>().materials = Mymaterials;
+
     }
 
     #endregion
