@@ -84,7 +84,7 @@ public class PolePositionManager : NetworkBehaviour
         bool clasificationHasChanged = false;
         for (int i = 0; i < m_Players.Count; i++)
         {
-            Debug.Log(m_Players[i].ID);
+            //Debug.Log(m_Players[i].ID);
         }
         // Update car arc-lengths
         float[] arcLengths = new float[m_Players.Count];
@@ -173,6 +173,9 @@ public class PolePositionManager : NetworkBehaviour
                     if (m_Players[ID].CurrentLap == 1)  // Fin carrera
                     {
                         Debug.Log("HA GANADO EL JUGADOR: " + m_Players[ID].Name);
+                        m_RaceInfo.RpcFinishRace(m_RaceInfo.clasificationText);
+                        //m_UIManager.ActivateFinishHUD();
+                        //m_UIManager.UpdateFinishList(m_RaceInfo.clasificationText);
                     }
                     m_Players[ID].CurrentLap -= 1;
                     Debug.Log(m_Players[ID].Name + " ha dado una vuelta le quedan: " + m_Players[ID].CurrentLap);
@@ -260,7 +263,7 @@ public class PolePositionManager : NetworkBehaviour
     public int CalculatePlayers()
     {
         int players = m_Players.Count;
-        Debug.Log("Numero de jugadores " + players);
+        //Debug.Log("Numero de jugadores " + players);
  
         for (int i = 0; i < m_Players.Count; i++)
         {

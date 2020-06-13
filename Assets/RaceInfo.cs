@@ -6,13 +6,15 @@ using Mirror;
 public class RaceInfo : NetworkBehaviour
 {
     UIManager m_UIManager;
+    PlayerController m_PlayerController;
     private int clientClasification;
-    private string clasificationText;
+    public string clasificationText;
 
     // Start is called before the first frame update
     void Start()
     {
-        if (m_UIManager == null) m_UIManager = FindObjectOfType<UIManager>();    
+        if (m_UIManager == null) m_UIManager = FindObjectOfType<UIManager>();
+        if (m_UIManager == null) m_PlayerController = FindObjectOfType<PlayerController>();
     }
 
     [TargetRpc]
@@ -27,6 +29,14 @@ public class RaceInfo : NetworkBehaviour
         this.clasificationText = clasificationText;
         m_UIManager.UpdateClasification(clasificationText);
     }
+
+    [ClientRpc]
+    public void RpcFinishRace(string finishList)
+    {
+        m_UIManager.ActivateFinishHUD();
+        m_UIManager.UpdateFinishList(finishList);
+    }
+
 
     // Update is called once per frame
     void Update()

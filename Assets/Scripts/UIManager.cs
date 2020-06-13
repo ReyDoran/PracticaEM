@@ -49,6 +49,13 @@ public class UIManager : MonoBehaviour
     [SerializeField] private Text textPlayerListLobby;
 
 
+    [Header("Finish HUD")]
+    [SerializeField]
+    private GameObject finishHUD;
+    [SerializeField] private Text textPlayersfinished;
+    [SerializeField] private Text textTimes;
+
+
     private void Awake()
     {
         m_NetworkManager = FindObjectOfType<NetworkManager>();
@@ -106,6 +113,19 @@ public class UIManager : MonoBehaviour
     }
 
 
+    public void UpdatePlayerListLobby(string PlayerList)
+    {
+        textPlayerListLobby.text = PlayerList;
+    }
+
+    public void UpdateFinishList(string players)
+    {
+        textPlayersfinished.text = players;
+        //textTimes.text = times;
+
+    }
+
+
     public void SetColor(string color)
     {
         myColor = color;
@@ -116,16 +136,12 @@ public class UIManager : MonoBehaviour
         return myColor;
     }
 
-    public void UpdatePlayerListLobby(string PlayerList)
-    {
-        textPlayerListLobby.text = PlayerList;
-    }
-
     private void ActivateMainMenu()
     {
         mainMenu.SetActive(true);
         inGameHUD.SetActive(false);
         lobbyHUD.SetActive(false);
+        finishHUD.SetActive(false);
     }
 
     private void ActivateLobbyHUD()
@@ -133,6 +149,7 @@ public class UIManager : MonoBehaviour
         mainMenu.SetActive(false);
         inGameHUD.SetActive(false);
         lobbyHUD.SetActive(true);
+        finishHUD.SetActive(false);
     }
 
     public void ActivateInGameHUD()
@@ -141,7 +158,16 @@ public class UIManager : MonoBehaviour
         mainMenu.SetActive(false);
         inGameHUD.SetActive(true);
         lobbyHUD.SetActive(false);
-        
+        finishHUD.SetActive(false);
+
+    }
+
+    public void ActivateFinishHUD()
+    {
+        mainMenu.SetActive(false);
+        inGameHUD.SetActive(false);
+        lobbyHUD.SetActive(false);
+        finishHUD.SetActive(true);
     }
 
     private void StartHost()
