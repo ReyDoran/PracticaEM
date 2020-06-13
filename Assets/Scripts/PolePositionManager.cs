@@ -81,6 +81,7 @@ public class PolePositionManager : NetworkBehaviour
 
     public void UpdateRaceProgress()
     {
+        bool clasificationHasChanged = false;
         for (int i = 0; i < m_Players.Count; i++)
         {
             Debug.Log(m_Players[i].ID);
@@ -98,6 +99,7 @@ public class PolePositionManager : NetworkBehaviour
             arcLengths[i] = ComputeCarArcLength(i);
         }
 
+        /*
         if (debugVariable == 30)
         {
             for (int i = 0; i < m_Players.Count; i++)
@@ -110,20 +112,28 @@ public class PolePositionManager : NetworkBehaviour
         {
             debugVariable++;
         }
-
+        */
 
         m_Players.Sort(new PlayerInfoComparer(arcLengths, m_Players));
 
+        
         
         string clasificationText = "";
         for (int i = 0; i < m_Players.Count; ++i)
         {
             clasificationText += m_Players[i].Name + " \n";
-            m_Players[i].CurrentPosition = i + 1;
-            NetworkIdentity clientID = m_Players[i].GetComponent<NetworkIdentity>();
-            m_RaceInfo.TargetUpdateClasification(clientID.connectionToClient, m_Players[i].CurrentPosition);
+            if (m_Players[i].CurrentPosition != i + 1)
+            {
+                m_Players[i].CurrentPosition = i + 1;
+                NetworkIdentity clientID = m_Players[i].GetComponent<NetworkIdentity>();
+                m_RaceInfo.TargetUpdateClasification(clientID.connectionToClient, m_Players[i].CurrentPosition);
+                clasificationHasChanged = true;
+            }
         }
-
+        if (clasificationHasChanged == true)
+        {
+            m_RaceInfo.RpcUpdateClasificationText(clasificationText);
+        }
 
         //m_UIManager.UpdateClasification(myRaceOrder);
         /*
@@ -133,7 +143,6 @@ public class PolePositionManager : NetworkBehaviour
                 m_PlayerControllers[i].RpcUpdateClasification(clasificationText);
         }
         */
-        m_RaceInfo.RpcUpdateClasificationText(clasificationText);
 
     }
 
