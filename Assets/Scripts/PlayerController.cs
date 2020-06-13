@@ -4,6 +4,7 @@ using UnityEngine;
 using Mirror;
 using System.Reflection.Emit;
 using UnityEngine.UI;
+using Random = System.Random;
 
 /*
 	Documentation: https://mirror-networking.com/docs/Guides/NetworkBehaviour.html
@@ -13,8 +14,20 @@ using UnityEngine.UI;
 public class PlayerController : NetworkBehaviour
 {
     #region Variables
+    [Header("Textures")]
+    public Material blueglassMaterial;
+    public Material greyMaterial;
+    public Material greenMaterial;
+    public Material blueMaterial;
+    public Material orangeMaterial;
+    public Material purpleMaterial;
+    public Material pinkMaterial;
+    public Material blackMaterial;
+    public Material redMaterial;
+    public String color;
 
-    [Header("Movement")] public List<AxleInfo> axleInfos;
+    [Header("Movement")] 
+    public List<AxleInfo> axleInfos;
     public float forwardMotorTorque = 100000;
     public float backwardMotorTorque = 50000;
     public float maxSteeringAngle = 15;
@@ -32,22 +45,18 @@ public class PlayerController : NetworkBehaviour
     private Boolean InputReset { get; set; }
 
     private PlayerInfo m_PlayerInfo;
-
     private Rigidbody m_Rigidbody;
     private float m_SteerHelper = 0.8f;
-
-
     private float m_CurrentSpeed = 0;
     private UIManager m_UIManager;
-
-    private PolePositionManager m_PolePositionManager;
+    //private PolePositionManager m_PolePositionManager;
 
     private Text textMyName;
+    private int depuracionInt = 0;
 
     public delegate void OnLapChangeDelegate(int newLap);
 
     public event OnLapChangeDelegate OnLapChangeHandler;
-
 
     private float Speed
     {
@@ -65,21 +74,6 @@ public class PlayerController : NetworkBehaviour
 
     public event OnSpeedChangeDelegate OnSpeedChangeHandler;
 
-    
-
-
-    //texturas
-    public Material blueglassMaterial;
-    public Material greyMaterial;
-    public Material greenMaterial;
-    public Material blueMaterial;
-    public Material orangeMaterial;
-    public Material purpleMaterial;
-    public Material pinkMaterial;
-    public Material blackMaterial;
-    public Material redMaterial;
-    public String color;
-
     #endregion Variables
 
     #region Unity Callbacks
@@ -88,7 +82,7 @@ public class PlayerController : NetworkBehaviour
     {
         m_Rigidbody = GetComponent<Rigidbody>();
         m_PlayerInfo = GetComponent<PlayerInfo>();
-        m_PolePositionManager = FindObjectOfType<PolePositionManager>();
+        //m_PolePositionManager = FindObjectOfType<PolePositionManager>();
         m_UIManager = FindObjectOfType<UIManager>();
         if (m_CircuitController == null) m_CircuitController = FindObjectOfType<CircuitController>();
         greyMaterial = (Material)Resources.Load("grey", typeof(Material));
@@ -109,7 +103,7 @@ public class PlayerController : NetworkBehaviour
         InputAcceleration = Input.GetAxis("Vertical");
         InputSteering = Input.GetAxis(("Horizontal"));
         InputBrake = Input.GetAxis("Jump");
-        InputReset = Input.GetKeyDown(KeyCode.Escape);
+        InputReset = Input.GetKey(KeyCode.Escape);
         Speed = m_Rigidbody.velocity.magnitude;
 
     }
@@ -134,10 +128,12 @@ public class PlayerController : NetworkBehaviour
             float angleReset;
             Vector3 tempVector;
 
-            posReset = this.m_PolePositionManager.m_DebuggingSpheres[this.m_PlayerInfo.ID].transform.position; ;
-            posReset.y += 0.5f;
+            posReset = this.transform.position;
+
             float minArcL =
                 this.m_CircuitController.ComputeClosestPointArcLength(posReset, out segIdx, out carProj, out carDist);
+
+            carProj.y += 0.5f;
 
             tempVector = this.m_CircuitController.GetSegment(segIdx);
             angleReset = Vector2.Angle(new Vector2(tempVector.x, tempVector.z), new Vector2(0.0f, 1.0f));
@@ -147,7 +143,7 @@ public class PlayerController : NetworkBehaviour
                 angleReset = 360 - angleReset;
             }
 
-            this.m_PlayerInfo.transform.position = posReset;
+            this.m_PlayerInfo.transform.position = carProj;
             this.m_PlayerInfo.transform.eulerAngles = new Vector3(this.m_PlayerInfo.transform.eulerAngles.x, angleReset, 0.0f);
 
             float templimit = topSpeed;
@@ -211,6 +207,18 @@ public class PlayerController : NetworkBehaviour
         TractionControl();
     }
 
+    private void Depuracion()
+    {
+        String[] colores = new String[5] {"pink", "red", "orange", "purple", "black"};
+        m_UIManager.myColor = colores[depuracionInt];
+        depuracionInt++;
+        if (depuracionInt >= 5)
+        {
+            depuracionInt = 0;
+        }
+        this.ChangeColor();
+    }
+
     public void ChangeColor()
     {
         string newColor = m_UIManager.myColor;
@@ -251,11 +259,8 @@ public class PlayerController : NetworkBehaviour
                 Mymaterials[1] = redMaterial;
                 break;
 
-
         }
-
         body.GetComponent<Renderer>().materials = Mymaterials;
-
     }
 
     #endregion
