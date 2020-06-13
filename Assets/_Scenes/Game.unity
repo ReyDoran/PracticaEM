@@ -3097,7 +3097,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &440769800
 RectTransform:
   m_ObjectHideFlags: 0
@@ -8853,6 +8853,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   syncMode: 0
   syncInterval: 0.1
+  clasificationText: 
 --- !u!114 &1779784463
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9062,6 +9063,9 @@ MonoBehaviour:
   lobbyHUD: {fileID: 616355604}
   textPlayersConnected: {fileID: 777455775}
   textPlayerListLobby: {fileID: 551919343}
+  finishHUD: {fileID: 440769799}
+  textPlayersfinished: {fileID: 427701945}
+  textTimes: {fileID: 311431562}
 --- !u!4 &1823041898
 Transform:
   m_ObjectHideFlags: 0
