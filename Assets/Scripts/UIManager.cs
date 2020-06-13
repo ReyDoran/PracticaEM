@@ -20,7 +20,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] private Button buttonClient;
     [SerializeField] private Button buttonServer;
     [SerializeField] private InputField inputFieldIP;
-    [SerializeField] private InputField textTotalLaps;
+    [SerializeField] public InputField textTotalLaps;
     [SerializeField] private InputField inputFieldName;
     [SerializeField] private Button buttongreen;
     [SerializeField] private Button buttonred;

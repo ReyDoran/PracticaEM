@@ -18,6 +18,7 @@ public class PolePositionManager : NetworkBehaviour
     private RaceInfo m_RaceInfo;
 
     public int numPlayers;
+    public int totalLaps;
     private int MaxPlayersInGame;
     private List<int> clasification = new List<int>();
     public bool startedRace = false;
@@ -82,10 +83,6 @@ public class PolePositionManager : NetworkBehaviour
     public void UpdateRaceProgress()
     {
         bool clasificationHasChanged = false;
-        for (int i = 0; i < m_Players.Count; i++)
-        {
-            //Debug.Log(m_Players[i].ID);
-        }
         // Update car arc-lengths
         float[] arcLengths = new float[m_Players.Count];
 
@@ -178,6 +175,8 @@ public class PolePositionManager : NetworkBehaviour
                         //m_UIManager.UpdateFinishList(m_RaceInfo.clasificationText);
                     }
                     m_Players[ID].CurrentLap -= 1;
+                    NetworkIdentity clientID = m_Players[ID].GetComponent<NetworkIdentity>();
+                    m_RaceInfo.TargetUpdateLaps(clientID.connectionToClient, m_Players[ID].CurrentLap);
                     Debug.Log(m_Players[ID].Name + " ha dado una vuelta le quedan: " + m_Players[ID].CurrentLap);
                 }
                 else if (m_Players[ID].circuitControlPoints[1] == true)
@@ -343,11 +342,21 @@ public class PolePositionManager : NetworkBehaviour
 
         if (CalculatePlayers() == MaxPlayersInGame)
         {
+            try
+            {
+                totalLaps = int.Parse(m_UIManager.textTotalLaps.text);
+            }
+            catch (Exception ex)
+            {
+                totalLaps = 5;
+            }
             for (int i = 0; i < m_Players.Count; i++)
             {
                 m_PlayerControllers[i].RpcActivateMyInGameHUD();
-                m_Players[i].CurrentLap = 3;
+                //m_Players[i].CurrentLap = 3;
+                m_Players[i].CurrentLap = totalLaps;
             }
+            m_RaceInfo.RpcUpdateLaps(totalLaps);
             startedRace = true;
             FreezeAllCars(true);
             countdown = new System.Timers.Timer(5000);
