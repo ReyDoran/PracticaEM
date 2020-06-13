@@ -13,6 +13,7 @@ public class PlayerInfo : MonoBehaviour
     }
 
     public bool[] controlpoints = new bool[24]; //24 son los segmentos de la pista !!!-OJO-!!!
+    public bool[] circuitControlPoints = { false, false, true };
 
     public bool FirstTime { get; set; }
 
