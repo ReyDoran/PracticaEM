@@ -17,6 +17,7 @@ public class PolePositionManager : NetworkBehaviour
     private CircuitController m_CircuitController;
     private RaceInfo m_RaceInfo;
 
+    public string[] colors = new string[4];
     public int numPlayers;
     public int totalLaps;
     private int MaxPlayersInGame;
@@ -29,7 +30,7 @@ public class PolePositionManager : NetworkBehaviour
 
     private void Awake()
     {
-        MaxPlayersInGame = 2; //max 4
+        MaxPlayersInGame = 3; //max 4
         if (networkManager == null) networkManager = FindObjectOfType<NetworkManager>();
         if (m_CircuitController == null) m_CircuitController = FindObjectOfType<CircuitController>();
         if (m_UIManager == null) m_UIManager = FindObjectOfType<UIManager>();
@@ -55,7 +56,11 @@ public class PolePositionManager : NetworkBehaviour
     {
         m_Players.Add(player);
         numPlayers++;   // Error concurrencia?
+        player.GetComponent<PlayerController>().iD = player.GetComponent<PlayerInfo>().ID;
+        //numPlayers++;   // Error concurrencia?
         clasification.Add(-1);  // Idem
+        colors[player.GetComponent<PlayerInfo>().ID] = player.GetComponent<PlayerInfo>().Color;
+        //m_RaceInfo.RpcChangeColor(player.GetComponent<PlayerInfo>().ID, player.GetComponent<PlayerInfo>().Color);
         StartRace();
     }
 
@@ -337,10 +342,12 @@ public class PolePositionManager : NetworkBehaviour
     {
         for (int i = 0; i < m_Players.Count; i++)
         {
-            m_PlayerControllers.Add(m_Players[i].gameObject.GetComponent<PlayerController>());
+            if (m_PlayerControllers.Count <= i)
+            {
+                m_PlayerControllers.Add(m_Players[i].gameObject.GetComponent<PlayerController>());
+            }
             //m_Players[i].CurrentLap = 3;
         }
-        FreezeAllCars(true);
 
         if (CalculatePlayers() == MaxPlayersInGame)
         {
@@ -354,11 +361,13 @@ public class PolePositionManager : NetworkBehaviour
             }
             for (int i = 0; i < m_Players.Count; i++)
             {
+                m_RaceInfo.RpcChangeColor(i, colors[i]);
                 m_PlayerControllers[i].RpcActivateMyInGameHUD();
                 //m_Players[i].CurrentLap = 3;
                 m_Players[i].CurrentLap = totalLaps;
             }
             m_RaceInfo.RpcUpdateLaps(totalLaps);
+            m_RaceInfo.RpcSetColors();
             startedRace = true;
             FreezeAllCars(true);
             countdown = new System.Timers.Timer(5000);

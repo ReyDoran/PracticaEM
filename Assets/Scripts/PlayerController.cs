@@ -14,6 +14,9 @@ public class PlayerController : NetworkBehaviour
 {
     #region Variables
 
+    [SyncVar]
+    public int iD;
+
     [Header("Movement")] public List<AxleInfo> axleInfos;
     public float forwardMotorTorque = 100000;
     public float backwardMotorTorque = 50000;
@@ -41,6 +44,7 @@ public class PlayerController : NetworkBehaviour
     private UIManager m_UIManager;
 
     private PolePositionManager m_PolePositionManager;
+    private RaceInfo m_RaceInfo;
 
     private Text textMyName;
 
@@ -91,6 +95,7 @@ public class PlayerController : NetworkBehaviour
         m_PolePositionManager = FindObjectOfType<PolePositionManager>();
         m_UIManager = FindObjectOfType<UIManager>();
         if (m_CircuitController == null) m_CircuitController = FindObjectOfType<CircuitController>();
+        if (m_RaceInfo == null) m_RaceInfo = FindObjectOfType<RaceInfo>();
         greyMaterial = (Material)Resources.Load("grey", typeof(Material));
         blueglassMaterial = (Material)Resources.Load("blueglass", typeof(Material));
         greenMaterial = (Material)Resources.Load("green", typeof(Material));
@@ -101,7 +106,7 @@ public class PlayerController : NetworkBehaviour
         purpleMaterial = (Material)Resources.Load("purple", typeof(Material));
         pinkMaterial = (Material)Resources.Load("pink", typeof(Material));
 
-        ChangeColor();
+        //ChangeColor();
     }
 
     public void Update()
@@ -109,7 +114,7 @@ public class PlayerController : NetworkBehaviour
         InputAcceleration = Input.GetAxis("Vertical");
         InputSteering = Input.GetAxis(("Horizontal"));
         InputBrake = Input.GetAxis("Jump");
-        InputReset = Input.GetKeyDown(KeyCode.Escape);
+        InputReset = Input.GetKey(KeyCode.Escape);
         Speed = m_Rigidbody.velocity.magnitude;
 
     }

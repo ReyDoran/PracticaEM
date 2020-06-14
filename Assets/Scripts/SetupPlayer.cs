@@ -52,7 +52,7 @@ public class SetupPlayer : NetworkBehaviour
     public override void OnStartLocalPlayer()
     {
         string name = m_UIManager.GetName();
-        CmdAddPlayer(name);
+        CmdAddPlayer(name, m_UIManager.myColor);
 
     }
 
@@ -95,9 +95,10 @@ public class SetupPlayer : NetworkBehaviour
     }
 
     [Command]
-    void CmdAddPlayer(string name)
+    void CmdAddPlayer(string name, string color)
     {
         m_PlayerInfo.Name = name;
+        m_PlayerInfo.Color = color;
         m_PolePositionManager.AddPlayer(m_PlayerInfo);
     }
 
