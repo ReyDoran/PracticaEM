@@ -57,7 +57,7 @@ public class UIManager : MonoBehaviour
     [SerializeField]
     private GameObject finishHUD;
     [SerializeField] private Text textPlayersfinished;
-    [SerializeField] private Text textTimes;
+    [SerializeField] public Text textTimes;
 
 
     private void Awake()

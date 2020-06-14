@@ -30,7 +30,7 @@ public class PolePositionManager : NetworkBehaviour
 
     private void Awake()
     {
-        MaxPlayersInGame = 3; //max 4
+        MaxPlayersInGame = 2; //max 4
         if (networkManager == null) networkManager = FindObjectOfType<NetworkManager>();
         if (m_CircuitController == null) m_CircuitController = FindObjectOfType<CircuitController>();
         if (m_UIManager == null) m_UIManager = FindObjectOfType<UIManager>();
@@ -172,18 +172,20 @@ public class PolePositionManager : NetworkBehaviour
                 {
                     m_Players[ID].circuitControlPoints[2] = false;
                     m_Players[ID].circuitControlPoints[0] = true;
+                    NetworkIdentity clientID = m_Players[ID].GetComponent<NetworkIdentity>();
                     if (m_Players[ID].CurrentLap == 1)  // Fin carrera
                     {
                         Debug.Log("HA GANADO EL JUGADOR: " + m_Players[ID].Name);
-
+                        m_RaceInfo.TargetUpdateTimeLaps(clientID.connectionToClient);
                         m_RaceInfo.RpcStopTimer();
                         m_RaceInfo.RpcFinishRace(m_RaceInfo.clasificationText);
                         //m_UIManager.ActivateFinishHUD();
                         //m_UIManager.UpdateFinishList(m_RaceInfo.clasificationText);
                     }
                     m_Players[ID].CurrentLap -= 1;
-                    NetworkIdentity clientID = m_Players[ID].GetComponent<NetworkIdentity>();
+
                     m_RaceInfo.TargetUpdateLaps(clientID.connectionToClient, m_Players[ID].CurrentLap);
+                    m_RaceInfo.TargetUpdateTimeLaps(clientID.connectionToClient);
                     Debug.Log(m_Players[ID].Name + " ha dado una vuelta le quedan: " + m_Players[ID].CurrentLap);
                 }
                 else if (m_Players[ID].circuitControlPoints[1] == true)

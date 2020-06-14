@@ -12,6 +12,8 @@ public class RaceInfo : NetworkBehaviour
     public string clasificationText;
     public int laps;
     public string[] colors;
+    public string timesText = "";
+    private List<float> timeLaps = new List<float>();
 
     public Material blueglassMaterial;
     public Material greyMaterial;
@@ -100,7 +102,6 @@ public class RaceInfo : NetworkBehaviour
                     break;
             }
 
-            //body.GetComponent<Renderer>().materials = Mymaterials;
             body.materials = Mymaterials;
         }
     }
@@ -119,6 +120,8 @@ public class RaceInfo : NetworkBehaviour
         {
             m_UIManager.ActivateFinishHUD();
             m_UIManager.UpdateFinishList(finishList);
+            timesToString(timeLaps);
+            //m_UIManager.textTimes
         }        
     }
 
@@ -127,6 +130,15 @@ public class RaceInfo : NetworkBehaviour
     {
         this.laps = laps;
         m_UIManager.UpdateLap(laps);
+    }
+
+    [TargetRpc]
+    public void TargetUpdateTimeLaps(NetworkConnection client)
+    {
+        timeLaps.Add(m_UIManager.time);
+        m_UIManager.time = 0;
+        Debug.Log("Tiempo de vuelta: " + timeLaps[0]);
+
     }
 
     [ClientRpc]
@@ -151,6 +163,23 @@ public class RaceInfo : NetworkBehaviour
 
             m_UIManager.startedTimer = false;
         }
+    }
+
+
+    public void timesToString(List<float> times)
+    {
+        float totalTime = 0;
+        timesText = "---Lap Times--- \n";
+
+        for (int i = 1; i < times.Count; ++i)
+        {
+            totalTime += times[i];
+            timesText +=i +"º - " + times[i].ToString() + " segs  \n";
+        }
+
+        timesText += "---Total Time---  \n" + totalTime; 
+
+        m_UIManager.textTimes.text = timesText + " segs";
     }
     // Update is called once per frame
     void Update()
