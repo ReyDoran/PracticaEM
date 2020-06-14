@@ -9,7 +9,7 @@ public class RaceInfo : NetworkBehaviour
     PlayerController m_PlayerController;
     private int clientClasification;
     public string clasificationText;
-    private int laps;
+    public int laps;
 
     // Start is called before the first frame update
     void Start()
@@ -34,8 +34,11 @@ public class RaceInfo : NetworkBehaviour
     [ClientRpc]
     public void RpcFinishRace(string finishList)
     {
-        m_UIManager.ActivateFinishHUD();
-        m_UIManager.UpdateFinishList(finishList);
+        if (laps <=1)
+        {
+            m_UIManager.ActivateFinishHUD();
+            m_UIManager.UpdateFinishList(finishList);
+        }
     }
 
     [TargetRpc]
@@ -51,6 +54,22 @@ public class RaceInfo : NetworkBehaviour
         this.laps = laps;
         FindObjectOfType<CircuitController>().totalLaps = laps;
         m_UIManager.UpdateLap(laps);
+    }
+
+    [ClientRpc]
+    public void RpcStartTimer()
+    {
+        m_UIManager.startedTimer = true;
+    }
+
+    [ClientRpc]
+    public void RpcStopTimer()
+    {
+        if (laps <= 1)
+        {
+
+            m_UIManager.startedTimer = false;
+        }
     }
 
 

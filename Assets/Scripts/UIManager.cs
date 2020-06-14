@@ -11,9 +11,12 @@ public class UIManager : MonoBehaviour
 {
     public bool showGUI = true;
     public string myColor;
+    public float time = 0;
+    public bool startedTimer;
 
     private NetworkManager m_NetworkManager;
     private CircuitController m_CircuitController;
+    private RaceInfo m_RaceInfo;
 
     [Header("Main Menu")] [SerializeField] private GameObject mainMenu;
     [SerializeField] private Button buttonHost;
@@ -40,6 +43,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] private Text textLaps;
     [SerializeField] private Text textPosition;
     [SerializeField] private Text textMyPosition;
+    [SerializeField] private Text textTime;
 
 
     [Header("Lobby HUD")]
@@ -60,6 +64,7 @@ public class UIManager : MonoBehaviour
     {
         m_NetworkManager = FindObjectOfType<NetworkManager>();
         m_CircuitController = FindObjectOfType<CircuitController>();
+        m_RaceInfo = FindObjectOfType<RaceInfo>();
     }
 
     private void Start()
@@ -76,6 +81,15 @@ public class UIManager : MonoBehaviour
         buttonpink.onClick.AddListener(() => SetColor("pink"));
 
         ActivateMainMenu();
+    }
+
+    private void Update()
+    {
+        if (startedTimer)
+        {
+            time += Time.deltaTime;
+            textTime.text = "Time : " + time.ToString("f1");
+        }
     }
 
     public void UpdateSpeed(int speed)
@@ -163,11 +177,12 @@ public class UIManager : MonoBehaviour
     }
 
     public void ActivateFinishHUD()
-    {
-        mainMenu.SetActive(false);
-        inGameHUD.SetActive(false);
-        lobbyHUD.SetActive(false);
-        finishHUD.SetActive(true);
+    { 
+            mainMenu.SetActive(false);
+            inGameHUD.SetActive(false);
+            lobbyHUD.SetActive(false);
+            finishHUD.SetActive(true);
+        
     }
 
     private void StartHost()

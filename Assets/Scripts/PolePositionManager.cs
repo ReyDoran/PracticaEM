@@ -170,6 +170,8 @@ public class PolePositionManager : NetworkBehaviour
                     if (m_Players[ID].CurrentLap == 1)  // Fin carrera
                     {
                         Debug.Log("HA GANADO EL JUGADOR: " + m_Players[ID].Name);
+
+                        m_RaceInfo.RpcStopTimer();
                         m_RaceInfo.RpcFinishRace(m_RaceInfo.clasificationText);
                         //m_UIManager.ActivateFinishHUD();
                         //m_UIManager.UpdateFinishList(m_RaceInfo.clasificationText);
@@ -362,7 +364,9 @@ public class PolePositionManager : NetworkBehaviour
             countdown = new System.Timers.Timer(5000);
             countdown.AutoReset = false;
             countdown.Elapsed += ((System.Object source, System.Timers.ElapsedEventArgs e) => FreezeAllCars(false));
+            countdown.Elapsed += ((System.Object source, System.Timers.ElapsedEventArgs e) => m_RaceInfo.RpcStartTimer());
             countdown.Enabled = true;
+            //m_RaceInfo.RpcSwitchTimer();
         }
     }
 
