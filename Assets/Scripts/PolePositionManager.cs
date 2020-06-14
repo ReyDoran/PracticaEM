@@ -178,13 +178,14 @@ public class PolePositionManager : NetworkBehaviour
                         Debug.Log("HA GANADO EL JUGADOR: " + m_Players[ID].Name);
                         m_RaceInfo.TargetUpdateTimeLaps(clientID.connectionToClient);
                         m_RaceInfo.RpcStopTimer();
-                        m_RaceInfo.RpcFinishRace(m_RaceInfo.clasificationText);
+                        m_RaceInfo.RpcFinishRace(m_Players[ID].Name);
                         //m_UIManager.ActivateFinishHUD();
                         //m_UIManager.UpdateFinishList(m_RaceInfo.clasificationText);
                     }
                     m_Players[ID].CurrentLap -= 1;
 
                     m_RaceInfo.TargetUpdateLaps(clientID.connectionToClient, m_Players[ID].CurrentLap);
+                    m_RaceInfo.TargetUpdateInGameLaps(clientID.connectionToClient);
                     m_RaceInfo.TargetUpdateTimeLaps(clientID.connectionToClient);
                     Debug.Log(m_Players[ID].Name + " ha dado una vuelta le quedan: " + m_Players[ID].CurrentLap);
                 }

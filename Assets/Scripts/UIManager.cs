@@ -44,6 +44,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] private Text textPosition;
     [SerializeField] private Text textMyPosition;
     [SerializeField] private Text textTime;
+    [SerializeField] public Text textTimeLaps;
 
 
     [Header("Lobby HUD")]

@@ -8,11 +8,15 @@ public class RaceInfo : NetworkBehaviour
 {
     UIManager m_UIManager;
     PlayerController m_PlayerController;
+    PlayerInfo m_PlayerInfo;
     private int clientClasification;
     public string clasificationText;
     public int laps;
     public string[] colors;
     public string timesText = "";
+    public string lapsInGame = "";
+    public string winners ="";
+    float totalTime = 0;
     private List<float> timeLaps = new List<float>();
 
     public Material blueglassMaterial;
@@ -30,6 +34,7 @@ public class RaceInfo : NetworkBehaviour
     {
         if (m_UIManager == null) m_UIManager = FindObjectOfType<UIManager>();
         if (m_UIManager == null) m_PlayerController = FindObjectOfType<PlayerController>();
+        if (m_PlayerInfo == null) m_PlayerInfo = FindObjectOfType<PlayerInfo>();
 
         greyMaterial = (Material)Resources.Load("grey", typeof(Material));
         blueglassMaterial = (Material)Resources.Load("blueglass", typeof(Material));
@@ -114,12 +119,13 @@ public class RaceInfo : NetworkBehaviour
     }
 
     [ClientRpc]
-    public void RpcFinishRace(string finishList)
+    public void RpcFinishRace(string newName)
     {
+        winners += newName + "\n";
         if (laps <= 1)
         {
             m_UIManager.ActivateFinishHUD();
-            m_UIManager.UpdateFinishList(finishList);
+            m_UIManager.UpdateFinishList(winners);
             timesToString(timeLaps);
             //m_UIManager.textTimes
         }        
@@ -139,6 +145,16 @@ public class RaceInfo : NetworkBehaviour
         m_UIManager.time = 0;
         Debug.Log("Tiempo de vuelta: " + timeLaps[0]);
 
+    }
+
+    [TargetRpc]
+    public void TargetUpdateInGameLaps(NetworkConnection client)
+    {
+        if (laps != 4)
+        {
+            lapsInGame += m_UIManager.time.ToString() + "\n";
+            m_UIManager.textTimeLaps.text = lapsInGame;
+        }
     }
 
     [ClientRpc]
@@ -168,7 +184,7 @@ public class RaceInfo : NetworkBehaviour
 
     public void timesToString(List<float> times)
     {
-        float totalTime = 0;
+
         timesText = "---Lap Times--- \n";
 
         for (int i = 1; i < times.Count; ++i)
