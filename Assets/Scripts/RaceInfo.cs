@@ -33,7 +33,7 @@ public class RaceInfo : NetworkBehaviour
     void Start()
     {
         if (m_UIManager == null) m_UIManager = FindObjectOfType<UIManager>();
-        if (m_UIManager == null) m_PlayerController = FindObjectOfType<PlayerController>();
+        if (m_PlayerController == null) m_PlayerController = FindObjectOfType<PlayerController>();
         if (m_PlayerInfo == null) m_PlayerInfo = FindObjectOfType<PlayerInfo>();
 
         greyMaterial = (Material)Resources.Load("grey", typeof(Material));
