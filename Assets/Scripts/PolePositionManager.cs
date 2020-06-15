@@ -55,7 +55,6 @@ public class PolePositionManager : NetworkBehaviour
     {
         m_Players.Add(player);
         numPlayers++;   // Error concurrencia?
-        player.GetComponent<PlayerController>().iD = player.GetComponent<PlayerInfo>().ID;
         //numPlayers++;   // Error concurrencia?
         clasification.Add(-1);  // Idem
         colors[player.GetComponent<PlayerInfo>().ID] = player.GetComponent<PlayerInfo>().Color;
