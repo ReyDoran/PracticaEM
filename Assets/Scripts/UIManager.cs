@@ -18,6 +18,7 @@ public class UIManager : MonoBehaviour
     private NetworkManager m_NetworkManager;
     private CircuitController m_CircuitController;
     private RaceInfo m_RaceInfo;
+    private PolePositionManager m_PolePositionManager;
 
     [Header("Main Menu")] [SerializeField] private GameObject mainMenu;
     [SerializeField] private Button buttonHost;
@@ -66,6 +67,7 @@ public class UIManager : MonoBehaviour
     {
         m_NetworkManager = FindObjectOfType<NetworkManager>();
         m_CircuitController = FindObjectOfType<CircuitController>();
+        m_PolePositionManager = FindObjectOfType<PolePositionManager>();
         m_RaceInfo = FindObjectOfType<RaceInfo>();
     }
 
@@ -125,7 +127,7 @@ public class UIManager : MonoBehaviour
     {
         if (lobbyHUD.activeSelf)
         {
-            textPlayersConnected.text = ("( " + playersConnected.ToString()+ " / 4 )");
+            textPlayersConnected.text = ("( " + playersConnected.ToString()+ " / "+ m_PolePositionManager.MaxPlayersInGame + " )");
         }
     }
 

@@ -20,7 +20,7 @@ public class PolePositionManager : NetworkBehaviour
     public string[] colors = new string[4];
     public int numPlayers;
     public int totalLaps;
-    private int MaxPlayersInGame;
+    public readonly int MaxPlayersInGame =2 ;// MAX 4
     private List<int> clasification = new List<int>();
     public bool startedRace = false;
     private System.Timers.Timer countdown;
@@ -30,7 +30,6 @@ public class PolePositionManager : NetworkBehaviour
 
     private void Awake()
     {
-        MaxPlayersInGame = 2; //max 4
         if (networkManager == null) networkManager = FindObjectOfType<NetworkManager>();
         if (m_CircuitController == null) m_CircuitController = FindObjectOfType<CircuitController>();
         if (m_UIManager == null) m_UIManager = FindObjectOfType<UIManager>();
