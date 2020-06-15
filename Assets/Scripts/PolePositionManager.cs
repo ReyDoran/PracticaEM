@@ -47,8 +47,7 @@ public class PolePositionManager : NetworkBehaviour
     {
         if (m_Players.Count == 0)
             return;
-        if(startedRace==true)
-        UpdateRaceProgress();
+        if(startedRace) UpdateRaceProgress();
     }
 
     public void AddPlayer(PlayerInfo player)
