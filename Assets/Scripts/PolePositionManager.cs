@@ -20,7 +20,7 @@ public class PolePositionManager : NetworkBehaviour
     public string[] colors = new string[4];
     public int numPlayers;
     public int totalLaps;
-    public readonly int MaxPlayersInGame =2 ;// MAX 4
+    public readonly int MaxPlayersInGame = 1;// MAX 4
     private List<int> clasification = new List<int>();
     public bool startedRace = false;
     private System.Timers.Timer countdown;
