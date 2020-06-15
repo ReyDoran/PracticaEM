@@ -195,7 +195,7 @@ public class PolePositionManager : NetworkBehaviour
                 }
                 break;
 
-            case 9:
+            case 1:
                 if (m_Players[ID].circuitControlPoints[0] == true)  //Caso normal
                 {
                     m_Players[ID].circuitControlPoints[0] = false;
@@ -208,7 +208,7 @@ public class PolePositionManager : NetworkBehaviour
                 }
                 break;
 
-            case 18:
+            case 2:
                 if (m_Players[ID].circuitControlPoints[1] == true)  //Caso normal
                 {
                     m_Players[ID].circuitControlPoints[1] = false;
@@ -218,7 +218,6 @@ public class PolePositionManager : NetworkBehaviour
                 {
                     m_Players[ID].circuitControlPoints[0] = false;
                     m_Players[ID].circuitControlPoints[2] = true;
-                    m_Players[ID].CurrentLap += 1;
                 }
                 break;
         }
@@ -251,7 +250,7 @@ public class PolePositionManager : NetworkBehaviour
         {
             minArcL -= m_CircuitController.CircuitLength * m_Players[ID].CurrentLap;
         }
-        if (m_Players[ID].circuitControlPoints[0] == true && minArcL > m_CircuitController.m_CumArcLength[17] - (m_Players[ID].CurrentLap) * m_CircuitController.CircuitLength)
+        if (m_Players[ID].circuitControlPoints[0] == true && minArcL > m_CircuitController.m_CumArcLength[2] - (m_Players[ID].CurrentLap) * m_CircuitController.CircuitLength)
         {
             minArcL -= m_CircuitController.CircuitLength;
         }
@@ -355,7 +354,7 @@ public class PolePositionManager : NetworkBehaviour
         {
             try
             {
-                totalLaps = int.Parse(m_UIManager.textTotalLaps.text);
+                totalLaps = int.Parse(m_UIManager.textTotalLaps.text) + 1;
             }
             catch (Exception ex)
             {
@@ -396,7 +395,7 @@ public class PolePositionManager : NetworkBehaviour
             m_Players[i].CurrentLap = totalLaps;
         }
 
-        m_RaceInfo.RpcUpdateLaps(totalLaps);
+        m_RaceInfo.RpcUpdateLaps(totalLaps - 1);
         m_RaceInfo.RpcSetColors();
         startedRace = true;
         FreezeAllCars(true);

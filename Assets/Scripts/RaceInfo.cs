@@ -12,6 +12,7 @@ public class RaceInfo : NetworkBehaviour
     private int clientClasification;
     public string clasificationText;
     public int laps;
+    public int totalLaps;
     public string[] colors;
     public string timesText = "";
     public string lapsInGame = "";
@@ -150,7 +151,7 @@ public class RaceInfo : NetworkBehaviour
     [TargetRpc]
     public void TargetUpdateInGameLaps(NetworkConnection client)
     {
-        if (laps != 4)
+        if (laps != totalLaps + 1)
         {
             lapsInGame += m_UIManager.time.ToString() + "\n";
             m_UIManager.textTimeLaps.text = lapsInGame;
@@ -161,6 +162,7 @@ public class RaceInfo : NetworkBehaviour
     public void RpcUpdateLaps(int laps)
     {
         this.laps = laps;
+        totalLaps = laps - 1;
         FindObjectOfType<CircuitController>().totalLaps = laps;
         m_UIManager.UpdateLap(laps);
     }
