@@ -8,6 +8,7 @@ using Mirror;
 using Mirror.Examples.Basic;
 using UnityEngine;
 
+
 public class PolePositionManager : NetworkBehaviour
 {
     public NetworkManager networkManager;
@@ -25,6 +26,7 @@ public class PolePositionManager : NetworkBehaviour
     public bool startedRace = false;
     private System.Timers.Timer countdown;
     public GameObject[] m_DebuggingSpheres { get; set; }
+
 
     public int debugVariable = 0;
 
@@ -359,6 +361,7 @@ public class PolePositionManager : NetworkBehaviour
             {
                 totalLaps = 5;
             }
+            /*
             for (int i = 0; i < m_Players.Count; i++)
             {
                 m_RaceInfo.RpcChangeColor(i, colors[i]);
@@ -366,6 +369,7 @@ public class PolePositionManager : NetworkBehaviour
                 //m_Players[i].CurrentLap = 3;
                 m_Players[i].CurrentLap = totalLaps;
             }
+            
             m_RaceInfo.RpcUpdateLaps(totalLaps);
             m_RaceInfo.RpcSetColors();
             startedRace = true;
@@ -376,7 +380,35 @@ public class PolePositionManager : NetworkBehaviour
             countdown.Elapsed += ((System.Object source, System.Timers.ElapsedEventArgs e) => m_RaceInfo.RpcStartTimer());
             countdown.Enabled = true;
             //m_RaceInfo.RpcSwitchTimer();
+            */
+            m_UIManager.ActivateReadyButton();
         }
     }
+
+
+    public void StartAllPlayers()
+    {
+        for (int i = 0; i < m_Players.Count; i++)
+        {
+            m_RaceInfo.RpcChangeColor(i, colors[i]);
+            m_PlayerControllers[i].RpcActivateMyInGameHUD();
+            //m_Players[i].CurrentLap = 3;
+            m_Players[i].CurrentLap = totalLaps;
+        }
+
+        m_RaceInfo.RpcUpdateLaps(totalLaps);
+        m_RaceInfo.RpcSetColors();
+        startedRace = true;
+        FreezeAllCars(true);
+        countdown = new System.Timers.Timer(5000);
+        countdown.AutoReset = false;
+        countdown.Elapsed += ((System.Object source, System.Timers.ElapsedEventArgs e) => FreezeAllCars(false));
+        countdown.Elapsed += ((System.Object source, System.Timers.ElapsedEventArgs e) => m_RaceInfo.RpcStartTimer());
+        countdown.Enabled = true;
+        //m_RaceInfo.RpcSwitchTimer();
+    }
+
+
+
 
 }

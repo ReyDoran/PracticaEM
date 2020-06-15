@@ -54,6 +54,7 @@ public class UIManager : MonoBehaviour
     private GameObject lobbyHUD;
     [SerializeField] private Text textPlayersConnected;
     [SerializeField] private Text textPlayerListLobby;
+    [SerializeField] private Button buttonReady;
 
 
     [Header("Finish HUD")]
@@ -69,6 +70,8 @@ public class UIManager : MonoBehaviour
         m_CircuitController = FindObjectOfType<CircuitController>();
         m_PolePositionManager = FindObjectOfType<PolePositionManager>();
         m_RaceInfo = FindObjectOfType<RaceInfo>();
+        buttonReady.gameObject.SetActive(false);
+        
     }
 
     private void Start()
@@ -83,6 +86,7 @@ public class UIManager : MonoBehaviour
         buttonblack.onClick.AddListener(() => SetColor("black"));
         buttonpurple.onClick.AddListener(() => SetColor("purple"));
         buttonpink.onClick.AddListener(() => SetColor("pink"));
+        buttonReady.onClick.AddListener(() => startRace());
 
         ActivateMainMenu();
     }
@@ -150,6 +154,7 @@ public class UIManager : MonoBehaviour
         myColor = color;
     }
 
+
     public string GetColor()
     {
         return myColor;
@@ -161,6 +166,11 @@ public class UIManager : MonoBehaviour
         inGameHUD.SetActive(false);
         lobbyHUD.SetActive(false);
         finishHUD.SetActive(false);
+    }
+
+    public void ActivateReadyButton()
+    {
+        buttonReady.gameObject.SetActive(true);
     }
 
     private void ActivateLobbyHUD()
@@ -218,5 +228,10 @@ public class UIManager : MonoBehaviour
     {
         if (textTotalLaps.text == "") m_CircuitController.totalLaps = 5;
         else m_CircuitController.totalLaps = int.Parse(textTotalLaps.text);
+    }
+
+    private void startRace()
+    {
+        m_PolePositionManager.StartAllPlayers();
     }
 }
