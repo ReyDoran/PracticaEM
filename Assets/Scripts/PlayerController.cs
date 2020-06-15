@@ -83,6 +83,7 @@ public class PlayerController : NetworkBehaviour
 
     public void Awake()
     {
+ 
         m_Rigidbody = GetComponent<Rigidbody>();
         m_PlayerInfo = GetComponent<PlayerInfo>();
         //m_PolePositionManager = FindObjectOfType<PolePositionManager>();
@@ -98,6 +99,7 @@ public class PlayerController : NetworkBehaviour
         blackMaterial = (Material)Resources.Load("black", typeof(Material));
         purpleMaterial = (Material)Resources.Load("purple", typeof(Material));
         pinkMaterial = (Material)Resources.Load("pink", typeof(Material));
+        m_Rigidbody.constraints = RigidbodyConstraints.FreezeAll;
 
         //ChangeColor();
     }
