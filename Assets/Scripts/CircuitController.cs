@@ -67,7 +67,7 @@ public class CircuitController : MonoBehaviour
 
             Vector3 proj = m_PathPos[i] + dotProd * pathVec;
             float dist = (posIn - proj).magnitude;
-            if (dist < minDist)
+            if (dist < minDist && dist < 20)
             {
                 minDist = dist;
                 minProj = proj;
