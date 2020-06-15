@@ -12,6 +12,7 @@ public class UIManager : MonoBehaviour
     public bool showGUI = true;
     public string myColor;
     public float time = 0;
+    public float globalTime = 0;
     public bool startedTimer;
 
     private NetworkManager m_NetworkManager;
@@ -89,6 +90,7 @@ public class UIManager : MonoBehaviour
         if (startedTimer)
         {
             time += Time.deltaTime;
+            globalTime += Time.deltaTime;
             textTime.text = "Time : " + time.ToString("f1");
         }
     }

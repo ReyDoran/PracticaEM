@@ -119,9 +119,9 @@ public class RaceInfo : NetworkBehaviour
     }
 
     [ClientRpc]
-    public void RpcFinishRace(string newName)
+    public void RpcFinishRace(string newName,string FinishTime)
     {
-        winners += newName + "\n";
+        winners += newName + " - " + FinishTime +"\n";
         if (laps <= 1)
         {
             m_UIManager.ActivateFinishHUD();
@@ -189,13 +189,13 @@ public class RaceInfo : NetworkBehaviour
 
         for (int i = 1; i < times.Count; ++i)
         {
-            totalTime += times[i];
+            //totalTime += times[i];
             timesText +=i +"º - " + times[i].ToString() + " segs  \n";
         }
-
+        /*
         timesText += "---Total Time---  \n" + totalTime; 
-
-        m_UIManager.textTimes.text = timesText + " segs";
+        */
+        m_UIManager.textTimes.text = timesText;
     }
     // Update is called once per frame
     void Update()

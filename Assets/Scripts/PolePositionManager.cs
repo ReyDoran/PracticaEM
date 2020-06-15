@@ -178,7 +178,7 @@ public class PolePositionManager : NetworkBehaviour
                         Debug.Log("HA GANADO EL JUGADOR: " + m_Players[ID].Name);
                         m_RaceInfo.TargetUpdateTimeLaps(clientID.connectionToClient);
                         m_RaceInfo.RpcStopTimer();
-                        m_RaceInfo.RpcFinishRace(m_Players[ID].Name);
+                        m_RaceInfo.RpcFinishRace(m_Players[ID].Name,m_UIManager.globalTime.ToString());
                         //m_UIManager.ActivateFinishHUD();
                         //m_UIManager.UpdateFinishList(m_RaceInfo.clasificationText);
                     }
