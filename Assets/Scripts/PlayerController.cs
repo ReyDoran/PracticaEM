@@ -5,7 +5,6 @@ using Mirror;
 using System.Reflection.Emit;
 using UnityEngine.UI;
 using Random = System.Random;
-using System.Timers;
 
 /*
 	Documentation: https://mirror-networking.com/docs/Guides/NetworkBehaviour.html
@@ -134,7 +133,6 @@ public class PlayerController : NetworkBehaviour
             Vector3 posReset;
             float angleReset;
             Vector3 tempVector;
-            Timer countdown;
 
             posReset = this.transform.position;
 
@@ -153,13 +151,14 @@ public class PlayerController : NetworkBehaviour
 
             this.m_PlayerInfo.transform.position = carProj;
             this.m_PlayerInfo.transform.eulerAngles = new Vector3(this.m_PlayerInfo.transform.eulerAngles.x, angleReset, 0.0f);
-            
+
             float templimit = topSpeed;
-            topSpeed = 0f;
-            countdown = new Timer(1000);
-            countdown.AutoReset = false;
-            countdown.Elapsed += ((source, e) => { topSpeed = templimit; });
-            countdown.Enabled = true;
+            topSpeed = 0;
+            System.Threading.Thread HiloEspera = new System.Threading.Thread(() => {
+                System.Threading.Tasks.Task.Delay(1000);
+                topSpeed = templimit;
+            });
+            HiloEspera.Start();
         }
         else
         {
@@ -214,13 +213,9 @@ public class PlayerController : NetworkBehaviour
         TractionControl();
     }
 
-    #endregion
-
-    #region Methods
-
     private void Depuracion()
     {
-        String[] colores = new String[5] { "pink", "red", "orange", "purple", "black" };
+        String[] colores = new String[5] {"pink", "red", "orange", "purple", "black"};
         m_UIManager.myColor = colores[depuracionInt];
         depuracionInt++;
         if (depuracionInt >= 5)
@@ -273,6 +268,10 @@ public class PlayerController : NetworkBehaviour
         }
         body.GetComponent<Renderer>().materials = Mymaterials;
     }
+
+    #endregion
+
+    #region Methods
 
     // crude traction control that reduces the power to wheel if the car is wheel spinning too much
     private void TractionControl()
@@ -381,7 +380,6 @@ public class PlayerController : NetworkBehaviour
     {
        
     }
-
     [TargetRpc]
     public void TargetUpdateMyPosition(NetworkConnection client, int position)
     {
