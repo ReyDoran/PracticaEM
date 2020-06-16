@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading;
 using Mirror;
 using Mirror.Examples.Basic;
 using UnityEngine;
@@ -27,7 +28,7 @@ public class PolePositionManager : NetworkBehaviour
     public bool startedRace = false;
     private System.Timers.Timer countdown;
     public GameObject[] m_DebuggingSpheres { get; set; }
-
+    private Thread[] arcThreads = new Thread[4];
 
     public int debugVariable = 0;
 
@@ -91,15 +92,7 @@ public class PolePositionManager : NetworkBehaviour
         // Update car arc-lengths
         float[] arcLengths = new float[m_Players.Count];
 
-        /*
-        foreach (PlayerInfo player in m_Players){            
-            arcLengths[player.ID] = ComputeCarArcLength(player.ID);
-        }
-        */
-        for (int i = 0; i < m_Players.Count; ++i)
-        {
-            arcLengths[i] = ComputeCarArcLength(i);
-        }
+        arcLengths = ComputeCarArcLength();
 
         /*
         if (debugVariable == 30)
@@ -118,8 +111,6 @@ public class PolePositionManager : NetworkBehaviour
 
         m_Players.Sort(new PlayerInfoComparer(arcLengths, m_Players));
 
-        
-        
         string clasificationText = "";
         for (int i = 0; i < m_Players.Count; ++i)
         {
@@ -148,131 +139,125 @@ public class PolePositionManager : NetworkBehaviour
 
     }
 
-    float ComputeCarArcLength(int ID)
+    float[] ComputeCarArcLength()
     {
         // Compute the projection of the car position to the closest circuit 
         // path segment and accumulate the arc-length along of the car along
         // the circuit.
-        Vector3 carPos = this.m_Players[ID].transform.position;
-        int segIdx;
-        float carDist;
-        Vector3 carProj;
+        Vector3[] carPos = new Vector3[4];
 
-        float minArcL =
-            this.m_CircuitController.ComputeClosestPointArcLength(carPos, out segIdx, out carProj, out carDist);
-        
-        this.m_DebuggingSpheres[ID].transform.position = carProj;
-
-        //CalculateLap(ID, segIdx);
-        //
-        switch (segIdx)
+        for (int i = 0; i < m_Players.Count; ++i)
         {
-            case 0:
-                if (m_Players[ID].circuitControlPoints[2] == true)  //Caso normal
-                {
-                    m_Players[ID].circuitControlPoints[2] = false;
-                    m_Players[ID].circuitControlPoints[0] = true;
-                    NetworkIdentity clientID = m_Players[ID].GetComponent<NetworkIdentity>();
-                    if (m_Players[ID].CurrentLap == 1)  // Fin carrera
+            carPos[i] = this.m_Players[i].transform.position;
+        }
+        int[] segIdx = new int[m_Players.Count];
+        float[] carDist = new float[m_Players.Count];
+        Vector3[] carProj = new Vector3[m_Players.Count];
+        float[] minArcL = new float[m_Players.Count];
+
+        void CCPAL(int id, Vector3 carPosVec, int[] segIdxVec, float[] carDistVec, Vector3[] carProjVec)
+        {
+            int segIdxV;
+            float carDistV;
+            Vector3 carProjV;
+            minArcL[id] = this.m_CircuitController.ComputeClosestPointArcLength(carPosVec, out segIdxV, out carProjV, out carDistV);
+            segIdxVec[id] = segIdxV;
+            carDistVec[id] = carDistV;
+            carProjVec[id] = carProjV;
+
+            switch (segIdxV)
+            {
+                case 0:
+                    if (m_Players[id].circuitControlPoints[2])  //Caso normal
                     {
-                        Debug.Log("HA GANADO EL JUGADOR: " + m_Players[ID].Name);
-                        numPlayerFinished += 1;
-                        m_RaceInfo.TargetUpdateTimeLaps(clientID.connectionToClient);
-                        m_RaceInfo.RpcStopTimer();
-                        m_RaceInfo.RpcFinishRace(m_Players[ID].Name,m_UIManager.globalTime.ToString());
-                        m_RaceInfo.TargetDisableWinner(clientID.connectionToClient);
-                        if(numPlayerFinished == MaxPlayersInGame)
+                        m_Players[id].circuitControlPoints[2] = false;
+                        m_Players[id].circuitControlPoints[0] = true;
+                        NetworkIdentity clientID = m_Players[id].GetComponent<NetworkIdentity>();
+                        if (m_Players[id].CurrentLap == 1)  // Fin carrera
                         {
-                            m_RaceInfo.RpcAllPlayersFinished();
-                            m_UIManager.buttonBackMenu.gameObject.SetActive(true);
+                            Debug.Log("HA GANADO EL JUGADOR: " + m_Players[id].Name);
+                            numPlayerFinished += 1;
+                            m_RaceInfo.TargetUpdateTimeLaps(clientID.connectionToClient);
+                            m_RaceInfo.RpcStopTimer();
+                            m_RaceInfo.RpcFinishRace(m_Players[id].Name, m_UIManager.globalTime.ToString());
+                            m_RaceInfo.TargetDisableWinner(clientID.connectionToClient);
+                            if (numPlayerFinished == MaxPlayersInGame)
+                            {
+                                m_RaceInfo.RpcAllPlayersFinished();
+                                m_UIManager.buttonBackMenu.gameObject.SetActive(true);
 
+                            }
+                            //m_UIManager.ActivateFinishHUD();
+                            //m_UIManager.UpdateFinishList(m_RaceInfo.clasificationText);
                         }
-                        //m_UIManager.ActivateFinishHUD();
-                        //m_UIManager.UpdateFinishList(m_RaceInfo.clasificationText);
+                        m_Players[id].CurrentLap -= 1;
+
+                        m_RaceInfo.TargetUpdateLaps(clientID.connectionToClient, m_Players[id].CurrentLap);
+                        m_RaceInfo.TargetUpdateInGameLaps(clientID.connectionToClient);
+                        m_RaceInfo.TargetUpdateTimeLaps(clientID.connectionToClient);
+                        Debug.Log(m_Players[id].Name + " ha dado una vuelta le quedan: " + m_Players[id].CurrentLap);
                     }
-                    m_Players[ID].CurrentLap -= 1;
+                    else if (m_Players[id].circuitControlPoints[1])
+                    {
+                        m_Players[id].circuitControlPoints[1] = false;
+                        m_Players[id].circuitControlPoints[0] = true;
+                    }
+                    break;
 
-                    m_RaceInfo.TargetUpdateLaps(clientID.connectionToClient, m_Players[ID].CurrentLap);
-                    m_RaceInfo.TargetUpdateInGameLaps(clientID.connectionToClient);
-                    m_RaceInfo.TargetUpdateTimeLaps(clientID.connectionToClient);
-                    Debug.Log(m_Players[ID].Name + " ha dado una vuelta le quedan: " + m_Players[ID].CurrentLap);
-                }
-                else if (m_Players[ID].circuitControlPoints[1] == true)
-                {
-                    m_Players[ID].circuitControlPoints[1] = false;
-                    m_Players[ID].circuitControlPoints[0] = true;
-                }
-                break;
+                case 1:
+                    if (m_Players[id].circuitControlPoints[0])  //Caso normal
+                    {
+                        m_Players[id].circuitControlPoints[0] = false;
+                        m_Players[id].circuitControlPoints[1] = true;
+                    }
+                    else if (m_Players[id].circuitControlPoints[2])
+                    {
+                        m_Players[id].circuitControlPoints[2] = false;
+                        m_Players[id].circuitControlPoints[1] = true;
+                    }
+                    break;
 
-            case 1:
-                if (m_Players[ID].circuitControlPoints[0] == true)  //Caso normal
-                {
-                    m_Players[ID].circuitControlPoints[0] = false;
-                    m_Players[ID].circuitControlPoints[1] = true;
-                }
-                else if (m_Players[ID].circuitControlPoints[2] == true)
-                {
-                    m_Players[ID].circuitControlPoints[2] = false;
-                    m_Players[ID].circuitControlPoints[1] = true;
-                }
-                break;
+                case 2:
+                    if (m_Players[id].circuitControlPoints[1])  //Caso normal
+                    {
+                        m_Players[id].circuitControlPoints[1] = false;
+                        m_Players[id].circuitControlPoints[2] = true;
+                    }
+                    else if (m_Players[id].circuitControlPoints[0])
+                    {
+                        m_Players[id].circuitControlPoints[0] = false;
+                        m_Players[id].circuitControlPoints[2] = true;
+                    }
+                    break;
+            }
 
-            case 2:
-                if (m_Players[ID].circuitControlPoints[1] == true)  //Caso normal
-                {
-                    m_Players[ID].circuitControlPoints[1] = false;
-                    m_Players[ID].circuitControlPoints[2] = true;
-                }
-                else if (m_Players[ID].circuitControlPoints[0] == true)
-                {
-                    m_Players[ID].circuitControlPoints[0] = false;
-                    m_Players[ID].circuitControlPoints[2] = true;
-                }
-                break;
-        }
-        //
-        /*
-        if (this.m_Players[ID].CurrentLap <= 1)
-        {
-            float aux = minArcL;
-            minArcL -= m_CircuitController.CircuitLength;
-            if (m_Players[ID].circuitControlPoints[0] == true && -minArcL < m_CircuitController.m_CumArcLength[17])
+            if (this.m_Players[id].CurrentLap <= 1)
             {
-                minArcL -= m_CircuitController.CircuitLength;
+                minArcL[id] -= m_CircuitController.CircuitLength;
+            }
+            else
+            {
+                minArcL[id] -= m_CircuitController.CircuitLength * m_Players[id].CurrentLap;
+            }
+            if (m_Players[id].circuitControlPoints[0] && minArcL[id] > m_CircuitController.m_CumArcLength[2] - (m_Players[id].CurrentLap) * m_CircuitController.CircuitLength)
+            {
+                minArcL[id] -= m_CircuitController.CircuitLength;
             }
         }
-        else
+
+        for (int i = 0; i < m_Players.Count; ++i)
         {
-            float aux = minArcL;
-            minArcL -= m_CircuitController.CircuitLength * m_Players[ID].CurrentLap;
-            if (m_Players[ID].circuitControlPoints[0] == true && -minArcL < - m_CircuitController.m_CumArcLength[17] + m_Players[ID].CurrentLap * m_CircuitController.CircuitLength)
-            {
-                minArcL -= m_CircuitController.CircuitLength;
-            }
+            var id = i;
+            arcThreads[id] = new Thread(() => CCPAL(id, carPos[id], segIdx, carDist, carProj));
+            arcThreads[id].Start();
         }
-        */
-        if (this.m_Players[ID].CurrentLap <= 1)
+
+        for (int i = 0; i < m_Players.Count; ++i)
         {
-            minArcL -= m_CircuitController.CircuitLength;
+            arcThreads[i].Join();
+            this.m_DebuggingSpheres[i].transform.position = carProj[i];
         }
-        else
-        {
-            minArcL -= m_CircuitController.CircuitLength * m_Players[ID].CurrentLap;
-        }
-        if (m_Players[ID].circuitControlPoints[0] == true && minArcL > m_CircuitController.m_CumArcLength[2] - (m_Players[ID].CurrentLap) * m_CircuitController.CircuitLength)
-        {
-            minArcL -= m_CircuitController.CircuitLength;
-        }
-        /*
-        if (this.m_Players[ID].CurrentLap <= 1)
-        {
-            minArcL -= m_CircuitController.CircuitLength;
-        }
-        else
-        {
-            minArcL -= m_CircuitController.CircuitLength * m_Players[ID].CurrentLap;
-        }
-        */
+
         return minArcL;
     }
     
@@ -299,7 +284,6 @@ public class PolePositionManager : NetworkBehaviour
         }
         return PlayerList;
     }
-
 
     //Use de ID and the segment of the circuit to check % of lap
     public void CalculateLap(int ID, int segIdx)
@@ -393,7 +377,6 @@ public class PolePositionManager : NetworkBehaviour
         }
     }
 
-
     public void StartAllPlayers()
     {
         for (int i = 0; i < m_Players.Count; i++)
@@ -415,8 +398,4 @@ public class PolePositionManager : NetworkBehaviour
         countdown.Enabled = true;
         //m_RaceInfo.RpcSwitchTimer();
     }
-
-
-
-
 }

@@ -380,6 +380,7 @@ public class PlayerController : NetworkBehaviour
     {
        
     }
+    
     [TargetRpc]
     public void TargetUpdateMyPosition(NetworkConnection client, int position)
     {
