@@ -17,6 +17,7 @@ public class PolePositionManager : NetworkBehaviour
     private readonly List<PlayerInfo> m_Players = new List<PlayerInfo>();
     private CircuitController m_CircuitController;
     private RaceInfo m_RaceInfo;
+    private int numPlayerFinished = 0;
 
     public string[] colors = new string[4];
     public int numPlayers;
@@ -175,10 +176,16 @@ public class PolePositionManager : NetworkBehaviour
                     if (m_Players[ID].CurrentLap == 1)  // Fin carrera
                     {
                         Debug.Log("HA GANADO EL JUGADOR: " + m_Players[ID].Name);
+                        numPlayerFinished += 1;
                         m_RaceInfo.TargetUpdateTimeLaps(clientID.connectionToClient);
                         m_RaceInfo.RpcStopTimer();
                         m_RaceInfo.RpcFinishRace(m_Players[ID].Name,m_UIManager.globalTime.ToString());
                         m_RaceInfo.TargetDisableWinner(clientID.connectionToClient);
+                        if (numPlayerFinished == MaxPlayersInGame)
+                        {
+                            m_RaceInfo.RpcAllPlayersFinished();
+                          
+                        }
                         //m_UIManager.ActivateFinishHUD();
                         //m_UIManager.UpdateFinishList(m_RaceInfo.clasificationText);
                     }

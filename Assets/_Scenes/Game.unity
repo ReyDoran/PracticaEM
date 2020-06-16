@@ -10017,6 +10017,7 @@ MonoBehaviour:
   time: 0
   globalTime: 0
   startedTimer: 0
+  startedGlobalTimer: 0
   mainMenu: {fileID: 1196147019}
   buttonHost: {fileID: 1854017023}
   buttonClient: {fileID: 553049071}
@@ -10047,6 +10048,7 @@ MonoBehaviour:
   finishHUD: {fileID: 440769799}
   textPlayersfinished: {fileID: 427701945}
   textTimes: {fileID: 311431562}
+  textWaitingPlayers: {fileID: 2012669830}
 --- !u!4 &1823041898
 Transform:
   m_ObjectHideFlags: 0
@@ -11361,7 +11363,7 @@ GameObject:
   - component: {fileID: 2012669831}
   - component: {fileID: 2012669830}
   m_Layer: 5
-  m_Name: Text
+  m_Name: Text_waitingPlayers
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -11383,7 +11385,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 2.4, y: -34.2}
+  m_AnchoredPosition: {x: 2.4, y: -24.6}
   m_SizeDelta: {x: 600, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2012669830

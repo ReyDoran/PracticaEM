@@ -64,6 +64,7 @@ public class UIManager : MonoBehaviour
     private GameObject finishHUD;
     [SerializeField] private Text textPlayersfinished;
     [SerializeField] public Text textTimes;
+    [SerializeField] public Text textWaitingPlayers;
 
 
     private void Awake()
@@ -158,6 +159,11 @@ public class UIManager : MonoBehaviour
     public void SetColor(string color)
     {
         myColor = color;
+    }
+
+    public void AllPlayersFinished()
+    {
+        textWaitingPlayers.text = "ALL PLAYERS FINISHED THE RACE";
     }
 
 
