@@ -3,10 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using Mirror;
 using System.Reflection.Emit;
-using Assets.Scripts;
 using UnityEngine.UI;
 using Random = System.Random;
-using System.Timers;
 
 /*
 	Documentation: https://mirror-networking.com/docs/Guides/NetworkBehaviour.html
@@ -124,8 +122,6 @@ public class PlayerController : NetworkBehaviour
 
         float steering = maxSteeringAngle * InputSteering;
 
-        Timer countdown;
-
         //If esc key is pressed the car is recolocated in the middle of the track
         if (InputReset)
         {
@@ -158,10 +154,11 @@ public class PlayerController : NetworkBehaviour
 
             float templimit = topSpeed;
             topSpeed = 0;
-            countdown = new System.Timers.Timer(1000);
-            countdown.AutoReset = false;
-            countdown.Elapsed += ((source, e) => topSpeed = templimit);
-            countdown.Enabled = true;
+            System.Threading.Thread HiloEspera = new System.Threading.Thread(() => {
+                System.Threading.Tasks.Task.Delay(1000);
+                topSpeed = templimit;
+            });
+            HiloEspera.Start();
         }
         else
         {

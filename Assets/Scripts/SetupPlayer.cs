@@ -1,5 +1,4 @@
 ﻿using System;
-using Assets.Scripts;
 using Mirror;
 using UnityEngine;
 using Random = System.Random;
