@@ -193,12 +193,6 @@ public class RaceInfo : NetworkBehaviour
         }
     }
 
-    [ClientRpc]
-    public void RpcAllPlayersFinished()
-    {
-        m_UIManager.AllPlayersFinished();
-    }
-
 
 
     public void timesToString(List<float> times)
