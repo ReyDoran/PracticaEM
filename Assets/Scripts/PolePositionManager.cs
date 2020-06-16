@@ -25,7 +25,8 @@ namespace Assets.Scripts
         private System.Timers.Timer countdown;
         public GameObject[] m_DebuggingSpheres { get; set; }
         private Thread[] arcThreads = new Thread[4];
-        public int debugVariable = 0;
+        private int numPlayerFinished;
+        public int debugVariable;
         #endregion
 
         #region Methods
@@ -48,7 +49,7 @@ namespace Assets.Scripts
         {
             if (m_Players.Count == 0)
                 return;
-            if(startedRace) UpdateRaceProgress();
+            if (startedRace) UpdateRaceProgress();
         }
 
         public void AddPlayer(PlayerInfo player)
@@ -69,7 +70,7 @@ namespace Assets.Scripts
             public PlayerInfoComparer(float[] arcLengths, List<PlayerInfo> m_Players)
             {
                 //m_ArcLengths = arcLengths;
-                for(int i = 0; i < arcLengths.Length; i++)
+                for (int i = 0; i < arcLengths.Length; i++)
                 {
                     playerLengths.Add(m_Players[i].ID, arcLengths[i]);
                 }
@@ -160,7 +161,7 @@ namespace Assets.Scripts
 
             float minArcL =
                 this.m_CircuitController.ComputeClosestPointArcLength(carPos, out segIdx, out carProj, out carDist);
-        
+
             this.m_DebuggingSpheres[id].transform.position = carProj;
 
             //CalculateLap(ID, segIdx);
@@ -168,7 +169,7 @@ namespace Assets.Scripts
             switch (segIdx)
             {
                 case 0:
-                    if (m_Players[id].circuitControlPoints[2])  //Caso normal
+                    if (m_Players[id].circuitControlPoints[2] == true)  //Caso normal
                     {
                         m_Players[id].circuitControlPoints[2] = false;
                         m_Players[id].circuitControlPoints[0] = true;
@@ -176,10 +177,17 @@ namespace Assets.Scripts
                         if (m_Players[id].CurrentLap == 1)  // Fin carrera
                         {
                             Debug.Log("HA GANADO EL JUGADOR: " + m_Players[id].Name);
+                            numPlayerFinished += 1;
                             m_RaceInfo.TargetUpdateTimeLaps(clientID.connectionToClient);
                             m_RaceInfo.RpcStopTimer();
-                            m_RaceInfo.RpcFinishRace(m_Players[id].Name,m_UIManager.globalTime.ToString());
+                            m_RaceInfo.RpcFinishRace(m_Players[id].Name, m_UIManager.globalTime.ToString());
                             m_RaceInfo.TargetDisableWinner(clientID.connectionToClient);
+                            if (numPlayerFinished == MaxPlayersInGame)
+                            {
+                                m_RaceInfo.RpcAllPlayersFinished();
+
+
+                            }
                             //m_UIManager.ActivateFinishHUD();
                             //m_UIManager.UpdateFinishList(m_RaceInfo.clasificationText);
                         }
@@ -188,9 +196,9 @@ namespace Assets.Scripts
                         m_RaceInfo.TargetUpdateLaps(clientID.connectionToClient, m_Players[id].CurrentLap);
                         m_RaceInfo.TargetUpdateInGameLaps(clientID.connectionToClient);
                         m_RaceInfo.TargetUpdateTimeLaps(clientID.connectionToClient);
-                        Debug.Log(m_Players[id].Name + " ha dado una vuelta le quedan: " + m_Players[id].CurrentLap);
+                        Debug.Log(m_Players[id].Name + " ha dado una vuelta le quedan: " + m_Players[ID].CurrentLap);
                     }
-                    else if (m_Players[id].circuitControlPoints[1])
+                    else if (m_Players[id].circuitControlPoints[1] == true)
                     {
                         m_Players[id].circuitControlPoints[1] = false;
                         m_Players[id].circuitControlPoints[0] = true;
@@ -198,12 +206,12 @@ namespace Assets.Scripts
                     break;
 
                 case 1:
-                    if (m_Players[id].circuitControlPoints[0])  //Caso normal
+                    if (m_Players[id].circuitControlPoints[0] == true)  //Caso normal
                     {
                         m_Players[id].circuitControlPoints[0] = false;
                         m_Players[id].circuitControlPoints[1] = true;
                     }
-                    else if (m_Players[id].circuitControlPoints[2])
+                    else if (m_Players[id].circuitControlPoints[2] == true)
                     {
                         m_Players[id].circuitControlPoints[2] = false;
                         m_Players[id].circuitControlPoints[1] = true;
@@ -211,12 +219,12 @@ namespace Assets.Scripts
                     break;
 
                 case 2:
-                    if (m_Players[id].circuitControlPoints[1])  //Caso normal
+                    if (m_Players[id].circuitControlPoints[1] == true)  //Caso normal
                     {
                         m_Players[id].circuitControlPoints[1] = false;
                         m_Players[id].circuitControlPoints[2] = true;
                     }
-                    else if (m_Players[id].circuitControlPoints[0])
+                    else if (m_Players[id].circuitControlPoints[0] == true)
                     {
                         m_Players[id].circuitControlPoints[0] = false;
                         m_Players[id].circuitControlPoints[2] = true;
@@ -268,17 +276,17 @@ namespace Assets.Scripts
         */
             return minArcL;
         }
-    
+
         public int CalculatePlayers()
         {
             int players = m_Players.Count;
             //Debug.Log("Numero de jugadores " + players);
- 
+
             for (int i = 0; i < m_Players.Count; i++)
             {
                 m_PlayerControllers[i].RpcUpdatePlayersConnected(players);
                 m_PlayerControllers[i].RpcUpdatePlayersListLobby(CalculatePlayersList());
-            
+
             }
             return players;
         }
@@ -305,7 +313,7 @@ namespace Assets.Scripts
             {
                 if (segIdx == 0 || this.m_Players[ID].controlpoints[segIdx - 1])
                     this.m_Players[ID].controlpoints[segIdx] = true;
-            
+
                 foreach (bool segment in this.m_Players[ID].controlpoints)
                 {
                     if (!segment)
@@ -313,7 +321,7 @@ namespace Assets.Scripts
                         finishLap = false;
                         break;
                     }
-                }  
+                }
             }
             if (segIdx == 0 && finishLap)
             {
@@ -381,7 +389,7 @@ namespace Assets.Scripts
             countdown.Enabled = true;
             //m_RaceInfo.RpcSwitchTimer();
             */
-            #endregion
+                #endregion
                 m_UIManager.ActivateReadyButton();
             }
         }
