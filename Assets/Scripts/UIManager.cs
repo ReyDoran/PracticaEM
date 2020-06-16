@@ -64,6 +64,8 @@ public class UIManager : MonoBehaviour
     private GameObject finishHUD;
     [SerializeField] private Text textPlayersfinished;
     [SerializeField] public Text textTimes;
+    [SerializeField] public Text textWaitingPlayers;
+    [SerializeField] public Button buttonBackMenu;
 
 
     private void Awake()
@@ -73,7 +75,8 @@ public class UIManager : MonoBehaviour
         m_PolePositionManager = FindObjectOfType<PolePositionManager>();
         m_RaceInfo = FindObjectOfType<RaceInfo>();
         buttonReady.gameObject.SetActive(false);
-        
+        buttonBackMenu.gameObject.SetActive(false);
+
     }
 
     private void Start()
@@ -89,6 +92,7 @@ public class UIManager : MonoBehaviour
         buttonpurple.onClick.AddListener(() => SetColor("purple"));
         buttonpink.onClick.AddListener(() => SetColor("pink"));
         buttonReady.onClick.AddListener(() => startRace());
+        buttonBackMenu.onClick.AddListener(() => PlayersToMenu());
 
         ActivateMainMenu();
     }
@@ -258,6 +262,17 @@ public class UIManager : MonoBehaviour
     private void startRace()
     {
         m_PolePositionManager.StartAllPlayers();
+    }
+
+    public void AllPlayersFinished()
+    {
+        textWaitingPlayers.text = "ALL PLAYERS FINISHED THE RACE";
+    }
+
+    private void PlayersToMenu()
+    {
+        m_RaceInfo.RpcBackToMenu();
+        NetworkServer.Shutdown();
     }
 
 }

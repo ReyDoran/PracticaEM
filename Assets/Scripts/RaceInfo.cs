@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Mirror;
 using System.Linq;
+using UnityEngine.SceneManagement;
 
 public class RaceInfo : NetworkBehaviour
 {
@@ -193,7 +194,17 @@ public class RaceInfo : NetworkBehaviour
         }
     }
 
+    [ClientRpc]
+    public void RpcAllPlayersFinished()
+    {
+        m_UIManager.AllPlayersFinished();
+    }
 
+    [ClientRpc]
+    public void RpcBackToMenu()
+    {
+        SceneManager.LoadScene("Game");
+    }
 
     public void timesToString(List<float> times)
     {
