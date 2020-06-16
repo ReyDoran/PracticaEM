@@ -14,6 +14,7 @@ public class UIManager : MonoBehaviour
     public float time = 0;
     public float globalTime = 0;
     public bool startedTimer;
+    public bool startedGlobalTimer;
 
     private NetworkManager m_NetworkManager;
     private CircuitController m_CircuitController;
@@ -97,8 +98,12 @@ public class UIManager : MonoBehaviour
         if (startedTimer)
         {
             time += Time.deltaTime;
-            globalTime += Time.deltaTime;
             textTime.text = "Time : " + time.ToString("f1");
+        }
+
+        if (startedGlobalTimer)
+        {
+            globalTime += Time.deltaTime;
         }
     }
 

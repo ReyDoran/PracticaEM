@@ -180,6 +180,7 @@ public class RaceInfo : NetworkBehaviour
     public void RpcStartTimer()
     {
         m_UIManager.startedTimer = true;
+        m_UIManager.startedGlobalTimer = true;
     }
 
     [ClientRpc]

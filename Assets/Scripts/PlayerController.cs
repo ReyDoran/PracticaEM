@@ -415,7 +415,7 @@ public class PlayerController : NetworkBehaviour
     {
         m_Rigidbody.constraints = RigidbodyConstraints.FreezeAll;
         
-        //m_Rigidbody.gameObject.SetActive(false);
+        m_Rigidbody.gameObject.SetActive(false);
     }
     #endregion
 }
