@@ -27,6 +27,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] private InputField inputFieldIP;
     [SerializeField] public InputField textTotalLaps;
     [SerializeField] private InputField inputFieldName;
+    [SerializeField] private InputField inputMaxPlayers;
     [SerializeField] private Button buttongreen;
     [SerializeField] private Button buttonred;
     [SerializeField] private Button buttonorange;
@@ -204,6 +205,25 @@ public class UIManager : MonoBehaviour
     {
         if (inputFieldIP.text == "") m_NetworkManager.networkAddress = "localhost";
         else m_NetworkManager.networkAddress = inputFieldIP.text;
+
+
+        int numPlayers = Int16.Parse(inputMaxPlayers.text);
+        if (inputMaxPlayers.text == "" || numPlayers == 0)
+        {
+            m_PolePositionManager.MaxPlayersInGame = 4;
+        }
+        else
+        {
+            if (numPlayers <= 4 )
+            {
+                m_PolePositionManager.MaxPlayersInGame = Int16.Parse(inputMaxPlayers.text);
+            }
+            else
+            {
+                m_PolePositionManager.MaxPlayersInGame = 4;
+            }
+        }
+
         m_NetworkManager.StartHost();
         ActivateLobbyHUD();
     }
@@ -223,13 +243,13 @@ public class UIManager : MonoBehaviour
         m_NetworkManager.StartServer();
         ActivateLobbyHUD();
     }
-
+    
     private void InitNumberLaps()
     {
         if (textTotalLaps.text == "") m_CircuitController.totalLaps = 5;
         else m_CircuitController.totalLaps = int.Parse(textTotalLaps.text);
     }
-
+    
     private void startRace()
     {
         m_PolePositionManager.StartAllPlayers();
