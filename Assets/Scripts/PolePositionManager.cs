@@ -21,7 +21,7 @@ public class PolePositionManager : NetworkBehaviour
     public string[] colors = new string[4];
     public int numPlayers;
     public int totalLaps;
-    public int MaxPlayersInGame = 2;// MAX 4
+    public int MaxPlayersInGame = 4;// MAX 4
     private List<int> clasification = new List<int>();
     public bool startedRace = false;
     private System.Timers.Timer countdown;
@@ -178,6 +178,7 @@ public class PolePositionManager : NetworkBehaviour
                         m_RaceInfo.TargetUpdateTimeLaps(clientID.connectionToClient);
                         m_RaceInfo.RpcStopTimer();
                         m_RaceInfo.RpcFinishRace(m_Players[ID].Name,m_UIManager.globalTime.ToString());
+                        m_RaceInfo.TargetDisableWinner(clientID.connectionToClient);
                         //m_UIManager.ActivateFinishHUD();
                         //m_UIManager.UpdateFinishList(m_RaceInfo.clasificationText);
                     }

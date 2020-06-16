@@ -411,6 +411,11 @@ public class PlayerController : NetworkBehaviour
             OnLapChangeHandler(this.m_PlayerInfo.CurrentLap);
     }
 
-
+    public void disableWinner()
+    {
+        m_Rigidbody.constraints = RigidbodyConstraints.FreezeAll;
+        
+        //m_Rigidbody.gameObject.SetActive(false);
+    }
     #endregion
 }

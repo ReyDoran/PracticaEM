@@ -112,6 +112,8 @@ public class RaceInfo : NetworkBehaviour
         }
     }
 
+    
+
     [ClientRpc]
     public void RpcUpdateClasificationText(string clasificationText)
     {
@@ -158,6 +160,13 @@ public class RaceInfo : NetworkBehaviour
         }
     }
 
+
+    [TargetRpc]
+    public void TargetDisableWinner(NetworkConnection client)
+    {
+        m_PlayerController.disableWinner();
+    }
+
     [ClientRpc]
     public void RpcUpdateLaps(int laps)
     {
@@ -182,6 +191,7 @@ public class RaceInfo : NetworkBehaviour
             m_UIManager.startedTimer = false;
         }
     }
+
 
 
     public void timesToString(List<float> times)
