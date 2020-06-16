@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Schema;
+using Assets.Scripts;
 using Mirror;
 using UnityEngine;
 using UnityEngine.UI;
