@@ -144,11 +144,14 @@ public class PolePositionManager : NetworkBehaviour
         // Compute the projection of the car position to the closest circuit 
         // path segment and accumulate the arc-length along of the car along
         // the circuit.
-        Vector3[] carPos = new Vector3[4];
+
+        Vector3[] carPos = new Vector3[m_Players.Count];
+        NetworkIdentity[] clientID = new NetworkIdentity[m_Players.Count];
 
         for (int i = 0; i < m_Players.Count; ++i)
         {
             carPos[i] = this.m_Players[i].transform.position;
+            clientID[i] = m_Players[i].GetComponent<NetworkIdentity>();
         }
         int[] segIdx = new int[m_Players.Count];
         float[] carDist = new float[m_Players.Count];
@@ -168,19 +171,20 @@ public class PolePositionManager : NetworkBehaviour
             switch (segIdxV)
             {
                 case 0:
+                    Debug.Log("Caso 0");
                     if (m_Players[id].circuitControlPoints[2])  //Caso normal
                     {
                         m_Players[id].circuitControlPoints[2] = false;
                         m_Players[id].circuitControlPoints[0] = true;
-                        NetworkIdentity clientID = m_Players[id].GetComponent<NetworkIdentity>();
+                        //NetworkIdentity clientID = m_Players[id].GetComponent<NetworkIdentity>();
                         if (m_Players[id].CurrentLap == 1)  // Fin carrera
                         {
                             Debug.Log("HA GANADO EL JUGADOR: " + m_Players[id].Name);
                             numPlayerFinished += 1;
-                            m_RaceInfo.TargetUpdateTimeLaps(clientID.connectionToClient);
+                            m_RaceInfo.TargetUpdateTimeLaps(clientID[id].connectionToClient);
                             m_RaceInfo.RpcStopTimer();
                             m_RaceInfo.RpcFinishRace(m_Players[id].Name, m_UIManager.globalTime.ToString());
-                            m_RaceInfo.TargetDisableWinner(clientID.connectionToClient);
+                            m_RaceInfo.TargetDisableWinner(clientID[id].connectionToClient);
                             if (numPlayerFinished == MaxPlayersInGame)
                             {
                                 m_RaceInfo.RpcAllPlayersFinished();
@@ -192,9 +196,9 @@ public class PolePositionManager : NetworkBehaviour
                         }
                         m_Players[id].CurrentLap -= 1;
 
-                        m_RaceInfo.TargetUpdateLaps(clientID.connectionToClient, m_Players[id].CurrentLap);
-                        m_RaceInfo.TargetUpdateInGameLaps(clientID.connectionToClient);
-                        m_RaceInfo.TargetUpdateTimeLaps(clientID.connectionToClient);
+                        m_RaceInfo.TargetUpdateLaps(clientID[id].connectionToClient, m_Players[id].CurrentLap);
+                        m_RaceInfo.TargetUpdateInGameLaps(clientID[id].connectionToClient);
+                        m_RaceInfo.TargetUpdateTimeLaps(clientID[id].connectionToClient);
                         Debug.Log(m_Players[id].Name + " ha dado una vuelta le quedan: " + m_Players[id].CurrentLap);
                     }
                     else if (m_Players[id].circuitControlPoints[1])
@@ -205,6 +209,7 @@ public class PolePositionManager : NetworkBehaviour
                     break;
 
                 case 1:
+                    Debug.Log("Caso 1");
                     if (m_Players[id].circuitControlPoints[0])  //Caso normal
                     {
                         m_Players[id].circuitControlPoints[0] = false;
@@ -218,6 +223,7 @@ public class PolePositionManager : NetworkBehaviour
                     break;
 
                 case 2:
+                    Debug.Log("Caso 2");
                     if (m_Players[id].circuitControlPoints[1])  //Caso normal
                     {
                         m_Players[id].circuitControlPoints[1] = false;
