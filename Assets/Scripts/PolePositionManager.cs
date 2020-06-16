@@ -169,7 +169,7 @@ namespace Assets.Scripts
             switch (segIdx)
             {
                 case 0:
-                    if (m_Players[id].circuitControlPoints[2])  //Caso normal
+                    if (m_Players[id].circuitControlPoints[2] == true)  //Caso normal
                     {
                         m_Players[id].circuitControlPoints[2] = false;
                         m_Players[id].circuitControlPoints[0] = true;
@@ -196,9 +196,9 @@ namespace Assets.Scripts
                         m_RaceInfo.TargetUpdateLaps(clientID.connectionToClient, m_Players[id].CurrentLap);
                         m_RaceInfo.TargetUpdateInGameLaps(clientID.connectionToClient);
                         m_RaceInfo.TargetUpdateTimeLaps(clientID.connectionToClient);
-                        Debug.Log(m_Players[id].Name + " ha dado una vuelta le quedan: " + m_Players[id].CurrentLap);
+                        Debug.Log(m_Players[id].Name + " ha dado una vuelta le quedan: " + m_Players[ID].CurrentLap);
                     }
-                    else if (m_Players[id].circuitControlPoints[1])
+                    else if (m_Players[id].circuitControlPoints[1] == true)
                     {
                         m_Players[id].circuitControlPoints[1] = false;
                         m_Players[id].circuitControlPoints[0] = true;
@@ -206,12 +206,12 @@ namespace Assets.Scripts
                     break;
 
                 case 1:
-                    if (m_Players[id].circuitControlPoints[0])  //Caso normal
+                    if (m_Players[id].circuitControlPoints[0] == true)  //Caso normal
                     {
                         m_Players[id].circuitControlPoints[0] = false;
                         m_Players[id].circuitControlPoints[1] = true;
                     }
-                    else if (m_Players[id].circuitControlPoints[2])
+                    else if (m_Players[id].circuitControlPoints[2] == true)
                     {
                         m_Players[id].circuitControlPoints[2] = false;
                         m_Players[id].circuitControlPoints[1] = true;
@@ -219,12 +219,12 @@ namespace Assets.Scripts
                     break;
 
                 case 2:
-                    if (m_Players[id].circuitControlPoints[1])  //Caso normal
+                    if (m_Players[id].circuitControlPoints[1] == true)  //Caso normal
                     {
                         m_Players[id].circuitControlPoints[1] = false;
                         m_Players[id].circuitControlPoints[2] = true;
                     }
-                    else if (m_Players[id].circuitControlPoints[0])
+                    else if (m_Players[id].circuitControlPoints[0] == true)
                     {
                         m_Players[id].circuitControlPoints[0] = false;
                         m_Players[id].circuitControlPoints[2] = true;
