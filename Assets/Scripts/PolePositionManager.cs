@@ -47,6 +47,7 @@ public class PolePositionManager : NetworkBehaviour
         {
             m_DebuggingSpheres[i] = GameObject.CreatePrimitive(PrimitiveType.Sphere);
             m_DebuggingSpheres[i].GetComponent<SphereCollider>().enabled = false;
+            m_DebuggingSpheres[i].GetComponent<MeshRenderer>().enabled = false;
         }
     }
 
