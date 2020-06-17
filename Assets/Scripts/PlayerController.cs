@@ -34,6 +34,7 @@ public class PlayerController : NetworkBehaviour
     public float engineBrake = 1e+12f;
     public float footBrake = 1e+24f;
     public float topSpeed = 200f;
+    public float topSpeedAux;
     public float downForce = 100f;
     public float slipLimit = 0.2f;
 
@@ -52,7 +53,7 @@ public class PlayerController : NetworkBehaviour
 
     private PolePositionManager m_PolePositionManager;
     private RaceInfo m_RaceInfo;
-
+    System.Timers.Timer resetTimer;    
 
     private Text textMyName;
     private int depuracionInt = 0;
@@ -102,6 +103,10 @@ public class PlayerController : NetworkBehaviour
         m_Rigidbody.constraints = RigidbodyConstraints.FreezeAll;
 
         //ChangeColor();
+        topSpeedAux = topSpeed;
+        resetTimer = new System.Timers.Timer(1000);
+        resetTimer.AutoReset = false;
+        resetTimer.Elapsed += ((System.Object source, System.Timers.ElapsedEventArgs e) => { topSpeed = topSpeedAux; });
     }
 
     public void Update()
@@ -109,7 +114,8 @@ public class PlayerController : NetworkBehaviour
         InputAcceleration = Input.GetAxis("Vertical");
         InputSteering = Input.GetAxis(("Horizontal"));
         InputBrake = Input.GetAxis("Jump");
-        InputReset = Input.GetKey(KeyCode.Escape);
+        if (InputReset == false)
+            InputReset = Input.GetKeyDown(KeyCode.Escape);
         Speed = m_Rigidbody.velocity.magnitude;
 
     }
@@ -152,13 +158,18 @@ public class PlayerController : NetworkBehaviour
             this.m_PlayerInfo.transform.position = carProj;
             this.m_PlayerInfo.transform.eulerAngles = new Vector3(this.m_PlayerInfo.transform.eulerAngles.x, angleReset, 0.0f);
 
-            float templimit = topSpeed;
+            //float templimit = topSpeed;
+            //topSpeed = 0;
             topSpeed = 0;
+            //resetTimer.Enabled = true;
+            resetTimer.Start();
+            /*
             System.Threading.Thread HiloEspera = new System.Threading.Thread(() => {
                 System.Threading.Tasks.Task.Delay(1000);
                 topSpeed = templimit;
-            });
+            });            
             HiloEspera.Start();
+            */
         }
         else
         {
@@ -312,6 +323,11 @@ public class PlayerController : NetworkBehaviour
         float speed = m_Rigidbody.velocity.magnitude;
         if (speed > topSpeed)
             m_Rigidbody.velocity = topSpeed * m_Rigidbody.velocity.normalized;
+        if (topSpeed == 0)
+        {
+            m_Rigidbody.velocity = 0 * m_Rigidbody.velocity;
+            m_Rigidbody.angularVelocity = 0 * m_Rigidbody.angularVelocity;
+        }
     }
 
     /* Asigna a topSpeed 0 para bloquear el movimiento del coche,
@@ -326,6 +342,7 @@ public class PlayerController : NetworkBehaviour
         else
             m_Rigidbody.constraints = RigidbodyConstraints.None;
     }
+
 
     [ClientRpc]
     public void RpcUpdateClasification(string clasification)
