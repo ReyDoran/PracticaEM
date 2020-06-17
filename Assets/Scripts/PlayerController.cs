@@ -104,7 +104,7 @@ public class PlayerController : NetworkBehaviour
 
         //ChangeColor();
         topSpeedAux = topSpeed;
-        resetTimer = new System.Timers.Timer(1000);
+        resetTimer = new System.Timers.Timer(100);
         resetTimer.AutoReset = false;
         resetTimer.Elapsed += ((System.Object source, System.Timers.ElapsedEventArgs e) => { topSpeed = topSpeedAux; });
     }
