@@ -203,7 +203,8 @@ public class RaceInfo : NetworkBehaviour
     [ClientRpc]
     public void RpcBackToMenu()
     {
-        SceneManager.LoadScene("Game");
+        //SceneManager.LoadScene("Game");
+        NetworkManager.singleton.ServerChangeScene("Game");
     }
 
     public void timesToString(List<float> times)
