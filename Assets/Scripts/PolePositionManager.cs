@@ -67,6 +67,7 @@ public class PolePositionManager : NetworkBehaviour
         clasification.Add(-1);
         colors[player.GetComponent<PlayerInfo>().ID] = player.GetComponent<PlayerInfo>().Color;
         //m_RaceInfo.RpcChangeColor(player.GetComponent<PlayerInfo>().ID, player.GetComponent<PlayerInfo>().Color);
+        player.GetComponent<PlayerController>().id = player.GetComponent<PlayerInfo>().ID;
         StartRace();
     }
 
@@ -250,9 +251,12 @@ public class PolePositionManager : NetworkBehaviour
             }
         }
         */
-        if (this.m_Players[id].CurrentLap <= 1)
+        if (this.m_Players[id].CurrentLap == 1)
         {
             minArcL -= m_CircuitController.CircuitLength;
+        } else if (this.m_Players[id].CurrentLap == 0)
+        {
+            minArcL = 0;
         }
         else
         {
@@ -394,7 +398,7 @@ public class PolePositionManager : NetworkBehaviour
     {
         for (int i = 0; i < m_Players.Count; i++)
         {
-            m_RaceInfo.RpcChangeColor(i, colors[i]);
+            m_RaceInfo.RpcChangeColor(m_Players[i].ID, colors[i]);
             m_PlayerControllers[i].RpcActivateMyInGameHUD();
             //m_Players[i].CurrentLap = 3;
             m_Players[i].CurrentLap = totalLaps;

@@ -58,6 +58,9 @@ public class PlayerController : NetworkBehaviour
     private Text textMyName;
     private int depuracionInt = 0;
 
+    [SyncVar]
+    public int id;
+
     public delegate void OnLapChangeDelegate(int newLap);
 
     public event OnLapChangeDelegate OnLapChangeHandler;

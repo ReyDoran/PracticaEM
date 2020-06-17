@@ -14,9 +14,6 @@ public class SetupPlayer : NetworkBehaviour
     [SyncVar] private int m_ID;
     [SyncVar] private string m_Name;
 
-    public uint My_Net_ID;
-    public int Check_ID;
-
     private UIManager m_UIManager;
     private PlayerController m_PlayerController;
     private PlayerInfo m_PlayerInfo;
@@ -32,9 +29,6 @@ public class SetupPlayer : NetworkBehaviour
     public override void OnStartServer()
     {
         base.OnStartServer();
-        My_Net_ID = this.gameObject.GetComponent<NetworkIdentity>().netId;
-        m_ID = connectionToClient.connectionId;
-
     }
 
     /// <summary>
@@ -44,7 +38,6 @@ public class SetupPlayer : NetworkBehaviour
     public override void OnStartClient()
     {
         base.OnStartClient();
-        m_PlayerInfo.ID = m_ID;
         //m_PlayerInfo.Name = "Player" + m_ID;
         m_PlayerInfo.Name = m_Name;
         m_PlayerInfo.CurrentLap = 0;
@@ -75,7 +68,6 @@ public class SetupPlayer : NetworkBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        My_Net_ID = this.gameObject.GetComponent<NetworkIdentity>().netId;
         if (isLocalPlayer)
         {
             m_PlayerController.enabled = true;
@@ -106,6 +98,7 @@ public class SetupPlayer : NetworkBehaviour
     {
         m_PlayerInfo.Name = name;
         m_PlayerInfo.Color = color;
+        m_PlayerInfo.ID = connectionToClient.connectionId;
         m_PolePositionManager.AddPlayer(m_PlayerInfo);
     }
 

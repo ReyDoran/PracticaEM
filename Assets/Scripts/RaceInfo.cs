@@ -4,6 +4,7 @@ using UnityEngine;
 using Mirror;
 using System.Linq;
 using UnityEngine.SceneManagement;
+using System.Data;
 
 public class RaceInfo : NetworkBehaviour
 {
@@ -14,7 +15,7 @@ public class RaceInfo : NetworkBehaviour
     public string clasificationText;
     public int laps;
     public int totalLaps;
-    public string[] colors;
+    public Dictionary<int, string> colors;
     public string timesText = "";
     public string lapsInGame = "";
     public string winners ="";
@@ -47,7 +48,7 @@ public class RaceInfo : NetworkBehaviour
         blackMaterial = (Material)Resources.Load("black", typeof(Material));
         purpleMaterial = (Material)Resources.Load("purple", typeof(Material));
         pinkMaterial = (Material)Resources.Load("pink", typeof(Material));
-        colors = new string[4];
+        colors = new Dictionary<int, string>();
     }
 
     [TargetRpc]
@@ -60,8 +61,8 @@ public class RaceInfo : NetworkBehaviour
     [ClientRpc]
     public void RpcChangeColor(int index, string color)
     {
-        Debug.Log(index + " " + color);
-        colors[index] = color;
+        //Debug.Log(index + " " + color);
+        colors.Add(index, color);
     }
 
     [ClientRpc]
@@ -73,7 +74,7 @@ public class RaceInfo : NetworkBehaviour
             Debug.Log("PlayerContrLEng:" + i);
             Debug.Log("colorslength" + colors[i]);
             MeshRenderer body = playerInfos[i].gameObject.GetComponentInChildren<MeshRenderer>();
-            string newColor = colors[playerInfos[i].ID];
+            string newColor = colors[playerInfos[i].GetComponent<PlayerController>().id];
             Material[] Mymaterials = new Material[3];
             Mymaterials[0] = greyMaterial;
             Mymaterials[2] = blueglassMaterial;
