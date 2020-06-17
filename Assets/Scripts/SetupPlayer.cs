@@ -1,6 +1,7 @@
 ﻿using System;
 using Mirror;
 using UnityEngine;
+using UnityEngine.Networking.Types;
 using Random = System.Random;
 
 /*
@@ -12,6 +13,9 @@ public class SetupPlayer : NetworkBehaviour
 {
     [SyncVar] private int m_ID;
     [SyncVar] private string m_Name;
+
+    public uint My_Net_ID;
+    public int Check_ID;
 
     private UIManager m_UIManager;
     private PlayerController m_PlayerController;
@@ -28,7 +32,9 @@ public class SetupPlayer : NetworkBehaviour
     public override void OnStartServer()
     {
         base.OnStartServer();
+        My_Net_ID = this.gameObject.GetComponent<NetworkIdentity>().netId;
         m_ID = connectionToClient.connectionId;
+
     }
 
     /// <summary>
@@ -69,6 +75,7 @@ public class SetupPlayer : NetworkBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        My_Net_ID = this.gameObject.GetComponent<NetworkIdentity>().netId;
         if (isLocalPlayer)
         {
             m_PlayerController.enabled = true;
