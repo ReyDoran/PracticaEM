@@ -10133,6 +10133,7 @@ MonoBehaviour:
   globalTime: 0
   startedTimer: 0
   startedGlobalTimer: 0
+  m_PolePositionManager: {fileID: 1839589613}
   mainMenu: {fileID: 1196147019}
   buttonHost: {fileID: 1854017023}
   buttonClient: {fileID: 553049071}
@@ -10224,7 +10225,6 @@ MonoBehaviour:
   totalLaps: 0
   MaxPlayersInGame: 2
   startedRace: 0
-  debugVariable: 0
 --- !u!4 &1839589614
 Transform:
   m_ObjectHideFlags: 0
