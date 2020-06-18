@@ -18,7 +18,7 @@ public class UIManager : MonoBehaviour
 
     private NetworkManager m_NetworkManager;
     private CircuitController m_CircuitController;
-    private RaceInfo m_RaceInfo;
+    public RaceInfo m_RaceInfo;
     public PolePositionManager m_PolePositionManager;
 
     [Header("Main Menu")] [SerializeField] private GameObject mainMenu;
@@ -73,7 +73,7 @@ public class UIManager : MonoBehaviour
         m_NetworkManager = FindObjectOfType<NetworkManager>();
         m_CircuitController = FindObjectOfType<CircuitController>();
         //m_PolePositionManager = FindObjectOfType<PolePositionManager>();
-        m_RaceInfo = FindObjectOfType<RaceInfo>();
+        //m_RaceInfo = FindObjectOfType<RaceInfo>();
         buttonReady.gameObject.SetActive(false);
         buttonBackMenu.gameObject.SetActive(false);
 
