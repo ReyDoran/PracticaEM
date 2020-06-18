@@ -205,7 +205,7 @@ public class RaceInfo : NetworkBehaviour
     public void RpcBackToMenu()
     {
         //SceneManager.LoadScene("Game");
-        NetworkManager.singleton.ServerChangeScene("Game");
+        SceneManager.LoadScene("Game");
     }
 
     public void timesToString(List<float> times)
