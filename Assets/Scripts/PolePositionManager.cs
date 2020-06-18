@@ -5,6 +5,7 @@ using System.Globalization;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading.Tasks;
 using Mirror;
 using Mirror.Examples.Basic;
 using UnityEngine;
@@ -91,66 +92,75 @@ public class PolePositionManager : NetworkBehaviour
 
     public void UpdateRaceProgress()
     {
+        NetworkIdentity[] clientID = new NetworkIdentity[m_Players.Count];
+        Vector3[] carProjs = new Vector3[m_Players.Count];
+        Vector3[] carPos = new Vector3[m_Players.Count];
         float[] arcLengths = new float[m_Players.Count];
         bool clasificationHasChanged = false;
         string clasificationText = "";
 
         for (int i = 0; i < m_Players.Count; ++i)
         {
-            arcLengths[i] = ComputeCarArcLength(i);
+           carPos[i] = this.m_Players[i].transform.position;
+           clientID[i] = m_Players[i].GetComponent<NetworkIdentity>();
         }
 
+        Debug.Log("Inicio ParallelFor");
+        Parallel.For(0, m_Players.Count, i =>
+        {
+            Vector3 carProj;
+            arcLengths[i] = ComputeCarArcLength(i, carPos, clientID, out carProj);
+            carProjs[i] = carProj;
+        });
+        
         m_Players.Sort(new PlayerInfoComparer(arcLengths, m_Players));
 
         for (int i = 0; i < m_Players.Count; ++i)
         {
+            this.m_DebuggingSpheres[i].transform.position = carProjs[i];
             clasificationText += m_Players[i].Name + " \n";
             if (m_Players[i].CurrentPosition != i + 1)
             {
                 m_Players[i].CurrentPosition = i + 1;
-                NetworkIdentity clientID = m_Players[i].GetComponent<NetworkIdentity>();
-                m_RaceInfo.TargetUpdateClasification(clientID.connectionToClient, m_Players[i].CurrentPosition);
+                clientID[i] = m_Players[i].GetComponent<NetworkIdentity>();
+                m_RaceInfo.TargetUpdateClasification(clientID[i].connectionToClient, m_Players[i].CurrentPosition);
                 clasificationHasChanged = true;
             }
+            if (clasificationHasChanged)
+            {
+                m_RaceInfo.RpcUpdateClasificationText(clasificationText);
+            }
         }
-        if (clasificationHasChanged)
-        {
-            m_RaceInfo.RpcUpdateClasificationText(clasificationText);
-        }
-
     }
 
-    float ComputeCarArcLength(int id)
+    float ComputeCarArcLength(int id, Vector3[] carPos, NetworkIdentity[] clientID, out Vector3 carProj)
     {
         // Compute the projection of the car position to the closest circuit 
         // path segment and accumulate the arc-length along of the car along
         // the circuit.
-        Vector3 carPos = this.m_Players[id].transform.position;
 
         int segIdx;
         float carDist;
-        Vector3 carProj;
 
-        float minArcL = this.m_CircuitController.ComputeClosestPointArcLength(carPos, out segIdx, out carProj, out carDist);
+        float minArcL = this.m_CircuitController.ComputeClosestPointArcLength(carPos[id], out segIdx, out carProj, out carDist);
         
-        this.m_DebuggingSpheres[id].transform.position = carProj;
-
         switch (segIdx)
         {
             case 0:
+                Debug.Log("Hilo "+id+" Caso 0");
                 if (m_Players[id].circuitControlPoints[2])  //Caso normal
                 {
                     m_Players[id].circuitControlPoints[2] = false;
                     m_Players[id].circuitControlPoints[0] = true;
-                    NetworkIdentity clientID = m_Players[id].GetComponent<NetworkIdentity>();
+                    clientID[id] = m_Players[id].GetComponent<NetworkIdentity>();
                     if (m_Players[id].CurrentLap == 1)  // Fin carrera
                     {
                         Debug.Log("HA GANADO EL JUGADOR: " + m_Players[id].Name);
                         numPlayerFinished++;
-                        m_RaceInfo.TargetUpdateTimeLaps(clientID.connectionToClient);
+                        m_RaceInfo.TargetUpdateTimeLaps(clientID[id].connectionToClient);
                         m_RaceInfo.RpcStopTimer();
                         m_RaceInfo.RpcFinishRace(m_Players[id].Name,m_UIManager.globalTime.ToString());
-                        m_RaceInfo.TargetDisableWinner(clientID.connectionToClient);
+                        m_RaceInfo.TargetDisableWinner(clientID[id].connectionToClient);
                         if(numPlayerFinished == MaxPlayersInGame)
                         {
                             m_RaceInfo.RpcAllPlayersFinished();
@@ -160,9 +170,9 @@ public class PolePositionManager : NetworkBehaviour
                     }
                     m_Players[id].CurrentLap--;
 
-                    m_RaceInfo.TargetUpdateLaps(clientID.connectionToClient, m_Players[id].CurrentLap);
-                    m_RaceInfo.TargetUpdateInGameLaps(clientID.connectionToClient);
-                    m_RaceInfo.TargetUpdateTimeLaps(clientID.connectionToClient);
+                    m_RaceInfo.TargetUpdateLaps(clientID[id].connectionToClient, m_Players[id].CurrentLap);
+                    m_RaceInfo.TargetUpdateInGameLaps(clientID[id].connectionToClient);
+                    m_RaceInfo.TargetUpdateTimeLaps(clientID[id].connectionToClient);
                     Debug.Log(m_Players[id].Name + " ha dado una vuelta le quedan: " + m_Players[id].CurrentLap);
                 }
                 else if (m_Players[id].circuitControlPoints[1])
@@ -173,6 +183,7 @@ public class PolePositionManager : NetworkBehaviour
                 break;
 
             case 1:
+                Debug.Log("Hilo " + id + " Caso 1");
                 if (m_Players[id].circuitControlPoints[0])  //Caso normal
                 {
                     m_Players[id].circuitControlPoints[0] = false;
@@ -186,6 +197,7 @@ public class PolePositionManager : NetworkBehaviour
                 break;
 
             case 2:
+                Debug.Log("Hilo " + id + " Caso 2");
                 if (m_Players[id].circuitControlPoints[1])  //Caso normal
                 {
                     m_Players[id].circuitControlPoints[1] = false;
