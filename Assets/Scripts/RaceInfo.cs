@@ -11,7 +11,6 @@ public class RaceInfo : NetworkBehaviour
     UIManager m_UIManager;
     PlayerController m_PlayerController;
     PlayerInfo m_PlayerInfo;
-    private int clientClasification;
     public string clasificationText;
     public int laps;
     public int totalLaps;
@@ -151,13 +150,6 @@ public class RaceInfo : NetworkBehaviour
             lapsInGame += m_UIManager.time.ToString() + "\n";
             m_UIManager.textTimeLaps.text = lapsInGame;
         }
-    }
-
-
-    [TargetRpc]
-    public void TargetDisableWinner(NetworkConnection client)
-    {
-        m_PlayerController.disableWinner();
     }
 
     [ClientRpc]

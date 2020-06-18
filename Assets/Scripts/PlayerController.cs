@@ -86,7 +86,6 @@ public class PlayerController : NetworkBehaviour
         if (m_RaceInfo == null) m_RaceInfo = FindObjectOfType<RaceInfo>();
         m_Rigidbody.constraints = RigidbodyConstraints.FreezeAll;
 
-        //ChangeColor();
         topSpeedAux = topSpeed;
         resetTimer = new System.Timers.Timer(100);
         resetTimer.AutoReset = false;
