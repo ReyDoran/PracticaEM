@@ -184,6 +184,11 @@ public class UIManager : MonoBehaviour
         inGameHUD.SetActive(true);
         lobbyHUD.SetActive(false);
         finishHUD.SetActive(false);
+        Text[] TextObjects = inGameHUD.GetComponentsInChildren<Text>();
+        foreach(Text text in TextObjects)
+        {
+            text.color = Color.black;
+        }
     }
 
     public void ActivateFinishHUD()
