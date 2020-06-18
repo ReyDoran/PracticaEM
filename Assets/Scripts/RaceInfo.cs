@@ -45,7 +45,6 @@ public class RaceInfo : NetworkBehaviour
         m_UIManager.UpdateMyPosition(clientClasification);
     }
 
-
     [ClientRpc]
     public void RpcChangeColor(int index, string color)
     {
@@ -104,8 +103,6 @@ public class RaceInfo : NetworkBehaviour
             body.materials = Mymaterials;
         }
     }
-
-    
 
     [ClientRpc]
     public void RpcUpdateClasificationText(string clasificationText)

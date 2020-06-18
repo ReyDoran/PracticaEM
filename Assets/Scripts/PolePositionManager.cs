@@ -96,10 +96,9 @@ public class PolePositionManager : NetworkBehaviour
         Vector3[] carProjs = new Vector3[m_Players.Count];
         Vector3[] carPos = new Vector3[m_Players.Count];
         float[] arcLengths = new float[m_Players.Count];
+        int[] segmentsId = new int[m_Players.Count];
         bool clasificationHasChanged = false;
         string clasificationText = "";
-        int[] segmentsID= new int[m_Players.Count];
-        int segIdx;
 
         for (int i = 0; i < m_Players.Count; ++i)
         {
@@ -108,21 +107,16 @@ public class PolePositionManager : NetworkBehaviour
         }
         Parallel.For(0, m_Players.Count, i =>
         {
-            Vector3 carProj;
-            arcLengths[i] = ComputeCarArcLength(i, carPos, clientID, out carProj,out segIdx);
+            arcLengths[i] = ComputeCarArcLength(i, carPos, clientID, out Vector3 carProj, out int segIdx);
             carProjs[i] = carProj;
-            segmentsID[i] = segIdx;
+            segmentsId[i] = segIdx;
         });
-        /*
-        for (int i = 0; i < m_Players.Count; i++)
-        {
-            m_PlayerControllers[i].RpcCheck_REVERSE(segmentsID[i]);
-        }
-        */
+        
         m_Players.Sort(new PlayerInfoComparer(arcLengths, m_Players));
 
         for (int i = 0; i < m_Players.Count; ++i)
         {
+            m_PlayerControllers[i].TargetRpcCheck_REVERSE(clientID[i].connectionToClient, segmentsId[i]);
             this.m_DebuggingSpheres[i].transform.position = carProjs[i];
             clasificationText += m_Players[i].Name + " \n";
             if (m_Players[i].CurrentPosition != i + 1)
@@ -145,9 +139,7 @@ public class PolePositionManager : NetworkBehaviour
         // path segment and accumulate the arc-length along of the car along
         // the circuit.
 
-        float carDist;
-
-        float minArcL = this.m_CircuitController.ComputeClosestPointArcLength(carPos[id], out segIdx, out carProj, out carDist);
+        float minArcL = this.m_CircuitController.ComputeClosestPointArcLength(carPos[id], out segIdx, out carProj, out float carDist);
         
         switch (segIdx)
         {
