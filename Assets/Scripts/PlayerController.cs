@@ -48,7 +48,7 @@ public class PlayerController : NetworkBehaviour
     private int depuracionInt = 0;
 
     [SyncVar]
-    public int id;
+    public int ID;
 
     public delegate void OnLapChangeDelegate(int newLap);
 

@@ -37,9 +37,6 @@ public class RaceInfo : NetworkBehaviour
         if (m_UIManager == null) m_UIManager = FindObjectOfType<UIManager>();
         if (m_PlayerController == null) m_PlayerController = FindObjectOfType<PlayerController>();
         if (m_PlayerInfo == null) m_PlayerInfo = FindObjectOfType<PlayerInfo>();
-
-        greyMaterial = (Material)Resources.Load("grey", typeof(Material));
-        blueglassMaterial = (Material)Resources.Load("blueglass", typeof(Material));
         colors = new Dictionary<int, string>();
     }
 
@@ -53,7 +50,6 @@ public class RaceInfo : NetworkBehaviour
     [ClientRpc]
     public void RpcChangeColor(int index, string color)
     {
-        //Debug.Log(index + " " + color);
         colors.Add(index, color);
     }
 
@@ -61,18 +57,21 @@ public class RaceInfo : NetworkBehaviour
     public void RpcSetColors()
     {
         PlayerInfo[] playerInfos = FindObjectsOfType<PlayerInfo>();
+        Material[] Mymaterials = new Material[3];
+        greyMaterial = (Material)Resources.Load("grey", typeof(Material));
+        blueglassMaterial = (Material)Resources.Load("blueglass", typeof(Material));
+        Mymaterials[0] = greyMaterial;
+        Mymaterials[2] = blueglassMaterial;
         for (int i = 0; i < playerInfos.Length; i++)
         {
-            Debug.Log("PlayerContrLEng:" + i);
-            Debug.Log("colorslength" + colors[i]);
             MeshRenderer body = playerInfos[i].gameObject.GetComponentInChildren<MeshRenderer>();
-            string newColor = colors[playerInfos[i].GetComponent<PlayerController>().id];
-            Material[] Mymaterials = new Material[3];
-            Mymaterials[0] = greyMaterial;
-            Mymaterials[2] = blueglassMaterial;
-
+            string newColor = colors[playerInfos[i].GetComponent<PlayerController>().ID];
             switch (newColor)
             {
+                default:
+                    redMaterial = (Material)Resources.Load("red", typeof(Material));
+                    Mymaterials[1] = redMaterial;
+                    break;
                 case "green":
                     greenMaterial = (Material)Resources.Load("green", typeof(Material));
                     Mymaterials[1] = greenMaterial;
@@ -100,12 +99,6 @@ public class RaceInfo : NetworkBehaviour
                 case "pink":
                     pinkMaterial = (Material)Resources.Load("pink", typeof(Material));
                     Mymaterials[1] = pinkMaterial;
-                    break;
-                case "":
-                    Mymaterials[1] = redMaterial;
-                    break;
-                case null:
-                    Mymaterials[1] = redMaterial;
                     break;
             }
 
