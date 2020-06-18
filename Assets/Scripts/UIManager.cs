@@ -19,6 +19,8 @@ public class UIManager : MonoBehaviour
     public bool startedTimer;
     public bool startedGlobalTimer;
 
+    private Text[] inGameHUD_Texts;
+    private GameObject REVERSE_Panel;
     private NetworkManager m_NetworkManager;
     private CircuitController m_CircuitController;
     public RaceInfo m_RaceInfo;
@@ -95,6 +97,9 @@ public class UIManager : MonoBehaviour
         buttonReady.onClick.AddListener(() => startRace());
         buttonBackMenu.onClick.AddListener(() => PlayersToMenu());
 
+
+        inGameHUD_Texts = inGameHUD.GetComponentsInChildren<Text>();
+        REVERSE_Panel = GameObject.FindGameObjectWithTag("Alert");
         ActivateMainMenu();
     }
 
@@ -184,11 +189,12 @@ public class UIManager : MonoBehaviour
         inGameHUD.SetActive(true);
         lobbyHUD.SetActive(false);
         finishHUD.SetActive(false);
-        Text[] TextObjects = inGameHUD.GetComponentsInChildren<Text>();
-        foreach(Text text in TextObjects)
+        foreach(Text text in inGameHUD_Texts)
         {
+            if(text.name!="Text_REVERSE")
             text.color = Color.black;
         }
+        DesActivateReverseHUD();
     }
 
     public void ActivateFinishHUD()
@@ -197,6 +203,16 @@ public class UIManager : MonoBehaviour
         inGameHUD.SetActive(false);
         lobbyHUD.SetActive(false);
         finishHUD.SetActive(true);    
+    }
+
+    public void ActivateReverseHUD()
+    {
+        REVERSE_Panel.SetActive(true);
+    }
+
+    public void DesActivateReverseHUD()
+    {
+        REVERSE_Panel.SetActive(false);
     }
 
     private void StartHost()

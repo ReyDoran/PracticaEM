@@ -12,6 +12,8 @@ public class PlayerInfo : MonoBehaviour
         CurrentLap = -1;
     }
 
+    public int lastcontrolpoint = -1;
+
     public bool[] controlpoints = new bool[24]; //24 son los segmentos de la pista !!!-OJO-!!!
     public bool[] circuitControlPoints = { false, false, true };
 

@@ -98,20 +98,27 @@ public class PolePositionManager : NetworkBehaviour
         float[] arcLengths = new float[m_Players.Count];
         bool clasificationHasChanged = false;
         string clasificationText = "";
+        int[] segmentsID= new int[m_Players.Count];
+        int segIdx;
 
         for (int i = 0; i < m_Players.Count; ++i)
         {
            carPos[i] = this.m_Players[i].transform.position;
            clientID[i] = m_Players[i].GetComponent<NetworkIdentity>();
         }
-
         Parallel.For(0, m_Players.Count, i =>
         {
             Vector3 carProj;
-            arcLengths[i] = ComputeCarArcLength(i, carPos, clientID, out carProj);
+            arcLengths[i] = ComputeCarArcLength(i, carPos, clientID, out carProj,out segIdx);
             carProjs[i] = carProj;
+            segmentsID[i] = segIdx;
         });
-        
+        /*
+        for (int i = 0; i < m_Players.Count; i++)
+        {
+            m_PlayerControllers[i].RpcCheck_REVERSE(segmentsID[i]);
+        }
+        */
         m_Players.Sort(new PlayerInfoComparer(arcLengths, m_Players));
 
         for (int i = 0; i < m_Players.Count; ++i)
@@ -132,13 +139,12 @@ public class PolePositionManager : NetworkBehaviour
         }
     }
 
-    float ComputeCarArcLength(int id, Vector3[] carPos, NetworkIdentity[] clientID, out Vector3 carProj)
+    float ComputeCarArcLength(int id, Vector3[] carPos, NetworkIdentity[] clientID, out Vector3 carProj, out int segIdx)
     {
         // Compute the projection of the car position to the closest circuit 
         // path segment and accumulate the arc-length along of the car along
         // the circuit.
 
-        int segIdx;
         float carDist;
 
         float minArcL = this.m_CircuitController.ComputeClosestPointArcLength(carPos[id], out segIdx, out carProj, out carDist);
@@ -307,5 +313,6 @@ public class PolePositionManager : NetworkBehaviour
         countdown.Elapsed += ((System.Object source, System.Timers.ElapsedEventArgs e) => m_RaceInfo.RpcStartTimer());
         countdown.Enabled = true;
     }
+
     #endregion
 }

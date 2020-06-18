@@ -338,5 +338,30 @@ public class PlayerController : NetworkBehaviour
         m_Rigidbody.constraints = RigidbodyConstraints.FreezeAll;
         m_Rigidbody.gameObject.SetActive(false);
     }
+    /*
+    [ClientRpc]
+    public void RpcCheck_REVERSE(int SegIdx)
+    {
+        if (m_PlayerInfo.lastcontrolpoint != SegIdx)
+        {
+            if (SegIdx == 0)
+            {
+                m_PlayerInfo.lastcontrolpoint = SegIdx;
+                m_UIManager.DesActivateReverseHUD();
+            }
+            else if (SegIdx < m_PlayerInfo.lastcontrolpoint)
+            {
+                m_PlayerInfo.lastcontrolpoint = SegIdx;
+                m_UIManager.ActivateReverseHUD();
+            }
+            else
+            {
+                m_PlayerInfo.lastcontrolpoint = SegIdx;
+                m_UIManager.DesActivateReverseHUD();
+            }
+
+        }
+    }
+    */
     #endregion
 }
