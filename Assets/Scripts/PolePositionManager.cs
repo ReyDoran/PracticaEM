@@ -66,7 +66,6 @@ public class PolePositionManager : NetworkBehaviour
         numPlayers++;
         clasification.Add(-1);
         colors[player.ID] = player.Color;
-        colors[player.GetComponent<PlayerInfo>().ID] = player.Color;
         player.GetComponent<PlayerController>().ID = player.ID;
         StartRace();
     }
