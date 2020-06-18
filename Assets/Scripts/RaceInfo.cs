@@ -65,7 +65,7 @@ public class RaceInfo : NetworkBehaviour
         for (int i = 0; i < playerInfos.Length; i++)
         {
             MeshRenderer body = playerInfos[i].gameObject.GetComponentInChildren<MeshRenderer>();
-            string newColor = colors[playerInfos[i].GetComponent<PlayerController>().ID];
+            string newColor = colors[playerInfos[i].ID];
             switch (newColor)
             {
                 default:
