@@ -154,12 +154,6 @@ public class RaceInfo : NetworkBehaviour
     }
 
 
-    [TargetRpc]
-    public void TargetDisableWinner(NetworkConnection client)
-    {
-        m_PlayerController.disableWinner();
-    }
-
     [ClientRpc]
     public void RpcUpdateLaps(int laps)
     {

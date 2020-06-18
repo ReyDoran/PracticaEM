@@ -149,8 +149,8 @@ public class PolePositionManager : NetworkBehaviour
                         numPlayerFinished++;
                         m_RaceInfo.TargetUpdateTimeLaps(clientID.connectionToClient);
                         m_RaceInfo.RpcStopTimer();
-                        m_RaceInfo.RpcFinishRace(m_Players[id].Name,m_UIManager.globalTime.ToString());
-                        m_RaceInfo.TargetDisableWinner(clientID.connectionToClient);
+                        m_RaceInfo.RpcFinishRace(m_Players[id].Name, m_UIManager.globalTime.ToString());
+                        m_PlayerControllers[id].TargetDisableWinner(clientID.connectionToClient);
                         if(numPlayerFinished == MaxPlayersInGame)
                         {
                             m_RaceInfo.RpcAllPlayersFinished();
