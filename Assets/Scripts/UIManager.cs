@@ -72,8 +72,6 @@ public class UIManager : MonoBehaviour
     {
         m_NetworkManager = FindObjectOfType<NetworkManager>();
         m_CircuitController = FindObjectOfType<CircuitController>();
-        //m_PolePositionManager = FindObjectOfType<PolePositionManager>();
-        //m_RaceInfo = FindObjectOfType<RaceInfo>();
         buttonReady.gameObject.SetActive(false);
         buttonBackMenu.gameObject.SetActive(false);
 
@@ -141,10 +139,9 @@ public class UIManager : MonoBehaviour
     {
         if (lobbyHUD.activeSelf)
         {
-            textPlayersConnected.text = ("( " + playersConnected.ToString()+ " / "+ m_PolePositionManager.MaxPlayersInGame + " )");
+            textPlayersConnected.text = ("( " + playersConnected.ToString() + " / " + m_PolePositionManager.MaxPlayersInGame + " )");
         }
     }
-
 
     public void UpdatePlayerListLobby(string PlayerList)
     {
@@ -154,20 +151,11 @@ public class UIManager : MonoBehaviour
     public void UpdateFinishList(string players)
     {
         textPlayersfinished.text = players;
-        //textTimes.text = times;
-
     }
-
 
     public void SetColor(string color)
     {
         myColor = color;
-    }
-
-
-    public string GetColor()
-    {
-        return myColor;
     }
 
     private void ActivateMainMenu()
@@ -198,16 +186,14 @@ public class UIManager : MonoBehaviour
         inGameHUD.SetActive(true);
         lobbyHUD.SetActive(false);
         finishHUD.SetActive(false);
-
     }
 
     public void ActivateFinishHUD()
     { 
-            mainMenu.SetActive(false);
-            inGameHUD.SetActive(false);
-            lobbyHUD.SetActive(false);
-            finishHUD.SetActive(true);
-        
+        mainMenu.SetActive(false);
+        inGameHUD.SetActive(false);
+        lobbyHUD.SetActive(false);
+        finishHUD.SetActive(true);    
     }
 
     private void StartHost()

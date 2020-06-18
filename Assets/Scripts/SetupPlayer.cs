@@ -38,10 +38,8 @@ public class SetupPlayer : NetworkBehaviour
     public override void OnStartClient()
     {
         base.OnStartClient();
-        //m_PlayerInfo.Name = "Player" + m_ID;
         m_PlayerInfo.Name = m_Name;
         m_PlayerInfo.CurrentLap = 0;
-        //m_PolePositionManager.AddPlayer(m_PlayerInfo);
     }
 
     /// <summary>
@@ -72,8 +70,6 @@ public class SetupPlayer : NetworkBehaviour
         {
             m_PlayerController.enabled = true;
             m_PlayerController.OnSpeedChangeHandler += OnSpeedChangeEvent;
-            m_PlayerController.OnLapChangeHandler += OnLapChangeEvent;
-            m_PlayerController.ChangeLap();
             ConfigureCamera();
         }
     }
@@ -81,11 +77,6 @@ public class SetupPlayer : NetworkBehaviour
     void OnSpeedChangeEvent(float speed)
     {
         m_UIManager.UpdateSpeed((int) speed * 5); // 5 for visualization purpose (km/h)
-    }
-
-    void OnLapChangeEvent(int lap)
-    {
-        m_UIManager.UpdateLap((int)lap);
     }
 
     void ConfigureCamera()

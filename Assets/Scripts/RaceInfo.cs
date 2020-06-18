@@ -19,7 +19,6 @@ public class RaceInfo : NetworkBehaviour
     public string timesText = "";
     public string lapsInGame = "";
     public string winners ="";
-    float totalTime = 0;
     private List<float> timeLaps = new List<float>();
 
     public Material blueglassMaterial;
@@ -41,13 +40,6 @@ public class RaceInfo : NetworkBehaviour
 
         greyMaterial = (Material)Resources.Load("grey", typeof(Material));
         blueglassMaterial = (Material)Resources.Load("blueglass", typeof(Material));
-        greenMaterial = (Material)Resources.Load("green", typeof(Material));
-        blueMaterial = (Material)Resources.Load("blue", typeof(Material));
-        redMaterial = (Material)Resources.Load("red", typeof(Material));
-        orangeMaterial = (Material)Resources.Load("orange", typeof(Material));
-        blackMaterial = (Material)Resources.Load("black", typeof(Material));
-        purpleMaterial = (Material)Resources.Load("purple", typeof(Material));
-        pinkMaterial = (Material)Resources.Load("pink", typeof(Material));
         colors = new Dictionary<int, string>();
     }
 
@@ -82,24 +74,31 @@ public class RaceInfo : NetworkBehaviour
             switch (newColor)
             {
                 case "green":
+                    greenMaterial = (Material)Resources.Load("green", typeof(Material));
                     Mymaterials[1] = greenMaterial;
                     break;
                 case "blue":
+                    blueMaterial = (Material)Resources.Load("blue", typeof(Material));
                     Mymaterials[1] = blueMaterial;
                     break;
                 case "red":
+                    redMaterial = (Material)Resources.Load("red", typeof(Material));
                     Mymaterials[1] = redMaterial;
                     break;
                 case "orange":
+                    orangeMaterial = (Material)Resources.Load("orange", typeof(Material));
                     Mymaterials[1] = orangeMaterial;
                     break;
                 case "black":
+                    blackMaterial = (Material)Resources.Load("black", typeof(Material));
                     Mymaterials[1] = blackMaterial;
                     break;
                 case "purple":
+                    purpleMaterial = (Material)Resources.Load("purple", typeof(Material));
                     Mymaterials[1] = purpleMaterial;
                     break;
                 case "pink":
+                    pinkMaterial = (Material)Resources.Load("pink", typeof(Material));
                     Mymaterials[1] = pinkMaterial;
                     break;
                 case "":
@@ -132,7 +131,6 @@ public class RaceInfo : NetworkBehaviour
             m_UIManager.ActivateFinishHUD();
             m_UIManager.UpdateFinishList(winners);
             timesToString(timeLaps);
-            //m_UIManager.textTimes
         }        
     }
 
@@ -204,7 +202,6 @@ public class RaceInfo : NetworkBehaviour
     [ClientRpc]
     public void RpcBackToMenu()
     {
-        //SceneManager.LoadScene("Game");
         SceneManager.LoadScene("Game");
     }
 
@@ -215,17 +212,9 @@ public class RaceInfo : NetworkBehaviour
 
         for (int i = 1; i < times.Count; ++i)
         {
-            //totalTime += times[i];
             timesText +=i +"º - " + times[i].ToString() + " segs  \n";
         }
-        /*
-        timesText += "---Total Time---  \n" + totalTime; 
-        */
         m_UIManager.textTimes.text = timesText;
     }
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+
 }

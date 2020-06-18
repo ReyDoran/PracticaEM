@@ -14,17 +14,6 @@ using Random = System.Random;
 public class PlayerController : NetworkBehaviour
 {
     #region Variables
-    [Header("Textures")]
-    public Material blueglassMaterial;
-    public Material greyMaterial;
-    public Material greenMaterial;
-    public Material blueMaterial;
-    public Material orangeMaterial;
-    public Material purpleMaterial;
-    public Material pinkMaterial;
-    public Material blackMaterial;
-    public Material redMaterial;
-    public String color;
 
     [Header("Movement")] 
     public List<AxleInfo> axleInfos;
@@ -94,15 +83,6 @@ public class PlayerController : NetworkBehaviour
         m_UIManager = FindObjectOfType<UIManager>();
         if (m_CircuitController == null) m_CircuitController = FindObjectOfType<CircuitController>();
         if (m_RaceInfo == null) m_RaceInfo = FindObjectOfType<RaceInfo>();
-        greyMaterial = (Material)Resources.Load("grey", typeof(Material));
-        blueglassMaterial = (Material)Resources.Load("blueglass", typeof(Material));
-        greenMaterial = (Material)Resources.Load("green", typeof(Material));
-        blueMaterial = (Material)Resources.Load("blue", typeof(Material));
-        redMaterial = (Material)Resources.Load("red", typeof(Material));
-        orangeMaterial = (Material)Resources.Load("orange", typeof(Material));
-        blackMaterial = (Material)Resources.Load("black", typeof(Material));
-        purpleMaterial = (Material)Resources.Load("purple", typeof(Material));
-        pinkMaterial = (Material)Resources.Load("pink", typeof(Material));
         m_Rigidbody.constraints = RigidbodyConstraints.FreezeAll;
 
         //ChangeColor();
@@ -161,18 +141,9 @@ public class PlayerController : NetworkBehaviour
             this.m_PlayerInfo.transform.position = carProj;
             this.m_PlayerInfo.transform.eulerAngles = new Vector3(this.m_PlayerInfo.transform.eulerAngles.x, angleReset, 0.0f);
 
-            //float templimit = topSpeed;
-            //topSpeed = 0;
             topSpeed = 0;
-            //resetTimer.Enabled = true;
             resetTimer.Start();
-            /*
-            System.Threading.Thread HiloEspera = new System.Threading.Thread(() => {
-                System.Threading.Tasks.Task.Delay(1000);
-                topSpeed = templimit;
-            });            
-            HiloEspera.Start();
-            */
+
         }
         else
         {
@@ -225,62 +196,6 @@ public class PlayerController : NetworkBehaviour
         SpeedLimiter();
         AddDownForce();
         TractionControl();
-    }
-
-    private void Depuracion()
-    {
-        String[] colores = new String[5] {"pink", "red", "orange", "purple", "black"};
-        m_UIManager.myColor = colores[depuracionInt];
-        depuracionInt++;
-        if (depuracionInt >= 5)
-        {
-            depuracionInt = 0;
-        }
-        this.ChangeColor();
-    }
-
-    public void ChangeColor()
-    {
-        string newColor = m_UIManager.myColor;
-        m_PlayerInfo.Color = newColor;
-
-        GameObject body = transform.Find("raceCarRed").transform.Find("body").gameObject;
-        Material[] Mymaterials = new Material[3];
-        Mymaterials[0] = greyMaterial;
-        Mymaterials[2] = blueglassMaterial;
-
-        switch (newColor)
-        {
-            case "green":
-                Mymaterials[1] = greenMaterial;
-                break;
-            case "blue":
-                Mymaterials[1] = blueMaterial;
-                break;
-            case "red":
-                Mymaterials[1] = redMaterial;
-                break;
-            case "orange":
-                Mymaterials[1] = orangeMaterial;
-                break;
-            case "black":
-                Mymaterials[1] = blackMaterial;
-                break;
-            case "purple":
-                Mymaterials[1] = purpleMaterial;
-                break;
-            case "pink":
-                Mymaterials[1] = pinkMaterial;
-                break;
-            case "":
-                Mymaterials[1] = redMaterial;
-                break;
-            case null:
-                Mymaterials[1] = redMaterial;
-                break;
-
-        }
-        body.GetComponent<Renderer>().materials = Mymaterials;
     }
 
     #endregion
@@ -347,12 +262,6 @@ public class PlayerController : NetworkBehaviour
     }
 
 
-    [ClientRpc]
-    public void RpcUpdateClasification(string clasification)
-    {
-        m_UIManager.UpdateClasification(clasification);
-    }
-
 // finds the corresponding visual wheel
 // correctly applies the transform
     public void ApplyLocalPositionToVisuals(WheelCollider col)
@@ -396,17 +305,6 @@ public class PlayerController : NetworkBehaviour
         CurrentRotation = transform.eulerAngles.y;
     }
 
-    private void GetLap()
-    {
-       
-    }
-    [TargetRpc]
-    public void TargetUpdateMyPosition(NetworkConnection client, int position)
-    {
-
-        m_UIManager.UpdateMyPosition(position);
-    }
-
     [ClientRpc]
     public void RpcActivateMyInGameHUD()
     {
@@ -423,12 +321,6 @@ public class PlayerController : NetworkBehaviour
     public void RpcUpdatePlayersListLobby(string playerList)
     {
         m_UIManager.UpdatePlayerListLobby(playerList);
-    }
-
-    public void ChangeLap()
-    {
-        if (OnLapChangeHandler != null)
-            OnLapChangeHandler(this.m_PlayerInfo.CurrentLap);
     }
 
     public void disableWinner()

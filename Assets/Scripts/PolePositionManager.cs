@@ -31,7 +31,6 @@ public class PolePositionManager : NetworkBehaviour
     public int totalLaps;
     public int MaxPlayersInGame = 4;// MAX 4
     public bool startedRace = false;
-    //public int debugVariable = 0;
     #endregion
 
     #region Unity Callbacks
@@ -101,23 +100,6 @@ public class PolePositionManager : NetworkBehaviour
             arcLengths[i] = ComputeCarArcLength(i);
         }
 
-        #region Debug
-        /*
-        if (debugVariable == 30)
-        {
-            for (int i = 0; i < m_Players.Count; i++)
-            {
-                Debug.Log(m_Players[i].Name + ": " + arcLengths[i]);
-            }
-            debugVariable = 0;
-        }
-        else
-        {
-            debugVariable++;
-        }
-        */
-        #endregion
-
         m_Players.Sort(new PlayerInfoComparer(arcLengths, m_Players));
 
         for (int i = 0; i < m_Players.Count; ++i)
@@ -136,16 +118,6 @@ public class PolePositionManager : NetworkBehaviour
             m_RaceInfo.RpcUpdateClasificationText(clasificationText);
         }
 
-        #region Debug
-        //m_UIManager.UpdateClasification(myRaceOrder);
-        /*
-        for (int i = 0; i < m_PlayerControllers.Length; i++)
-        {
-            if (m_PlayerControllers[i] != null)
-                m_PlayerControllers[i].RpcUpdateClasification(clasificationText);
-        }
-        */
-        #endregion
     }
 
     float ComputeCarArcLength(int id)
@@ -163,8 +135,6 @@ public class PolePositionManager : NetworkBehaviour
         
         this.m_DebuggingSpheres[id].transform.position = carProj;
 
-        //CalculateLap(ID, segIdx);
-        //
         switch (segIdx)
         {
             case 0:
@@ -176,7 +146,7 @@ public class PolePositionManager : NetworkBehaviour
                     if (m_Players[id].CurrentLap == 1)  // Fin carrera
                     {
                         Debug.Log("HA GANADO EL JUGADOR: " + m_Players[id].Name);
-                        numPlayerFinished += 1;
+                        numPlayerFinished++;
                         m_RaceInfo.TargetUpdateTimeLaps(clientID.connectionToClient);
                         m_RaceInfo.RpcStopTimer();
                         m_RaceInfo.RpcFinishRace(m_Players[id].Name,m_UIManager.globalTime.ToString());
@@ -187,10 +157,8 @@ public class PolePositionManager : NetworkBehaviour
                             m_UIManager.buttonBackMenu.gameObject.SetActive(true);
 
                         }
-                        //m_UIManager.ActivateFinishHUD();
-                        //m_UIManager.UpdateFinishList(m_RaceInfo.clasificationText);
                     }
-                    m_Players[id].CurrentLap -= 1;
+                    m_Players[id].CurrentLap--;
 
                     m_RaceInfo.TargetUpdateLaps(clientID.connectionToClient, m_Players[id].CurrentLap);
                     m_RaceInfo.TargetUpdateInGameLaps(clientID.connectionToClient);
@@ -230,27 +198,6 @@ public class PolePositionManager : NetworkBehaviour
                 }
                 break;
         }
-        //
-        /*
-        if (this.m_Players[ID].CurrentLap <= 1)
-        {
-            float aux = minArcL;
-            minArcL -= m_CircuitController.CircuitLength;
-            if (m_Players[ID].circuitControlPoints[0] == true && -minArcL < m_CircuitController.m_CumArcLength[17])
-            {
-                minArcL -= m_CircuitController.CircuitLength;
-            }
-        }
-        else
-        {
-            float aux = minArcL;
-            minArcL -= m_CircuitController.CircuitLength * m_Players[ID].CurrentLap;
-            if (m_Players[ID].circuitControlPoints[0] == true && -minArcL < - m_CircuitController.m_CumArcLength[17] + m_Players[ID].CurrentLap * m_CircuitController.CircuitLength)
-            {
-                minArcL -= m_CircuitController.CircuitLength;
-            }
-        }
-        */
         if (this.m_Players[id].CurrentLap == 1)
         {
             minArcL -= m_CircuitController.CircuitLength;
@@ -266,16 +213,6 @@ public class PolePositionManager : NetworkBehaviour
         {
             minArcL -= m_CircuitController.CircuitLength;
         }
-        /*
-        if (this.m_Players[ID].CurrentLap <= 1)
-        {
-            minArcL -= m_CircuitController.CircuitLength;
-        }
-        else
-        {
-            minArcL -= m_CircuitController.CircuitLength * m_Players[ID].CurrentLap;
-        }
-        */
         return minArcL;
     }
     
@@ -301,39 +238,6 @@ public class PolePositionManager : NetworkBehaviour
            PlayerList += _player.Name + " \n";
         }
         return PlayerList;
-    }
-
-    //Use de ID and the segment of the circuit to check % of lap
-    public void CalculateLap(int id, int segIdx)
-    {
-        bool finishLap = true;
-        if (segIdx == 0 && this.m_Players[id].FirstTime)
-        {
-            this.m_Players[id].FirstTime = false;
-        }
-        else
-        {
-            if (segIdx == 0 || this.m_Players[id].controlpoints[segIdx - 1])
-                this.m_Players[id].controlpoints[segIdx] = true;
-            
-            foreach (bool segment in this.m_Players[id].controlpoints)
-            {
-                if (!segment)
-                {
-                    finishLap = false;
-                    break;
-                }
-            }  
-        }
-        if (segIdx == 0 && finishLap)
-        {
-            this.m_Players[id].CurrentLap++;
-            for (int i = 0; i < this.m_Players[id].controlpoints.Length - 1; i++)
-            {
-                this.m_Players[id].controlpoints[i] = false;
-            }
-            this.m_PlayerControllers[id].ChangeLap();
-        }
     }
 
     // Bloquea/desbloquea el movimiento de todos los coches de la escena
@@ -370,26 +274,6 @@ public class PolePositionManager : NetworkBehaviour
             {
                 totalLaps = 5;
             }
-            /*
-            for (int i = 0; i < m_Players.Count; i++)
-            {
-                m_RaceInfo.RpcChangeColor(i, colors[i]);
-                m_PlayerControllers[i].RpcActivateMyInGameHUD();
-                //m_Players[i].CurrentLap = 3;
-                m_Players[i].CurrentLap = totalLaps;
-            }
-            
-            m_RaceInfo.RpcUpdateLaps(totalLaps);
-            m_RaceInfo.RpcSetColors();
-            startedRace = true;
-            FreezeAllCars(true);
-            countdown = new System.Timers.Timer(5000);
-            countdown.AutoReset = false;
-            countdown.Elapsed += ((System.Object source, System.Timers.ElapsedEventArgs e) => FreezeAllCars(false));
-            countdown.Elapsed += ((System.Object source, System.Timers.ElapsedEventArgs e) => m_RaceInfo.RpcStartTimer());
-            countdown.Enabled = true;
-            //m_RaceInfo.RpcSwitchTimer();
-            */
             m_UIManager.ActivateReadyButton();
         }
     }
@@ -400,7 +284,6 @@ public class PolePositionManager : NetworkBehaviour
         {
             m_RaceInfo.RpcChangeColor(m_Players[i].ID, colors[i]);
             m_PlayerControllers[i].RpcActivateMyInGameHUD();
-            //m_Players[i].CurrentLap = 3;
             m_Players[i].CurrentLap = totalLaps;
         }
 
@@ -413,7 +296,6 @@ public class PolePositionManager : NetworkBehaviour
         countdown.Elapsed += ((System.Object source, System.Timers.ElapsedEventArgs e) => FreezeAllCars(false));
         countdown.Elapsed += ((System.Object source, System.Timers.ElapsedEventArgs e) => m_RaceInfo.RpcStartTimer());
         countdown.Enabled = true;
-        //m_RaceInfo.RpcSwitchTimer();
     }
     #endregion
 }
