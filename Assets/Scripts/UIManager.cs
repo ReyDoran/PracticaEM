@@ -82,13 +82,13 @@ public class UIManager : MonoBehaviour
         buttonHost.onClick.AddListener(() => StartHost());
         buttonClient.onClick.AddListener(() => StartClient());
         buttonServer.onClick.AddListener(() => StartServer());
-        buttongreen.onClick.AddListener(() => SetColor("green"));
-        buttonred.onClick.AddListener(() => SetColor("red"));
-        buttonorange.onClick.AddListener(() => SetColor("orange"));
-        buttonblue.onClick.AddListener(() => SetColor("blue"));
-        buttonblack.onClick.AddListener(() => SetColor("black"));
-        buttonpurple.onClick.AddListener(() => SetColor("purple"));
-        buttonpink.onClick.AddListener(() => SetColor("pink"));
+        buttongreen.onClick.AddListener(()  => myColor = "green");
+        buttonred.onClick.AddListener(()    => myColor="red");
+        buttonorange.onClick.AddListener(() => myColor="orange");
+        buttonblue.onClick.AddListener(()   => myColor="blue");
+        buttonblack.onClick.AddListener(()  => myColor="black");
+        buttonpurple.onClick.AddListener(() => myColor="purple");
+        buttonpink.onClick.AddListener(()   => myColor="pink");
         buttonReady.onClick.AddListener(() => startRace());
         buttonBackMenu.onClick.AddListener(() => PlayersToMenu());
 
@@ -151,11 +151,6 @@ public class UIManager : MonoBehaviour
     public void UpdateFinishList(string players)
     {
         textPlayersfinished.text = players;
-    }
-
-    public void SetColor(string color)
-    {
-        myColor = color;
     }
 
     private void ActivateMainMenu()

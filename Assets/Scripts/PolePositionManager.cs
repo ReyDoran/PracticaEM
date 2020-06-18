@@ -60,14 +60,14 @@ public class PolePositionManager : NetworkBehaviour
     #endregion
 
     #region Methods
+
     public void AddPlayer(PlayerInfo player)
     {
         m_Players.Add(player);
         numPlayers++;
         clasification.Add(-1);
-        colors[player.GetComponent<PlayerInfo>().ID] = player.GetComponent<PlayerInfo>().Color;
-        //m_RaceInfo.RpcChangeColor(player.GetComponent<PlayerInfo>().ID, player.GetComponent<PlayerInfo>().Color);
-        player.GetComponent<PlayerController>().id = player.GetComponent<PlayerInfo>().ID;
+        colors[player.ID] = player.Color;
+        player.GetComponent<PlayerController>().ID = player.ID;
         StartRace();
     }
 
@@ -159,8 +159,8 @@ public class PolePositionManager : NetworkBehaviour
                         numPlayerFinished++;
                         m_RaceInfo.TargetUpdateTimeLaps(clientID[id].connectionToClient);
                         m_RaceInfo.RpcStopTimer();
-                        m_RaceInfo.RpcFinishRace(m_Players[id].Name,m_UIManager.globalTime.ToString());
-                        m_RaceInfo.TargetDisableWinner(clientID[id].connectionToClient);
+                        m_RaceInfo.RpcFinishRace(m_Players[id].Name, m_UIManager.globalTime.ToString());
+                        m_PlayerControllers[id].TargetDisableWinner(clientID.connectionToClient);
                         if(numPlayerFinished == MaxPlayersInGame)
                         {
                             m_RaceInfo.RpcAllPlayersFinished();
@@ -273,7 +273,6 @@ public class PolePositionManager : NetworkBehaviour
             {
                 m_PlayerControllers.Add(m_Players[i].gameObject.GetComponent<PlayerController>());
             }
-            //m_Players[i].CurrentLap = 3;
         }
 
         if (CalculatePlayers() == MaxPlayersInGame)
@@ -284,12 +283,13 @@ public class PolePositionManager : NetworkBehaviour
             }
             catch (Exception ex)
             {
+                Debug.LogWarning(ex);
                 totalLaps = 5;
             }
             m_UIManager.ActivateReadyButton();
         }
     }
-
+    
     public void StartAllPlayers()
     {
         for (int i = 0; i < m_Players.Count; i++)
