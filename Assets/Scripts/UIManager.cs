@@ -9,10 +9,13 @@ using UnityEngine.UI;
 
 public class UIManager : MonoBehaviour
 {
+    [Header("Variables")]
     public bool showGUI = true;
     public string myColor;
     public float time = 0;
     public float globalTime = 0;
+    public int numPlayers = 2;
+    public int numLaps = 2;
     public bool startedTimer;
     public bool startedGlobalTimer;
 
@@ -193,50 +196,30 @@ public class UIManager : MonoBehaviour
 
     private void StartHost()
     {
-        if (inputFieldIP.text == "") m_NetworkManager.networkAddress = "localhost";
-        else m_NetworkManager.networkAddress = inputFieldIP.text;
-
-
-        int numPlayers = Int16.Parse(inputMaxPlayers.text);
-        if (inputMaxPlayers.text == "" || numPlayers == 0)
-        {
-            m_PolePositionManager.MaxPlayersInGame = 4;
-        }
-        else
-        {
-            if (numPlayers <= 4 )
-            {
-                m_PolePositionManager.MaxPlayersInGame = Int16.Parse(inputMaxPlayers.text);
-            }
-            else
-            {
-                m_PolePositionManager.MaxPlayersInGame = 4;
-            }
-        }
-
+        CheckIP();
+        CheckNPlayers();
         m_NetworkManager.StartHost();
         ActivateLobbyHUD();
     }
 
     private void StartClient()
     {
-        if (inputFieldIP.text == "") m_NetworkManager.networkAddress = "localhost";
-        else m_NetworkManager.networkAddress = inputFieldIP.text;
+        CheckIP();
         m_NetworkManager.StartClient();
         ActivateLobbyHUD();
     }
 
     private void StartServer()
     {
-        if (inputFieldIP.text == "") m_NetworkManager.networkAddress = "localhost";
-        else m_NetworkManager.networkAddress = inputFieldIP.text;
+        CheckIP();
+        CheckNPlayers();
         m_NetworkManager.StartServer();
         ActivateLobbyHUD();
     }
     
     private void InitNumberLaps()
     {
-        if (textTotalLaps.text == "") m_CircuitController.totalLaps = 5;
+        if (textTotalLaps.text == "") m_CircuitController.totalLaps = numLaps;
         else m_CircuitController.totalLaps = int.Parse(textTotalLaps.text);
     }
     
@@ -256,4 +239,24 @@ public class UIManager : MonoBehaviour
         NetworkServer.Shutdown();
     }
 
+    private void CheckIP()
+    {
+        if (inputFieldIP.text == "") m_NetworkManager.networkAddress = "localhost";
+        else m_NetworkManager.networkAddress = inputFieldIP.text;
+    }
+    private void CheckNPlayers()
+    {
+        if (inputMaxPlayers.text != "")
+        {
+            int num = Int16.Parse(inputMaxPlayers.text);
+            if (num > 0 && num <= 4)
+            {
+                m_PolePositionManager.MaxPlayersInGame = Int16.Parse(inputMaxPlayers.text);
+            }
+            else
+                m_PolePositionManager.MaxPlayersInGame = numPlayers;
+        }
+        else
+            m_PolePositionManager.MaxPlayersInGame = numPlayers;
+    }
 }

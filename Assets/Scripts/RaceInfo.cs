@@ -65,6 +65,7 @@ public class RaceInfo : NetworkBehaviour
         for (int i = 0; i < playerInfos.Length; i++)
         {
             MeshRenderer body = playerInfos[i].gameObject.GetComponentInChildren<MeshRenderer>();
+            GameObject[] PREFAB = GameObject.FindGameObjectsWithTag("Vehicle");
             string newColor = colors[playerInfos[i].ID];
             switch (newColor)
             {
@@ -101,7 +102,6 @@ public class RaceInfo : NetworkBehaviour
                     Mymaterials[1] = pinkMaterial;
                     break;
             }
-
             body.materials = Mymaterials;
         }
     }
@@ -153,6 +153,12 @@ public class RaceInfo : NetworkBehaviour
         }
     }
 
+
+    [TargetRpc]
+    public void TargetDisableWinner(NetworkConnection client)
+    {
+        m_PlayerController.disableWinner();
+    }
 
     [ClientRpc]
     public void RpcUpdateLaps(int laps)

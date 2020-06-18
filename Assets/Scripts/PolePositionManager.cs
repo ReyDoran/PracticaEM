@@ -105,7 +105,6 @@ public class PolePositionManager : NetworkBehaviour
            clientID[i] = m_Players[i].GetComponent<NetworkIdentity>();
         }
 
-        Debug.Log("Inicio ParallelFor");
         Parallel.For(0, m_Players.Count, i =>
         {
             Vector3 carProj;
