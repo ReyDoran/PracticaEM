@@ -26,7 +26,7 @@ public class PolePositionManager : NetworkBehaviour
 
     private System.Timers.Timer countdown;
     public GameObject[] m_DebuggingSpheres { get; set; }
-    public string[] colors = new string[4];
+    public Dictionary<int, string> colors = new Dictionary<int, string>();
     private int numPlayerFinished;
     public int numPlayers;
     public int totalLaps;
@@ -66,7 +66,7 @@ public class PolePositionManager : NetworkBehaviour
         m_Players.Add(player);
         numPlayers++;
         clasification.Add(-1);
-        colors[player.ID] = player.Color;
+        colors.Add(player.ID, player.Color);
         player.GetComponent<PlayerController>().ID = player.ID;
         StartRace();
     }
@@ -290,7 +290,7 @@ public class PolePositionManager : NetworkBehaviour
     {
         for (int i = 0; i < m_Players.Count; i++)
         {
-            m_RaceInfo.RpcChangeColor(m_Players[i].ID, colors[i]);
+            m_RaceInfo.RpcChangeColor(m_Players[i].ID, colors[m_Players[i].ID]);
             m_PlayerControllers[i].RpcActivateMyInGameHUD();
             m_Players[i].CurrentLap = totalLaps;
         }
