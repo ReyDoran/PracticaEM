@@ -257,7 +257,6 @@ public class UIManager : MonoBehaviour
     private void PlayersToMenu()
     {
         m_RaceInfo.RpcBackToMenu();
-        NetworkServer.Shutdown();
     }
 
     private void CheckIP()

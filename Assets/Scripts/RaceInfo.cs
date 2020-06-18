@@ -184,6 +184,11 @@ public class RaceInfo : NetworkBehaviour
     [ClientRpc]
     public void RpcBackToMenu()
     {
+        if (isServer)
+        {
+            NetworkManager.Shutdown();
+            //NetworkServer.Shutdown();
+        }
         SceneManager.LoadScene("Game");
     }
 

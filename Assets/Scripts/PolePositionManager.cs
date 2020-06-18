@@ -144,7 +144,7 @@ public class PolePositionManager : NetworkBehaviour
         switch (segIdx)
         {
             case 0:
-                Debug.Log("Hilo "+id+" Caso 0");
+                //Debug.Log("Hilo "+id+" Caso 0");
                 if (m_Players[id].circuitControlPoints[2])  //Caso normal
                 {
                     m_Players[id].circuitControlPoints[2] = false;
@@ -179,7 +179,7 @@ public class PolePositionManager : NetworkBehaviour
                 break;
 
             case 1:
-                Debug.Log("Hilo " + id + " Caso 1");
+               // Debug.Log("Hilo " + id + " Caso 1");
                 if (m_Players[id].circuitControlPoints[0])  //Caso normal
                 {
                     m_Players[id].circuitControlPoints[0] = false;
@@ -193,7 +193,7 @@ public class PolePositionManager : NetworkBehaviour
                 break;
 
             case 2:
-                Debug.Log("Hilo " + id + " Caso 2");
+               // Debug.Log("Hilo " + id + " Caso 2");
                 if (m_Players[id].circuitControlPoints[1])  //Caso normal
                 {
                     m_Players[id].circuitControlPoints[1] = false;
