@@ -152,7 +152,6 @@ public class PolePositionManager : NetworkBehaviour
                 {
                     m_Players[id].circuitControlPoints[2] = false;
                     m_Players[id].circuitControlPoints[0] = true;
-                    clientID[id] = m_Players[id].GetComponent<NetworkIdentity>();
                     if (m_Players[id].CurrentLap == 1)  // Fin carrera
                     {
                         Debug.Log("HA GANADO EL JUGADOR: " + m_Players[id].Name);
@@ -160,7 +159,7 @@ public class PolePositionManager : NetworkBehaviour
                         m_RaceInfo.TargetUpdateTimeLaps(clientID[id].connectionToClient);
                         m_RaceInfo.RpcStopTimer();
                         m_RaceInfo.RpcFinishRace(m_Players[id].Name, m_UIManager.globalTime.ToString());
-                        m_PlayerControllers[id].TargetDisableWinner(clientID.connectionToClient);
+                        m_PlayerControllers[id].TargetDisableWinner(clientID[id].connectionToClient);
                         if(numPlayerFinished == MaxPlayersInGame)
                         {
                             m_RaceInfo.RpcAllPlayersFinished();
