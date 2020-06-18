@@ -65,7 +65,7 @@ public class RaceInfo : NetworkBehaviour
         {
             MeshRenderer body = playerInfos[i].gameObject.GetComponentInChildren<MeshRenderer>();
             GameObject[] PREFAB = GameObject.FindGameObjectsWithTag("Vehicle");
-            string newColor = colors[playerInfos[i].ID];
+            string newColor = colors[playerInfos[i].GetComponent<PlayerController>().ID];
             switch (newColor)
             {
                 default:
