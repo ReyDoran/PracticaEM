@@ -49,7 +49,8 @@ public class SetupPlayer : NetworkBehaviour
     public override void OnStartLocalPlayer()
     {
         string name = m_UIManager.GetName();
-        CmdAddPlayer(name, m_UIManager.myColor);
+        string color = m_UIManager.myColor;
+        CmdAddPlayer(name, color);
 
     }
 
