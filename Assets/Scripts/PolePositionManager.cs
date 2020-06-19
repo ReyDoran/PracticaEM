@@ -46,6 +46,8 @@ public class PolePositionManager : NetworkBehaviour
         if (m_UIManager == null) m_UIManager = FindObjectOfType<UIManager>();
         if (m_RaceInfo == null) m_RaceInfo = FindObjectOfType<RaceInfo>();
 
+        networkManager.OnServerClientDisconnectedHandler += ClientDisconnected;
+
         m_DebuggingSpheres = new GameObject[networkManager.maxConnections];
         for (int i = 0; i < networkManager.maxConnections; ++i)
         {
@@ -57,11 +59,22 @@ public class PolePositionManager : NetworkBehaviour
         previousSegmentsId = new int[] {18, 18, 18, 18};
     }
 
+    public void ClientDisconnected(int clientID)
+    {
+        string name = "";
+        for (int i = 0; i < m_Players.Count; i++)
+        {
+            if (m_Players[i].ID == clientID)
+                name = m_Players[i].Name;
+        }
+        Debug.Log("Client disconnected id= " + clientID + " name=" + name);
+    }
+
     private void Update()
     {
         if (m_Players.Count == 0)
             return;
-        if(startedRace) UpdateRaceProgress();
+        if(startedRace) UpdateRaceProgress();        
     }
     #endregion
 
