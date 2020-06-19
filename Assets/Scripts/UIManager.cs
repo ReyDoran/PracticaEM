@@ -10,19 +10,18 @@ using UnityEngine.UI;
 public class UIManager : MonoBehaviour
 {
     [Header("Variables")]
-    public bool showGUI = true;
     public string myColor;
     public float time = 0;
     public float globalTime = 0;
-    public int numPlayers = 2;
-    public int numLaps = 2;
+    public int numPlayers;
+    public int numLaps;
     public bool startedTimer;
     public bool startedGlobalTimer;
 
     private Text[] inGameHUD_Texts;
-    public GameObject REVERSE_Panel;
     private NetworkManager m_NetworkManager;
     private CircuitController m_CircuitController;
+    public GameObject m_Reverse_Panel;
     public RaceInfo m_RaceInfo;
     public PolePositionManager m_PolePositionManager;
 
@@ -96,10 +95,11 @@ public class UIManager : MonoBehaviour
         buttonpink.onClick.AddListener(()   => myColor="pink");
         buttonReady.onClick.AddListener(() => startRace());
         buttonBackMenu.onClick.AddListener(() => PlayersToMenu());
-
+        numPlayers = 4; //Default numero de Jugadores para activar Start Race
+        numLaps = 4; //Default numero de vueltas
 
         inGameHUD_Texts = inGameHUD.GetComponentsInChildren<Text>();
-        //REVERSE_Panel = GameObject.FindGameObjectWithTag("Alert");
+        //m_Reverse_Panel = GameObject.FindGameObjectWithTag("Alert");
         ActivateMainMenu();
     }
 
@@ -207,12 +207,12 @@ public class UIManager : MonoBehaviour
 
     public void ActivateReverseHUD()
     {
-        REVERSE_Panel.SetActive(true);
+        m_Reverse_Panel.SetActive(true);
     }
 
     public void DesActivateReverseHUD()
     {
-        REVERSE_Panel.SetActive(false);
+        m_Reverse_Panel.SetActive(false);
     }
 
     private void StartHost()

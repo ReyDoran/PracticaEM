@@ -14,7 +14,7 @@ using UnityEngine;
 public class PolePositionManager : NetworkBehaviour
 {
     #region Variables
-    private List<PlayerController> m_PlayerControllers = new List<PlayerController>();
+    private readonly List<PlayerController> m_PlayerControllers = new List<PlayerController>();
     private readonly List<PlayerInfo> m_Players = new List<PlayerInfo>();
     private List<int> clasification = new List<int>();
 
@@ -31,7 +31,7 @@ public class PolePositionManager : NetworkBehaviour
     private int numPlayerFinished;
     public int numPlayers;
     public int totalLaps;
-    public int MaxPlayersInGame = 4;// MAX 4
+    public int MaxPlayersInGame;
     public bool startedRace = false;
     #endregion
 
