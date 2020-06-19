@@ -326,17 +326,14 @@ public class PlayerController : NetworkBehaviour
     public void disableWinner()
     {
         m_Rigidbody.constraints = RigidbodyConstraints.FreezeAll;
-        
-        m_Rigidbody.gameObject.SetActive(false);
     }
 
     [TargetRpc]
     public void TargetDisableWinner(NetworkConnection client)
-    {
+    {        
         finalposition.Set(-57, 0, 66);
         m_Rigidbody.transform.position = finalposition;
         m_Rigidbody.constraints = RigidbodyConstraints.FreezeAll;
-        m_Rigidbody.gameObject.SetActive(false);
     }
 
     [TargetRpc]
