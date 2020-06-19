@@ -345,6 +345,7 @@ public class PolePositionManager : NetworkBehaviour
 
         m_RaceInfo.RpcUpdateLaps(totalLaps - 1);
         m_RaceInfo.RpcSetColors();
+        
         startedRace = true;
         FreezeAllCars(true);
         countdown = new System.Timers.Timer(5000);

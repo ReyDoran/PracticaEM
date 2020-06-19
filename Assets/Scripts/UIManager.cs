@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Xml.Schema;
 using Mirror;
 using UnityEngine;
 using UnityEngine.UI;
@@ -77,7 +73,6 @@ public class UIManager : MonoBehaviour
         m_CircuitController = FindObjectOfType<CircuitController>();
         buttonReady.gameObject.SetActive(false);
         buttonBackMenu.gameObject.SetActive(false);
-
     }
 
     private void Start()
@@ -156,10 +151,8 @@ public class UIManager : MonoBehaviour
 
     private void ActivateMainMenu()
     {
+        DesactivateHud();
         mainMenu.SetActive(true);
-        inGameHUD.SetActive(false);
-        lobbyHUD.SetActive(false);
-        finishHUD.SetActive(false);
     }
 
     public void ActivateReadyButton()
@@ -169,29 +162,23 @@ public class UIManager : MonoBehaviour
 
     private void ActivateLobbyHUD()
     {
-        mainMenu.SetActive(false);
-        inGameHUD.SetActive(false);
-        lobbyHUD.SetActive(true);
-        finishHUD.SetActive(false);
+        DesactivateHud();
+        UpdatePlayersConnected(0, m_PolePositionManager.MaxPlayersInGame);
         this.ChangeHudColor();
-        UpdatePlayersConnected(0,m_PolePositionManager.MaxPlayersInGame);
+        lobbyHUD.SetActive(true);
     }
 
     public void ActivateInGameHUD()
     {
-        InitNumberLaps();
-        mainMenu.SetActive(false);
+        CheckNumberLaps();
+        DesactivateHud();
         inGameHUD.SetActive(true);
-        lobbyHUD.SetActive(false);
-        finishHUD.SetActive(false);
         DesActivateReverseHUD();
     }
 
     public void ActivateFinishHUD()
-    { 
-        mainMenu.SetActive(false);
-        inGameHUD.SetActive(false);
-        lobbyHUD.SetActive(false);
+    {
+        DesactivateHud();
         finishHUD.SetActive(true);    
     }
 
@@ -218,6 +205,7 @@ public class UIManager : MonoBehaviour
         CheckIP();
         m_NetworkManager.StartClient();
         ActivateLobbyHUD();
+        
     }
 
     private void StartServer()
@@ -226,12 +214,6 @@ public class UIManager : MonoBehaviour
         CheckNPlayers();
         m_NetworkManager.StartServer();
         ActivateLobbyHUD();
-    }
-    
-    private void InitNumberLaps()
-    {
-        if (textTotalLaps.text == "") m_CircuitController.totalLaps = numLaps;
-        else m_CircuitController.totalLaps = int.Parse(textTotalLaps.text);
     }
     
     private void startRace()
@@ -248,6 +230,8 @@ public class UIManager : MonoBehaviour
     {
         m_RaceInfo.RpcBackToMenu();
     }
+
+    #region CheckInputMainMenu
 
     private void CheckIP()
     {
@@ -269,6 +253,13 @@ public class UIManager : MonoBehaviour
         else
             m_PolePositionManager.MaxPlayersInGame = numPlayers;
     }
+    private void CheckNumberLaps()
+    {
+        if (textTotalLaps.text == "") m_CircuitController.totalLaps = numLaps;
+        else m_CircuitController.totalLaps = int.Parse(textTotalLaps.text);
+    }
+
+    #endregion
 
     private void ChangeHudColor()
     {
@@ -281,5 +272,13 @@ public class UIManager : MonoBehaviour
         {
             texto.color = Color.white;
         }
+    }
+
+    private void DesactivateHud()
+    {
+        mainMenu.SetActive(false);
+        inGameHUD.SetActive(false);
+        lobbyHUD.SetActive(false);
+        finishHUD.SetActive(false);
     }
 }

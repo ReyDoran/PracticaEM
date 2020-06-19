@@ -39,11 +39,57 @@ public class RaceInfo : NetworkBehaviour
         colors = new Dictionary<int, string>();
     }
 
+    #region TargetRpc
     [TargetRpc]
     public void TargetUpdateClasification(NetworkConnection client, int clientClasification)
     {
         m_UIManager.UpdateMyPosition(clientClasification);
     }
+
+
+    [TargetRpc]
+    public void TargetFinishRace(NetworkConnection con)
+    {
+        m_UIManager.ActivateFinishHUD();
+        timesToString(timeLaps);
+    }
+
+    [TargetRpc]
+    public void TargetUpdateLaps(NetworkConnection client, int laps)
+    {
+        this.laps = laps;
+        m_UIManager.UpdateLap(laps);
+    }
+
+    [TargetRpc]
+    public void TargetUpdateTimeLaps(NetworkConnection client)
+    {
+        timeLaps.Add(m_UIManager.time);
+        m_UIManager.time = 0;
+        Debug.Log("Tiempo de vuelta: " + timeLaps[0]);
+
+    }
+
+    [TargetRpc]
+    public void TargetUpdateInGameLaps(NetworkConnection client)
+    {
+        if (laps != totalLaps + 1)
+        {
+            lapsInGame += m_UIManager.time.ToString() + "\n";
+            m_UIManager.textTimeLaps.text = lapsInGame;
+        }
+    }
+
+    [TargetRpc]
+    public void TargetStopTimer(NetworkConnection con)
+    {
+        m_UIManager.startedTimer = false;
+    }
+
+    #endregion
+
+    #region ClientRpc
+
 
     [ClientRpc]
     public void RpcChangeColor(int index, string color)
@@ -112,43 +158,10 @@ public class RaceInfo : NetworkBehaviour
     }
 
     [ClientRpc]
-    public void RpcFinishRace(string newName,string FinishTime)
+    public void RpcFinishRace(string newName, string FinishTime)
     {
-        winners += newName + " - " + FinishTime +"\n";
+        winners += newName + " - " + FinishTime + "\n";
         m_UIManager.UpdateFinishList(winners);
-    }
-
-    [TargetRpc]
-    public void TargetFinishRace(NetworkConnection con)
-    {
-        m_UIManager.ActivateFinishHUD();
-        timesToString(timeLaps);
-    }
-
-    [TargetRpc]
-    public void TargetUpdateLaps(NetworkConnection client, int laps)
-    {
-        this.laps = laps;
-        m_UIManager.UpdateLap(laps);
-    }
-
-    [TargetRpc]
-    public void TargetUpdateTimeLaps(NetworkConnection client)
-    {
-        timeLaps.Add(m_UIManager.time);
-        m_UIManager.time = 0;
-        Debug.Log("Tiempo de vuelta: " + timeLaps[0]);
-
-    }
-
-    [TargetRpc]
-    public void TargetUpdateInGameLaps(NetworkConnection client)
-    {
-        if (laps != totalLaps + 1)
-        {
-            lapsInGame += m_UIManager.time.ToString() + "\n";
-            m_UIManager.textTimeLaps.text = lapsInGame;
-        }
     }
 
     [ClientRpc]
@@ -167,11 +180,6 @@ public class RaceInfo : NetworkBehaviour
         m_UIManager.startedGlobalTimer = true;
     }
 
-    [TargetRpc]
-    public void TargetStopTimer(NetworkConnection con)
-    {
-        m_UIManager.startedTimer = false;
-    }
 
     [ClientRpc]
     public void RpcAllPlayersFinished()
@@ -190,6 +198,9 @@ public class RaceInfo : NetworkBehaviour
         SceneManager.LoadScene("Game");
     }
 
+
+    #endregion
+
     public void timesToString(List<float> times)
     {
 
@@ -197,7 +208,7 @@ public class RaceInfo : NetworkBehaviour
 
         for (int i = 1; i < times.Count; ++i)
         {
-            timesText +=i +"º - " + times[i].ToString() + " segs  \n";
+            timesText +=i +"º -> " + times[i].ToString() + " segs  \n";
         }
         m_UIManager.textTimes.text = timesText;
     }
