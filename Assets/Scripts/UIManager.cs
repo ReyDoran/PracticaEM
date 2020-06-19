@@ -20,7 +20,7 @@ public class UIManager : MonoBehaviour
     public bool startedGlobalTimer;
 
     private Text[] inGameHUD_Texts;
-    public GameObject REVERSE_Panel;
+    private GameObject REVERSE_Panel;
     private NetworkManager m_NetworkManager;
     private CircuitController m_CircuitController;
     public RaceInfo m_RaceInfo;
@@ -99,7 +99,7 @@ public class UIManager : MonoBehaviour
 
 
         inGameHUD_Texts = inGameHUD.GetComponentsInChildren<Text>();
-        //REVERSE_Panel = GameObject.FindGameObjectWithTag("Alert");
+        REVERSE_Panel = GameObject.FindGameObjectWithTag("Alert");
         ActivateMainMenu();
     }
 
