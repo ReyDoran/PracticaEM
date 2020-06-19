@@ -99,6 +99,7 @@ public class PolePositionManager : NetworkBehaviour
     public void UpdateRaceProgress()
     {
         NetworkIdentity[] clientID = new NetworkIdentity[m_Players.Count];
+        PlayerController[] auxPlayerController = new PlayerController[m_Players.Count];
         Vector3[] carProjs = new Vector3[m_Players.Count];
         Vector3[] carPos = new Vector3[m_Players.Count];
         bool[] dirChanged = new bool[m_Players.Count];
@@ -117,7 +118,7 @@ public class PolePositionManager : NetworkBehaviour
 
         Parallel.For(0, m_Players.Count, i =>
         {
-            arcLengths[i] = ComputeCarArcLength(i, carPos, clientID, out Vector3 carProj, out int segIdx);
+            arcLengths[i] = ComputeCarArcLength(i, carPos, clientID, auxPlayerController, out Vector3 carProj, out int segIdx);
             carProjs[i] = carProj;
             segmentsId[i] = segIdx;
 
@@ -190,7 +191,7 @@ public class PolePositionManager : NetworkBehaviour
         }
     }
 
-    float ComputeCarArcLength(int id, Vector3[] carPos, NetworkIdentity[] clientID, out Vector3 carProj, out int segIdx)
+    float ComputeCarArcLength(int id, Vector3[] carPos, NetworkIdentity[] clientID, PlayerController[] auxPlayerController, out Vector3 carProj, out int segIdx)
     {
         // Compute the projection of the car position to the closest circuit 
         // path segment and accumulate the arc-length along of the car along
@@ -214,10 +215,11 @@ public class PolePositionManager : NetworkBehaviour
                         m_RaceInfo.TargetStopTimer(clientID[id].connectionToClient);
                         m_RaceInfo.RpcFinishRace(m_Players[id].Name, m_UIManager.globalTime.ToString());
                         m_RaceInfo.TargetFinishRace(clientID[id].connectionToClient);
-                        PlayerController auxPlayerController = m_Players[id].GetComponent<PlayerController>();
-                        auxPlayerController.TargetDisableWinner(clientID[id].connectionToClient);
-                        auxPlayerController.transform.position = new Vector3(-57, 0, 66);
-                        auxPlayerController.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
+                        auxPlayerController[id] = m_Players[id].GetComponent<PlayerController>();
+                        auxPlayerController[id].TargetDisableWinner(clientID[id].connectionToClient);
+                        auxPlayerController[id].transform.position = new Vector3(-57, 0, 66);
+                        auxPlayerController[id].GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
+
                         if (numPlayerFinished == MaxPlayersInGame)
                         {
                             m_RaceInfo.RpcAllPlayersFinished();
@@ -225,6 +227,7 @@ public class PolePositionManager : NetworkBehaviour
 
                         }
                     }
+
                     m_Players[id].CurrentLap--;
 
                     m_RaceInfo.TargetUpdateLaps(clientID[id].connectionToClient, m_Players[id].CurrentLap);
