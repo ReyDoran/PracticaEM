@@ -135,7 +135,14 @@ public class PolePositionManager : NetworkBehaviour
                 }
                 else
                 {
-                    wrongDir[i] = false;
+                    if (segIdx == 23 && previousSegmentsId[i] == 0)
+                    {
+                        wrongDir[i] = true;
+                    }
+                    else
+                    {
+                        wrongDir[i] = false;
+                    }
                 }
             }
             else
