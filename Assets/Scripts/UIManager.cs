@@ -36,7 +36,6 @@ public class UIManager : MonoBehaviour
     [SerializeField] private Button buttonpurple;
     [SerializeField] private Button buttonpink;
 
-
     [Header("In-Game HUD")]
     [SerializeField]
     private GameObject inGameHUD;
@@ -56,6 +55,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] private Text textPlayersConnected;
     [SerializeField] private Text textPlayerListLobby;
     [SerializeField] private Button buttonReady;
+    [SerializeField] private Button buttonCancel;
 
 
     [Header("Finish HUD")]
@@ -88,6 +88,7 @@ public class UIManager : MonoBehaviour
         buttonpurple.onClick.AddListener(() => myColor="purple");
         buttonpink.onClick.AddListener(()   => myColor="pink");
         buttonReady.onClick.AddListener(() => startRace());
+        buttonCancel.onClick.AddListener(() => BackToMainMenu());
         buttonBackMenu.onClick.AddListener(() => PlayersToMenu());
 
         ChangeHudColor();
@@ -205,7 +206,6 @@ public class UIManager : MonoBehaviour
         CheckIP();
         m_NetworkManager.StartClient();
         ActivateLobbyHUD();
-        
     }
 
     private void StartServer()
@@ -229,6 +229,11 @@ public class UIManager : MonoBehaviour
     private void PlayersToMenu()
     {
         m_RaceInfo.RpcBackToMenu();
+    }
+
+    private void BackToMainMenu()
+    {
+        ActivateMainMenu();
     }
 
     #region CheckInputMainMenu
