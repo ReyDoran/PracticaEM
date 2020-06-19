@@ -4,18 +4,17 @@ using UnityEngine;
 
 public class CircuitController : MonoBehaviour
 {
+    #region Variables
+    private LineRenderer m_CircuitPath;
+    private float m_TotalLength;
+    public float CircuitLength { get { return m_TotalLength; } }
     public int totalLaps { get; set; }
 
-    private LineRenderer m_CircuitPath;
     private Vector3[] m_PathPos;
     public float[] m_CumArcLength;
-    private float m_TotalLength;
+    #endregion
 
-    public float CircuitLength
-    {
-        get { return m_TotalLength; }
-    }
-
+    #region Unity Callbacks
     void Start()
     {
         m_CircuitPath = GetComponent<LineRenderer>();
@@ -36,7 +35,9 @@ public class CircuitController : MonoBehaviour
 
         m_TotalLength = m_CumArcLength[m_CumArcLength.Length - 1];
     }
+    #endregion
 
+    #region Methods
     public Vector3 GetSegment(int idx)
     {
         return m_PathPos[idx + 1] - m_PathPos[idx];
@@ -96,4 +97,5 @@ public class CircuitController : MonoBehaviour
         distOut = minDist;
         return minArcL;
     }
+    #endregion
 }
