@@ -14,6 +14,8 @@ public class PlayerInfo : MonoBehaviour
 
     public bool[] circuitControlPoints = { false, false, true };
 
+    public int previousSegmentsId = 18;
+
     public bool FirstTime { get; set; }
 
     public string Name { get; set; }

@@ -27,7 +27,7 @@ public class PolePositionManager : NetworkBehaviour
     private System.Timers.Timer countdown;
     public GameObject[] m_DebuggingSpheres { get; set; }
     public Dictionary<int, string> colors = new Dictionary<int, string>();
-    public int[] previousSegmentsId;
+    //public int[] previousSegmentsId;
     public int numPlayers;
     public int totalLaps;
     [SyncVar]
@@ -56,23 +56,36 @@ public class PolePositionManager : NetworkBehaviour
             m_DebuggingSpheres[i].GetComponent<MeshRenderer>().enabled = false;
         }
 
-        previousSegmentsId = new int[] {18, 18, 18, 18};
+        //previousSegmentsId = new int[] {18, 18, 18, 18};
     }
 
     public void ClientDisconnected(int clientID)
     {
-
+        Debug.LogWarning("Client disconnect START");
         MaxPlayersInGame -= 1;
         string name = "";
         for (int i = 0; i < m_Players.Count; i++)
         {
             if (m_Players[i].ID == clientID)
+            {
                 name = m_Players[i].Name;
-                Debug.Log("Client disconnected id= " + clientID + " name=" + name);
                 m_Players.Remove(m_Players[i]);
+            }
         }
+        string clasificationText = "";
+        for (int i = 0; i < m_Players.Count; i++)
+        {
+            clasificationText += m_Players[i].Name + "\n";
+            m_RaceInfo.TargetUpdateClasification(m_Players[i].GetComponent<NetworkIdentity>().connectionToClient, i); ;
+        }
+        m_RaceInfo.RpcUpdateClasificationText(clasificationText);
+        if (numPlayerFinished == MaxPlayersInGame)
+        {
+            m_RaceInfo.RpcAllPlayersFinished();
+            m_UIManager.buttonBackMenu.gameObject.SetActive(true);
 
-
+        }
+        Debug.LogWarning("Client disconnect END");
     }
 
     private void Update()
@@ -116,6 +129,7 @@ public class PolePositionManager : NetworkBehaviour
 
     public void UpdateRaceProgress()
     {
+        Debug.Log("Update START");
         NetworkIdentity[] clientID = new NetworkIdentity[m_Players.Count];
         PlayerController[] auxPlayerController = new PlayerController[m_Players.Count];
         Vector3[] carProjs = new Vector3[m_Players.Count];
@@ -132,6 +146,7 @@ public class PolePositionManager : NetworkBehaviour
         {
             if (m_Players[i] != null)
             {
+                //Debug.Log("update player + " + i);
                 carPos[i] = this.m_Players[i].transform.position;
                 clientID[i] = m_Players[i].GetComponent<NetworkIdentity>();
                 auxPlayerController[i] = m_Players[i].GetComponent<PlayerController>();
@@ -146,12 +161,12 @@ public class PolePositionManager : NetworkBehaviour
                 carProjs[i] = carProj;
                 segmentsId[i] = segIdx;
 
-                if (segIdx != previousSegmentsId[i])
+                if (segIdx != m_Players[i].previousSegmentsId)
                 {
                     dirChanged[i] = true;
-                    if (segIdx < previousSegmentsId[i])
+                    if (segIdx < m_Players[i].previousSegmentsId)
                     {
-                        if (segIdx == 0 && previousSegmentsId[i] == 23)
+                        if (segIdx == 0 && m_Players[i].previousSegmentsId == 23)
                         {
                             wrongDir[i] = false;
                         }
@@ -162,7 +177,7 @@ public class PolePositionManager : NetworkBehaviour
                     }
                     else
                     {
-                        if (segIdx == 23 && previousSegmentsId[i] == 0)
+                        if (segIdx == 23 && m_Players[i].previousSegmentsId == 0)
                         {
                             wrongDir[i] = true;
                         }
@@ -177,7 +192,7 @@ public class PolePositionManager : NetworkBehaviour
                     dirChanged[i] = false;
                 }
 
-                previousSegmentsId[i] = segIdx;
+                m_Players[i].previousSegmentsId = segIdx;
             }
         });
         
@@ -198,11 +213,6 @@ public class PolePositionManager : NetworkBehaviour
                     clasificationHasChanged = true;
                 }
 
-                if (clasificationHasChanged)
-                {
-                    m_RaceInfo.RpcUpdateClasificationText(clasificationText);
-                }
-
                 if (dirChanged[i])
                 {
                     if (wrongDir[i])
@@ -214,8 +224,13 @@ public class PolePositionManager : NetworkBehaviour
                         m_Players[i].GetComponent<PlayerController>().TargetRpcCheck_REVERSE(clientID[i].connectionToClient, wrongDir[i]);
                     }
                 }
-            }
+            }            
         }
+        if (clasificationHasChanged)
+        {
+            m_RaceInfo.RpcUpdateClasificationText(clasificationText);
+        }
+        Debug.Log("Update END");
     }
 
     float ComputeCarArcLength(int id, Vector3[] carPos, NetworkIdentity[] clientID, PlayerController[] auxPlayerController, out Vector3 carProj, out int segIdx)
