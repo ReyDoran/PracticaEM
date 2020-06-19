@@ -114,6 +114,7 @@ public class PolePositionManager : NetworkBehaviour
         {
            carPos[i] = this.m_Players[i].transform.position;
            clientID[i] = m_Players[i].GetComponent<NetworkIdentity>();
+           auxPlayerController[i] = m_Players[i].GetComponent<PlayerController>();
         }
 
         Parallel.For(0, m_Players.Count, i =>
@@ -215,7 +216,6 @@ public class PolePositionManager : NetworkBehaviour
                         m_RaceInfo.TargetStopTimer(clientID[id].connectionToClient);
                         m_RaceInfo.RpcFinishRace(m_Players[id].Name, m_UIManager.globalTime.ToString());
                         m_RaceInfo.TargetFinishRace(clientID[id].connectionToClient);
-                        auxPlayerController[id] = m_Players[id].GetComponent<PlayerController>();
                         auxPlayerController[id].TargetDisableWinner(clientID[id].connectionToClient);
                         auxPlayerController[id].transform.position = new Vector3(-57, 0, 66);
                         auxPlayerController[id].GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
