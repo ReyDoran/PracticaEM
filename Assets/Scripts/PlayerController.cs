@@ -92,8 +92,6 @@ public class PlayerController : NetworkBehaviour
         resetTimer.Elapsed += ((System.Object source, System.Timers.ElapsedEventArgs e) => { topSpeed = topSpeedAux; });
     }
 
-
-
     public void Update()
     {
         InputAcceleration = Input.GetAxis("Vertical");

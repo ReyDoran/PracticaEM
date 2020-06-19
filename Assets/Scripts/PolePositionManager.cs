@@ -51,8 +51,7 @@ public class PolePositionManager : NetworkBehaviour
         }
     }
 
-
-        private void Update()
+    private void Update()
     {
         if (m_Players.Count == 0)
             return;
