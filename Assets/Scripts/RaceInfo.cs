@@ -115,12 +115,14 @@ public class RaceInfo : NetworkBehaviour
     public void RpcFinishRace(string newName,string FinishTime)
     {
         winners += newName + " - " + FinishTime +"\n";
-        if (laps <= 1)
-        {
-            m_UIManager.ActivateFinishHUD();
-            m_UIManager.UpdateFinishList(winners);
-            timesToString(timeLaps);
-        }        
+        m_UIManager.UpdateFinishList(winners);
+    }
+
+    [TargetRpc]
+    public void TargetFinishRace(NetworkConnection con)
+    {
+        m_UIManager.ActivateFinishHUD();
+        timesToString(timeLaps);
     }
 
     [TargetRpc]
@@ -165,14 +167,10 @@ public class RaceInfo : NetworkBehaviour
         m_UIManager.startedGlobalTimer = true;
     }
 
-    [ClientRpc]
-    public void RpcStopTimer()
+    [TargetRpc]
+    public void TargetStopTimer(NetworkConnection con)
     {
-        if (laps <= 1)
-        {
-
-            m_UIManager.startedTimer = false;
-        }
+        m_UIManager.startedTimer = false;
     }
 
     [ClientRpc]

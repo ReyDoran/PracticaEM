@@ -208,10 +208,14 @@ public class PolePositionManager : NetworkBehaviour
                         Debug.Log("HA GANADO EL JUGADOR: " + m_Players[id].Name);
                         numPlayerFinished++;
                         m_RaceInfo.TargetUpdateTimeLaps(clientID[id].connectionToClient);
-                        m_RaceInfo.RpcStopTimer();
+                        m_RaceInfo.TargetStopTimer(clientID[id].connectionToClient);
                         m_RaceInfo.RpcFinishRace(m_Players[id].Name, m_UIManager.globalTime.ToString());
-                        m_PlayerControllers[id].TargetDisableWinner(clientID[id].connectionToClient);
-                        if(numPlayerFinished == MaxPlayersInGame)
+                        m_RaceInfo.TargetFinishRace(clientID[id].connectionToClient);
+                        PlayerController auxPlayerController = m_Players[id].GetComponent<PlayerController>();
+                        auxPlayerController.TargetDisableWinner(clientID[id].connectionToClient);
+                        auxPlayerController.transform.position = new Vector3(-57, 0, 66);
+                        auxPlayerController.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
+                        if (numPlayerFinished == MaxPlayersInGame)
                         {
                             m_RaceInfo.RpcAllPlayersFinished();
                             m_UIManager.buttonBackMenu.gameObject.SetActive(true);
@@ -265,7 +269,7 @@ public class PolePositionManager : NetworkBehaviour
             minArcL -= m_CircuitController.CircuitLength;
         } else if (this.m_Players[id].CurrentLap == 0)
         {
-            minArcL = 0;
+            minArcL = 4 - m_Players[id].CurrentPosition;
         }
         else
         {
