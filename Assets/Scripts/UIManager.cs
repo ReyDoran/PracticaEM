@@ -18,7 +18,6 @@ public class UIManager : MonoBehaviour
     public bool startedTimer;
     public bool startedGlobalTimer;
 
-    private Text[] inGameHUD_Texts;
     private NetworkManager m_NetworkManager;
     private CircuitController m_CircuitController;
     public GameObject m_Reverse_Panel;
@@ -95,11 +94,8 @@ public class UIManager : MonoBehaviour
         buttonpink.onClick.AddListener(()   => myColor="pink");
         buttonReady.onClick.AddListener(() => startRace());
         buttonBackMenu.onClick.AddListener(() => PlayersToMenu());
-        numPlayers = 4; //Default numero de Jugadores para activar Start Race
-        numLaps = 4; //Default numero de vueltas
 
-        inGameHUD_Texts = inGameHUD.GetComponentsInChildren<Text>();
-        //m_Reverse_Panel = GameObject.FindGameObjectWithTag("Alert");
+        ChangeHudColor();
         ActivateMainMenu();
     }
 
@@ -143,12 +139,9 @@ public class UIManager : MonoBehaviour
         return name;
     }
 
-    public void UpdatePlayersConnected(int playersConnected)
+    public void UpdatePlayersConnected(int playersConnected, int maxplayers)
     {
-        if (lobbyHUD.activeSelf)
-        {
-            textPlayersConnected.text = ("( " + playersConnected.ToString() + " / " + m_PolePositionManager.MaxPlayersInGame + " )");
-        }
+        textPlayersConnected.text = ("( " + playersConnected.ToString() + " / " + maxplayers  + " )");
     }
 
     public void UpdatePlayerListLobby(string PlayerList)
@@ -180,6 +173,8 @@ public class UIManager : MonoBehaviour
         inGameHUD.SetActive(false);
         lobbyHUD.SetActive(true);
         finishHUD.SetActive(false);
+        this.ChangeHudColor();
+        UpdatePlayersConnected(0,m_PolePositionManager.MaxPlayersInGame);
     }
 
     public void ActivateInGameHUD()
@@ -189,11 +184,6 @@ public class UIManager : MonoBehaviour
         inGameHUD.SetActive(true);
         lobbyHUD.SetActive(false);
         finishHUD.SetActive(false);
-        foreach(Text text in inGameHUD_Texts)
-        {
-            if(text.name!="Text_REVERSE")
-            text.color = Color.black;
-        }
         DesActivateReverseHUD();
     }
 
@@ -278,5 +268,18 @@ public class UIManager : MonoBehaviour
         }
         else
             m_PolePositionManager.MaxPlayersInGame = numPlayers;
+    }
+
+    private void ChangeHudColor()
+    {
+        foreach (Text text in inGameHUD.GetComponentsInChildren<Text>())
+        {
+            if (text.name != "Text_REVERSE")
+                text.color = Color.black;
+        }
+        foreach (var texto in lobbyHUD.GetComponentsInChildren<Text>())
+        {
+            texto.color = Color.white;
+        }
     }
 }

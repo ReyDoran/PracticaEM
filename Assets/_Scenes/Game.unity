@@ -2062,7 +2062,7 @@ GameObject:
   - component: {fileID: 294049978}
   - component: {fileID: 294049977}
   m_Layer: 5
-  m_Name: Panel (1)
+  m_Name: Panel_PlayerList
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -10463,7 +10463,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0, g: 0, b: 0, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
@@ -10855,7 +10855,7 @@ MonoBehaviour:
   numLaps: 1
   startedTimer: 0
   startedGlobalTimer: 0
-  m_Reverse_Panel: {fileID: 0}
+  m_Reverse_Panel: {fileID: 489077230}
   m_RaceInfo: {fileID: 1779784462}
   m_PolePositionManager: {fileID: 1839589613}
   mainMenu: {fileID: 1196147019}
@@ -10943,7 +10943,7 @@ MonoBehaviour:
   previousSegmentsId: 
   numPlayers: 0
   totalLaps: 5
-  MaxPlayersInGame: 4
+  MaxPlayersInGame: 1
   startedRace: 0
 --- !u!4 &1839589614
 Transform:

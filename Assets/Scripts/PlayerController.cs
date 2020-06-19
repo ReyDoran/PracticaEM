@@ -312,9 +312,9 @@ public class PlayerController : NetworkBehaviour
     }
 
     [ClientRpc]
-    public void RpcUpdatePlayersConnected(int players)
+    public void RpcUpdatePlayersConnected(int players, int maxplayers)
     {
-        m_UIManager.UpdatePlayersConnected(players);
+        m_UIManager.UpdatePlayersConnected(players, maxplayers);
     }
 
     [ClientRpc]

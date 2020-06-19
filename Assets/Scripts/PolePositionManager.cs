@@ -28,11 +28,14 @@ public class PolePositionManager : NetworkBehaviour
     public GameObject[] m_DebuggingSpheres { get; set; }
     public Dictionary<int, string> colors = new Dictionary<int, string>();
     public int[] previousSegmentsId;
-    private int numPlayerFinished;
     public int numPlayers;
     public int totalLaps;
+    [SyncVar]
     public int MaxPlayersInGame;
     public bool startedRace = false;
+    private int numPlayerFinished;
+    [SyncVar]
+    private int playersConected=0;
     #endregion
 
     #region Unity Callbacks
@@ -281,20 +284,6 @@ public class PolePositionManager : NetworkBehaviour
         }
         return minArcL;
     }
-    
-    public int CalculatePlayers()
-    {
-        int players = m_Players.Count;
-        //Debug.Log("Numero de jugadores " + players);
- 
-        for (int i = 0; i < m_Players.Count; i++)
-        {
-            m_PlayerControllers[i].RpcUpdatePlayersConnected(players);
-            m_PlayerControllers[i].RpcUpdatePlayersListLobby(CalculatePlayersList());
-            
-        }
-        return players;
-    }
 
     public string CalculatePlayersList()
     {
@@ -321,15 +310,16 @@ public class PolePositionManager : NetworkBehaviour
     //Bloquea a los coches durante 5 segundos
     public void StartRace()
     {
-        for (int i = 0; i < m_Players.Count; i++)
+        playersConected = m_Players.Count;
+        for (int i = 0; i < playersConected; i++)
         {
             if (m_PlayerControllers.Count <= i)
             {
                 m_PlayerControllers.Add(m_Players[i].gameObject.GetComponent<PlayerController>());
             }
         }
-
-        if (CalculatePlayers() == MaxPlayersInGame)
+        UpdateLobbyUI();
+        if (playersConected == MaxPlayersInGame)
         {
             try
             {
@@ -362,6 +352,19 @@ public class PolePositionManager : NetworkBehaviour
         countdown.Elapsed += ((System.Object source, System.Timers.ElapsedEventArgs e) => FreezeAllCars(false));
         countdown.Elapsed += ((System.Object source, System.Timers.ElapsedEventArgs e) => m_RaceInfo.RpcStartTimer());
         countdown.Enabled = true;
+    }
+
+    private void UpdateLobbyUI()
+    {
+        foreach (PlayerController PC in m_PlayerControllers)
+        {
+            PC.RpcUpdatePlayersConnected(playersConected,MaxPlayersInGame);
+            PC.RpcUpdatePlayersListLobby(CalculatePlayersList());
+
+        }
+        //Actualizar UI de ServerOnly
+        this.m_UIManager.UpdatePlayerListLobby(CalculatePlayersList());
+        this.m_UIManager.UpdatePlayersConnected(playersConected, MaxPlayersInGame);
     }
 
     #endregion
