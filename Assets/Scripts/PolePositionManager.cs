@@ -51,7 +51,7 @@ public class PolePositionManager : NetworkBehaviour
             m_DebuggingSpheres[i].GetComponent<MeshRenderer>().enabled = false;
         }
 
-        previousSegmentsId = new int[4];
+        previousSegmentsId = new int[] {23, 23, 23, 23};
     }
 
     private void Update()
@@ -135,7 +135,14 @@ public class PolePositionManager : NetworkBehaviour
                 }
                 else
                 {
-                    wrongDir[i] = false;
+                    if (segIdx == 23 && previousSegmentsId[i] == 0)
+                    {
+                        wrongDir[i] = true;
+                    }
+                    else
+                    {
+                        wrongDir[i] = false;
+                    }
                 }
             }
             else
