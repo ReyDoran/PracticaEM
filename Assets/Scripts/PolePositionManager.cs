@@ -61,13 +61,18 @@ public class PolePositionManager : NetworkBehaviour
 
     public void ClientDisconnected(int clientID)
     {
+
+        MaxPlayersInGame -= 1;
         string name = "";
         for (int i = 0; i < m_Players.Count; i++)
         {
             if (m_Players[i].ID == clientID)
                 name = m_Players[i].Name;
+                Debug.Log("Client disconnected id= " + clientID + " name=" + name);
+                m_Players.Remove(m_Players[i]);
         }
-        Debug.Log("Client disconnected id= " + clientID + " name=" + name);
+
+
     }
 
     private void Update()
@@ -125,80 +130,89 @@ public class PolePositionManager : NetworkBehaviour
 
         for (int i = 0; i < m_Players.Count; i++)
         {
-           carPos[i] = this.m_Players[i].transform.position;
-           clientID[i] = m_Players[i].GetComponent<NetworkIdentity>();
-           auxPlayerController[i] = m_Players[i].GetComponent<PlayerController>();
+            if (m_Players[i] != null)
+            {
+                carPos[i] = this.m_Players[i].transform.position;
+                clientID[i] = m_Players[i].GetComponent<NetworkIdentity>();
+                auxPlayerController[i] = m_Players[i].GetComponent<PlayerController>();
+            }
         }
 
         Parallel.For(0, m_Players.Count, i =>
         {
-            arcLengths[i] = ComputeCarArcLength(i, carPos, clientID, auxPlayerController, out Vector3 carProj, out int segIdx);
-            carProjs[i] = carProj;
-            segmentsId[i] = segIdx;
-
-            if (segIdx != previousSegmentsId[i])
+            if (m_Players[i] != null)
             {
-                dirChanged[i] = true;
-                if (segIdx < previousSegmentsId[i])
+                arcLengths[i] = ComputeCarArcLength(i, carPos, clientID, auxPlayerController, out Vector3 carProj, out int segIdx);
+                carProjs[i] = carProj;
+                segmentsId[i] = segIdx;
+
+                if (segIdx != previousSegmentsId[i])
                 {
-                    if (segIdx == 0 && previousSegmentsId[i] == 23)
+                    dirChanged[i] = true;
+                    if (segIdx < previousSegmentsId[i])
                     {
-                        wrongDir[i] = false;
+                        if (segIdx == 0 && previousSegmentsId[i] == 23)
+                        {
+                            wrongDir[i] = false;
+                        }
+                        else
+                        {
+                            wrongDir[i] = true;
+                        }
                     }
                     else
                     {
-                        wrongDir[i] = true;
+                        if (segIdx == 23 && previousSegmentsId[i] == 0)
+                        {
+                            wrongDir[i] = true;
+                        }
+                        else
+                        {
+                            wrongDir[i] = false;
+                        }
                     }
                 }
                 else
                 {
-                    if (segIdx == 23 && previousSegmentsId[i] == 0)
-                    {
-                        wrongDir[i] = true;
-                    }
-                    else
-                    {
-                        wrongDir[i] = false;
-                    }
+                    dirChanged[i] = false;
                 }
-            }
-            else
-            {
-                dirChanged[i] = false;
-            }
 
-            previousSegmentsId[i] = segIdx;
+                previousSegmentsId[i] = segIdx;
+            }
         });
         
         m_Players.Sort(new PlayerInfoComparer(arcLengths, m_Players));
 
         for (int i = 0; i < m_Players.Count; ++i)
         {
-            this.m_DebuggingSpheres[i].transform.position = carProjs[i];
-            clasificationText += m_Players[i].Name + " \n";
-
-            if (m_Players[i].CurrentPosition != i + 1)
+            if (m_Players[i] != null)
             {
-                m_Players[i].CurrentPosition = i + 1;
-                clientID[i] = m_Players[i].GetComponent<NetworkIdentity>();
-                m_RaceInfo.TargetUpdateClasification(clientID[i].connectionToClient, m_Players[i].CurrentPosition);
-                clasificationHasChanged = true;
-            }
+                this.m_DebuggingSpheres[i].transform.position = carProjs[i];
+                clasificationText += m_Players[i].Name + " \n";
 
-            if (clasificationHasChanged)
-            {
-                m_RaceInfo.RpcUpdateClasificationText(clasificationText);
-            }
-
-            if (dirChanged[i])
-            {
-                if (wrongDir[i])
+                if (m_Players[i].CurrentPosition != i + 1)
                 {
-                    m_Players[i].GetComponent<PlayerController>().TargetRpcCheck_REVERSE(clientID[i].connectionToClient, wrongDir[i]);
+                    m_Players[i].CurrentPosition = i + 1;
+                    clientID[i] = m_Players[i].GetComponent<NetworkIdentity>();
+                    m_RaceInfo.TargetUpdateClasification(clientID[i].connectionToClient, m_Players[i].CurrentPosition);
+                    clasificationHasChanged = true;
                 }
-                else
+
+                if (clasificationHasChanged)
                 {
-                    m_Players[i].GetComponent<PlayerController>().TargetRpcCheck_REVERSE(clientID[i].connectionToClient, wrongDir[i]);
+                    m_RaceInfo.RpcUpdateClasificationText(clasificationText);
+                }
+
+                if (dirChanged[i])
+                {
+                    if (wrongDir[i])
+                    {
+                        m_Players[i].GetComponent<PlayerController>().TargetRpcCheck_REVERSE(clientID[i].connectionToClient, wrongDir[i]);
+                    }
+                    else
+                    {
+                        m_Players[i].GetComponent<PlayerController>().TargetRpcCheck_REVERSE(clientID[i].connectionToClient, wrongDir[i]);
+                    }
                 }
             }
         }

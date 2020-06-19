@@ -3046,12 +3046,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6fc15f5f776cf554aa9fc85af6de6d8d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Focus: {fileID: 0}
-  m_offset: {x: 10, y: 10, z: 10}
-  m_Circuit: {fileID: 9126478172555348644}
   m_Distance: 10
   m_Elevation: 8
   m_Following: 0.52
+  m_Circuit: {fileID: 9126478172555348644}
+  m_Focus: {fileID: 0}
+  m_offset: {x: 10, y: 10, z: 10}
 --- !u!1001 &381981127
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -11077,7 +11077,7 @@ MonoBehaviour:
   textPlayersConnected: {fileID: 777455775}
   textPlayerListLobby: {fileID: 551919343}
   buttonReady: {fileID: 1956625}
-  buttonCancel: {fileID: 0}
+  buttonCancel: {fileID: 608771523}
   finishHUD: {fileID: 440769799}
   textPlayersfinished: {fileID: 427701945}
   textTimes: {fileID: 311431562}
