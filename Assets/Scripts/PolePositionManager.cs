@@ -138,7 +138,6 @@ public class PolePositionManager : NetworkBehaviour
 
             if (segIdx != previousSegmentsId[i])
             {
-                Debug.Log("Cambio de " + previousSegmentsId[i] + " a " + segIdx);
                 dirChanged[i] = true;
                 if (segIdx < previousSegmentsId[i])
                 {
@@ -229,10 +228,7 @@ public class PolePositionManager : NetworkBehaviour
                         m_RaceInfo.TargetStopTimer(clientID[id].connectionToClient);
                         m_RaceInfo.RpcFinishRace(m_Players[id].Name, m_UIManager.globalTime.ToString());
                         m_RaceInfo.TargetFinishRace(clientID[id].connectionToClient);
-                        auxPlayerController[id].TargetDisableWinner(clientID[id].connectionToClient);
-                        auxPlayerController[id].transform.position = new Vector3(-57, 0, 66);
-                        auxPlayerController[id].GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
-
+                        auxPlayerController[id].TargetDisableWinner(clientID[id].connectionToClient);                        
                         if (numPlayerFinished == MaxPlayersInGame)
                         {
                             m_RaceInfo.RpcAllPlayersFinished();
