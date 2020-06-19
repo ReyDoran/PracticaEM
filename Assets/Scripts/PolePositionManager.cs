@@ -51,7 +51,7 @@ public class PolePositionManager : NetworkBehaviour
             m_DebuggingSpheres[i].GetComponent<MeshRenderer>().enabled = false;
         }
 
-        previousSegmentsId = new int[] {23, 23, 23, 23};
+        previousSegmentsId = new int[] {18, 18, 18, 18};
     }
 
     private void Update()
