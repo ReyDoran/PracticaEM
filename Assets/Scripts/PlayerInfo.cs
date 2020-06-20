@@ -8,15 +8,12 @@ public class PlayerInfo : MonoBehaviour
 
     public void Start()
     {
-        FirstTime = true;
         CurrentLap = -1;
     }
 
-    public bool[] circuitControlPoints = { false, false, true };
+    public bool[] circuitControlPoints = { false, false, true };    // Cálculo de vueltas
 
-    public int previousSegmentsId = 18;
-
-    public bool FirstTime { get; set; }
+    public int previousSegmentsId = 18; // Cálculo marcha atrás
 
     public string Name { get; set; }
 

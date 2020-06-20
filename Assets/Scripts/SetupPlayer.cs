@@ -11,9 +11,6 @@ using Random = System.Random;
 
 public class SetupPlayer : NetworkBehaviour
 {
-    [SyncVar] private int m_ID;
-    [SyncVar] private string m_Name;
-
     private UIManager m_UIManager;
     private PlayerController m_PlayerController;
     private PlayerInfo m_PlayerInfo;
@@ -38,20 +35,18 @@ public class SetupPlayer : NetworkBehaviour
     public override void OnStartClient()
     {
         base.OnStartClient();
-        m_PlayerInfo.Name = m_Name;
-        m_PlayerInfo.CurrentLap = 0;
     }
 
     /// <summary>
     /// Called when the local player object has been set up.
     /// <para>This happens after OnStartClient(), as it is triggered by an ownership message from the server. This is an appropriate place to activate components or functionality that should only be active for the local player, such as cameras and input.</para>
     /// </summary>
+    /// Almacena el nombre y el color
     public override void OnStartLocalPlayer()
     {
         string name = m_UIManager.GetName();
         string color = m_UIManager.myColor;
         CmdAddPlayer(name, color);
-
     }
 
     #endregion
@@ -85,6 +80,7 @@ public class SetupPlayer : NetworkBehaviour
         if (Camera.main != null) Camera.main.gameObject.GetComponent<CameraController>().m_Focus = this.gameObject;
     }
 
+    // Asigna los valores en el servidor
     [Command]
     void CmdAddPlayer(string name, string color)
     {

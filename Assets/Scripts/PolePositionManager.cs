@@ -379,13 +379,13 @@ public class PolePositionManager : NetworkBehaviour
     {
         for (int i = 0; i < m_Players.Count; i++)
         {
-            m_RaceInfo.RpcChangeColor(m_Players[i].ID, colors[m_Players[i].ID]);
+            m_RaceInfo.RpcChooseColor(m_Players[i].ID, colors[m_Players[i].ID]);
             m_PlayerControllers[i].RpcActivateMyInGameHUD();
             m_Players[i].CurrentLap = totalLaps;
         }
 
         m_RaceInfo.RpcUpdateLaps(totalLaps - 1);
-        m_RaceInfo.RpcSetColors();
+        m_RaceInfo.RpcPaintCars();
         
         startedRace = true;
         FreezeAllCars(true);

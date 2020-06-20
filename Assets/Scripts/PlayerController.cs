@@ -40,13 +40,11 @@ public class PlayerController : NetworkBehaviour
     private UIManager m_UIManager;
     private RaceInfo m_RaceInfo;
     private Vector3 finalPosition;
-    System.Timers.Timer resetTimer;
+    System.Timers.Timer resetTimer; // Temporizador que bloquea el input del coche durante 0.1 seg al reposicionarlo
 
     [SyncVar] public int ID;
 
-    public delegate void OnLapChangeDelegate(int newLap);
     public delegate void OnSpeedChangeDelegate(float newVal);
-    public event OnLapChangeDelegate OnLapChangeHandler;
     public event OnSpeedChangeDelegate OnSpeedChangeHandler;
 
     private float Speed
@@ -96,7 +94,8 @@ public class PlayerController : NetworkBehaviour
 
         float steering = maxSteeringAngle * InputSteering;
 
-        //If esc key is pressed the car is recolocated in the middle of the track
+        // Pulsando 'esc' eposiciona el coche en el centro de la pista
+        // Calcula la posición y orientación con ComputeClosestPointArcLength
         if (InputReset)
         {
             InputReset = false;
@@ -231,9 +230,9 @@ public class PlayerController : NetworkBehaviour
         }
     }
 
-    /* Asigna a topSpeed 0 para bloquear el movimiento del coche,
+    /* 
+     * Asigna a topSpeed 0 para bloquear el movimiento de todos los coches,
      * o restaura el valor previo
-     * Es RPC para que se ejecute en los clientes, no en el servidor.
      */
      [ClientRpc]
     public void RpcFreezeCar(bool freeze)
@@ -287,29 +286,35 @@ public class PlayerController : NetworkBehaviour
         CurrentRotation = transform.eulerAngles.y;
     }
 
+    // CAMBIAR A RACEINFO
     [ClientRpc]
     public void RpcActivateMyInGameHUD()
     {
         m_UIManager.ActivateInGameHUD();
     }
 
+    // CAMBIAR A RACEINFO
     [ClientRpc]
     public void RpcUpdatePlayersConnected(int players, int maxplayers)
     {
         m_UIManager.UpdatePlayersConnected(players, maxplayers);
     }
 
+    // CAMBIAR A RACEINFO
     [ClientRpc]
     public void RpcUpdatePlayersListLobby(string playerList)
     {
         m_UIManager.UpdatePlayerListLobby(playerList);
     }
 
+    /* ELIMINAR
     public void disableWinner()
     {
         m_Rigidbody.constraints = RigidbodyConstraints.FreezeAll;
     }
+    */
 
+    // Bloquea y transporta el coche al podio
     [TargetRpc]
     public void TargetDisableWinner(NetworkConnection client)
     {        
@@ -318,18 +323,19 @@ public class PlayerController : NetworkBehaviour
         m_Rigidbody.constraints = RigidbodyConstraints.FreezeAll;
     }
 
+    // Avisa de que se está moviendo marcha atrás
     [TargetRpc]
     public void TargetRpcCheck_REVERSE(NetworkConnection client, bool wrongDir)
     {
-        Debug.Log("Cambio de dirección");
+        //Debug.Log("Cambio de dirección");
         if (wrongDir)
         {
-            Debug.Log("Activo");
+            //Debug.Log("Activo");
             m_UIManager.ActivateReverseHUD();
         }
         else
         {
-            Debug.Log("Desactivo");
+            //Debug.Log("Desactivo");
             m_UIManager.DesActivateReverseHUD();
         }
     }

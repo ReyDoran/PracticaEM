@@ -23,6 +23,7 @@ public class CameraController : MonoBehaviour
         mainCamera = this.GetComponent<Camera>();
     }
 
+    // La cámara apunta a m_Focus desde m_Focus.position + offset
     void Update()
     {
         if (m_Focus != null)

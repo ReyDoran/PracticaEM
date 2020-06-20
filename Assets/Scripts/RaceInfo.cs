@@ -11,14 +11,17 @@ public class RaceInfo : NetworkBehaviour
     UIManager m_UIManager;
     PlayerController m_PlayerController;
     PlayerInfo m_PlayerInfo;
+
     public string clasificationText;
+    public string winners ="";
+
     public int laps;
     public int totalLaps;
-    public Dictionary<int, string> colors;
-    public string timesText = "";
     public string lapsInGame = "";
-    public string winners ="";
     private List<float> timeLaps = new List<float>();
+    public string timesText = "";
+
+    public Dictionary<int, string> colors;
 
     public Material blueglassMaterial;
     public Material greyMaterial;
@@ -90,15 +93,16 @@ public class RaceInfo : NetworkBehaviour
 
     #region ClientRpc
 
-
+    // Almacena el color escogido por un jugador
     [ClientRpc]
-    public void RpcChangeColor(int index, string color)
+    public void RpcChooseColor(int index, string color)
     {
         colors.Add(index, color);
     }
 
+    // Pinta los coches
     [ClientRpc]
-    public void RpcSetColors()
+    public void RpcPaintCars()
     {
         PlayerInfo[] playerInfos = FindObjectsOfType<PlayerInfo>();
         Material[] Mymaterials = new Material[3];
@@ -109,7 +113,6 @@ public class RaceInfo : NetworkBehaviour
         for (int i = 0; i < playerInfos.Length; i++)
         {
             MeshRenderer body = playerInfos[i].gameObject.GetComponentInChildren<MeshRenderer>();
-            GameObject[] PREFAB = GameObject.FindGameObjectsWithTag("Vehicle");
             string newColor = colors[playerInfos[i].GetComponent<PlayerController>().ID];
             switch (newColor)
             {
@@ -150,6 +153,7 @@ public class RaceInfo : NetworkBehaviour
         }
     }
 
+    // Actualiza la clasificación de nombres
     [ClientRpc]
     public void RpcUpdateClasificationText(string clasificationText)
     {
@@ -157,6 +161,7 @@ public class RaceInfo : NetworkBehaviour
         m_UIManager.UpdateClasification(clasificationText);
     }
 
+    // Actualiza el HUD de fin de carrera con los datos del nuevo jugador que ha terminado
     [ClientRpc]
     public void RpcFinishRace(string newName, string FinishTime)
     {
@@ -164,6 +169,14 @@ public class RaceInfo : NetworkBehaviour
         m_UIManager.UpdateFinishList(winners);
     }
 
+    // Avisa de que todos los jugadores han terminado la carrera
+    [ClientRpc]
+    public void RpcAllPlayersFinished()
+    {
+        m_UIManager.AllPlayersFinished();
+    }
+
+    // Actualiza el número total de vueltas de la carrera
     [ClientRpc]
     public void RpcUpdateLaps(int laps)
     {
@@ -173,6 +186,7 @@ public class RaceInfo : NetworkBehaviour
         m_UIManager.UpdateLap(laps);
     }
 
+    // Activa los contadores de vuelta y total
     [ClientRpc]
     public void RpcStartTimer()
     {
@@ -180,26 +194,16 @@ public class RaceInfo : NetworkBehaviour
         m_UIManager.startedGlobalTimer = true;
     }
 
-
-    [ClientRpc]
-    public void RpcAllPlayersFinished()
-    {
-        m_UIManager.AllPlayersFinished();
-    }
-
+    // Vuelta al menú
     [ClientRpc]
     public void RpcBackToMenu()
     {
         if (isServer)
         {
             NetworkManager.Shutdown();
-            //NetworkServer.Shutdown();
         }
         SceneManager.LoadScene("Game");
     }
-
-
-    #endregion
 
     public void timesToString(List<float> times)
     {
@@ -212,5 +216,6 @@ public class RaceInfo : NetworkBehaviour
         }
         m_UIManager.textTimes.text = timesText;
     }
+    #endregion
 
 }
