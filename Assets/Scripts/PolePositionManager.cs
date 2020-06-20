@@ -151,12 +151,12 @@ public class PolePositionManager : NetworkBehaviour
             }
         }
 
-        GameObject buttonBackMenu = m_UIManager.buttonBackMenu.gameObject;
+        bool activateBackMenu = false;
         Parallel.For(0, m_Players.Count, i =>
         {
             if (m_Players[i] != null)
             {
-                arcLengths[i] = ComputeCarArcLength(i, carPos, clientID, auxPlayerController, buttonBackMenu, out Vector3 carProj, out int segIdx);
+                arcLengths[i] = ComputeCarArcLength(i, carPos, clientID, auxPlayerController, out activateBackMenu, out Vector3 carProj, out int segIdx);
                 carProjs[i] = carProj;
                 segmentsId[i] = segIdx;
 
@@ -195,6 +195,11 @@ public class PolePositionManager : NetworkBehaviour
             }
         });
         
+        if (activateBackMenu) 
+        {
+            m_UIManager.buttonBackMenu.gameObject.SetActive(true);
+        }
+
         m_Players.Sort(new PlayerInfoComparer(arcLengths, m_Players));
 
         for (int i = 0; i < m_Players.Count; ++i)
@@ -232,14 +237,14 @@ public class PolePositionManager : NetworkBehaviour
         //Debug.Log("Update END");
     }
 
-    float ComputeCarArcLength(int id, Vector3[] carPos, NetworkIdentity[] clientID, PlayerController[] auxPlayerController, GameObject buttonBackMenu, out Vector3 carProj, out int segIdx)
+    float ComputeCarArcLength(int id, Vector3[] carPos, NetworkIdentity[] clientID, PlayerController[] auxPlayerController, out bool activateBackMenu, out Vector3 carProj, out int segIdx)
     {
         // Compute the projection of the car position to the closest circuit 
         // path segment and accumulate the arc-length along of the car along
         // the circuit.
 
         float minArcL = this.m_CircuitController.ComputeClosestPointArcLength(carPos[id], out segIdx, out carProj, out float carDist);
-        
+        activateBackMenu = false;
         switch (segIdx)
         {
             case 0:
@@ -261,8 +266,7 @@ public class PolePositionManager : NetworkBehaviour
                         if (numPlayerFinished == MaxPlayersInGame)
                         {
                             m_RaceInfo.RpcAllPlayersFinished();
-                            buttonBackMenu.SetActive(true);
-
+                            activateBackMenu = true;
                         }
                     }
 
