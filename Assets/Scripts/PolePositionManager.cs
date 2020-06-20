@@ -32,8 +32,8 @@ public class PolePositionManager : NetworkBehaviour
     public bool startedRace = false;
     private int numPlayerFinished;
 
-    [SyncVar] public int MaxPlayersInGame;
-    [SyncVar] private int playersConected;
+    public int MaxPlayersInGame;
+    private int playersConected;
     #endregion
 
     #region Unity Callbacks
@@ -44,7 +44,7 @@ public class PolePositionManager : NetworkBehaviour
         if (m_UIManager == null) m_UIManager = FindObjectOfType<UIManager>();
         if (m_RaceInfo == null) m_RaceInfo = FindObjectOfType<RaceInfo>();
 
-        networkManager.OnServerClientDisconnectedHandler += ClientDisconnected;
+        networkManager.OnServerClientDisconnectedHandler += ClientDisconnected; // Evento de cliente desconectado
 
         m_DebuggingSpheres = new GameObject[networkManager.maxConnections];
         for (int i = 0; i < networkManager.maxConnections; ++i)
@@ -56,9 +56,9 @@ public class PolePositionManager : NetworkBehaviour
         m_UIManager.isClient = false;
     }
 
+    // Elimina a un jugador de la carrera
     public void ClientDisconnected(int clientID)
     {
-        //Debug.LogWarning("Client disconnect START");
         MaxPlayersInGame -= 1;
         string name = "";
         for (int i = 0; i < m_Players.Count; i++)
@@ -73,18 +73,15 @@ public class PolePositionManager : NetworkBehaviour
         for (int i = 0; i < m_Players.Count; i++)
         {
             clasificationText += m_Players[i].Name + "\n";
-            m_RaceInfo.TargetUpdateClasification(m_Players[i].GetComponent<NetworkIdentity>().connectionToClient, i); ;
+            m_RaceInfo.TargetUpdateClasification(m_Players[i].GetComponent<NetworkIdentity>().connectionToClient, i + 1); ;
         }
         m_RaceInfo.RpcUpdateClasificationText(clasificationText);
-        if (numPlayerFinished == MaxPlayersInGame || MaxPlayersInGame==1)
+        if (numPlayerFinished == MaxPlayersInGame || MaxPlayersInGame==1)   // Acaba la partida si no quedan jugadores por terminar
         {
-
             m_RaceInfo.RpcFinishRace(clasificationText,"WINNER");
             m_RaceInfo.RpcAllPlayersFinished();
             m_UIManager.buttonBackMenu.gameObject.SetActive(true);
-
         }
-        //Debug.LogWarning("Client disconnect END");
     }
 
     private void Update()
@@ -97,6 +94,7 @@ public class PolePositionManager : NetworkBehaviour
 
     #region Methods
 
+    // Añade a un jugador
     public void AddPlayer(PlayerInfo player)
     {
         m_Players.Add(player);
@@ -126,9 +124,10 @@ public class PolePositionManager : NetworkBehaviour
         }
     }
 
+    // Actualiza las posiciones de los jugadores y las vueltas
     public void UpdateRaceProgress()
     {
-        //Debug.Log("Update START");
+        // Crea las variables para pasar al Parallel.For
         NetworkIdentity[] clientID = new NetworkIdentity[m_Players.Count];
         PlayerController[] auxPlayerController = new PlayerController[m_Players.Count];
         Vector3[] carProjs = new Vector3[m_Players.Count];
@@ -145,7 +144,6 @@ public class PolePositionManager : NetworkBehaviour
         {
             if (m_Players[i] != null)
             {
-                //Debug.Log("update player + " + i);
                 carPos[i] = this.m_Players[i].transform.position;
                 clientID[i] = m_Players[i].GetComponent<NetworkIdentity>();
                 auxPlayerController[i] = m_Players[i].GetComponent<PlayerController>();
@@ -153,6 +151,7 @@ public class PolePositionManager : NetworkBehaviour
         }
 
         bool activateBackMenu = false;
+        // Calcula las posiciones de los coches y actualiza las vueltas y comprueba si algún coche está recorriendo marcha atrás
         Parallel.For(0, m_Players.Count, i =>
         {
             if (m_Players[i] != null)
@@ -203,6 +202,7 @@ public class PolePositionManager : NetworkBehaviour
 
         m_Players.Sort(new PlayerInfoComparer(arcLengths, m_Players));
 
+        // Envía mensajes de actualización de clasificación y de ir marcha atrás
         for (int i = 0; i < m_Players.Count; ++i)
         {
             if (m_Players[i] != null)
@@ -235,14 +235,18 @@ public class PolePositionManager : NetworkBehaviour
         {
             m_RaceInfo.RpcUpdateClasificationText(clasificationText);
         }
-        //Debug.Log("Update END");
     }
 
+    // Asigna el número máximo de conexiones
     public void SetMaxConnections()
     {
         networkManager.maxConnections = MaxPlayersInGame;
     }
 
+    /*
+     * Calcula la longitud de arco de cada coche y actualiza su número de vuelta cada vez que completa una vuelta
+     * Además envía mensajes a los jugadores de actualizar sus tiempos de vueltas y de activar el HUD de fin de partida.
+     */
     float ComputeCarArcLength(int id, Vector3[] carPos, NetworkIdentity[] clientID, PlayerController[] auxPlayerController, out bool activateBackMenu, out Vector3 carProj, out int segIdx)
     {
         // Compute the projection of the car position to the closest circuit 
@@ -250,22 +254,21 @@ public class PolePositionManager : NetworkBehaviour
         // the circuit.
 
         float minArcL = this.m_CircuitController.ComputeClosestPointArcLength(carPos[id], out segIdx, out carProj, out float carDist);
-        activateBackMenu = false;
+        activateBackMenu = false;     
         switch (segIdx)
         {
             case 0:
-                //Debug.Log("Hilo "+id+" Caso 0");
                 if (m_Players[id].circuitControlPoints[2])  //Caso normal
                 {
                     m_Players[id].circuitControlPoints[2] = false;
                     m_Players[id].circuitControlPoints[0] = true;
                     if (m_Players[id].CurrentLap == 1)  // Fin carrera
                     {
-                        Debug.Log("HA GANADO EL JUGADOR: " + m_Players[id].Name);
+                        //Debug.Log("HA GANADO EL JUGADOR: " + m_Players[id].Name);
                         numPlayerFinished++;
                         m_RaceInfo.TargetUpdateTimeLaps(clientID[id].connectionToClient);
                         m_RaceInfo.TargetStopTimer(clientID[id].connectionToClient);
-                        Debug.Log("tiempo " + m_UIManager.globalTime.ToString());
+                        //Debug.Log("tiempo " + m_UIManager.globalTime.ToString());
                         m_RaceInfo.RpcFinishRace(m_Players[id].Name, m_UIManager.globalTime.ToString());
                         m_RaceInfo.TargetFinishRace(clientID[id].connectionToClient);
                         auxPlayerController[id].TargetDisableWinner(clientID[id].connectionToClient);                        
@@ -281,7 +284,7 @@ public class PolePositionManager : NetworkBehaviour
                     m_RaceInfo.TargetUpdateLaps(clientID[id].connectionToClient, m_Players[id].CurrentLap);
                     m_RaceInfo.TargetUpdateInGameLaps(clientID[id].connectionToClient);
                     m_RaceInfo.TargetUpdateTimeLaps(clientID[id].connectionToClient);
-                    Debug.Log(m_Players[id].Name + " ha dado una vuelta le quedan: " + m_Players[id].CurrentLap);
+                    //Debug.Log(m_Players[id].Name + " ha dado una vuelta le quedan: " + m_Players[id].CurrentLap);
                 }
                 else if (m_Players[id].circuitControlPoints[1])
                 {
@@ -291,7 +294,6 @@ public class PolePositionManager : NetworkBehaviour
                 break;
 
             case 1:
-               // Debug.Log("Hilo " + id + " Caso 1");
                 if (m_Players[id].circuitControlPoints[0])  //Caso normal
                 {
                     m_Players[id].circuitControlPoints[0] = false;
@@ -305,7 +307,6 @@ public class PolePositionManager : NetworkBehaviour
                 break;
 
             case 2:
-               // Debug.Log("Hilo " + id + " Caso 2");
                 if (m_Players[id].circuitControlPoints[1])  //Caso normal
                 {
                     m_Players[id].circuitControlPoints[1] = false;
@@ -336,6 +337,7 @@ public class PolePositionManager : NetworkBehaviour
         return minArcL;
     }
 
+    // Calcula el texto de clasificación
     public string CalculatePlayersList()
     {
         string PlayerList = "";
@@ -358,7 +360,7 @@ public class PolePositionManager : NetworkBehaviour
         }
     }
 
-    //Bloquea a los coches durante 5 segundos
+    // Comprueba cuando estan unidos todos los jugadores para permitir empezar la partida
     public void StartRace()
     {
         playersConected = m_Players.Count;
@@ -388,6 +390,8 @@ public class PolePositionManager : NetworkBehaviour
         }
     }
     
+    // Inicia la partida para todos los jugadores.
+    // Los bloquea durante los 5 primeros segundos y actualiza los colores de los coches
     public void StartAllPlayers()
     {
         m_UIManager.buttonReady.gameObject.SetActive(false);
@@ -417,6 +421,7 @@ public class PolePositionManager : NetworkBehaviour
         countdown.Enabled = true;
     }
 
+    // Actualiza la lista de jugadores conectados en el lobby
     private void UpdateLobbyUI()
     {
         foreach (PlayerController PC in m_PlayerControllers)
