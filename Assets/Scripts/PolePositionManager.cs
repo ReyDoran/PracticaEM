@@ -237,6 +237,11 @@ public class PolePositionManager : NetworkBehaviour
         //Debug.Log("Update END");
     }
 
+    public void SetMaxConnections()
+    {
+        networkManager.maxConnections = MaxPlayersInGame;
+    }
+
     float ComputeCarArcLength(int id, Vector3[] carPos, NetworkIdentity[] clientID, PlayerController[] auxPlayerController, out bool activateBackMenu, out Vector3 carProj, out int segIdx)
     {
         // Compute the projection of the car position to the closest circuit 

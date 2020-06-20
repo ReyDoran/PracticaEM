@@ -286,11 +286,18 @@ public class UIManager : MonoBehaviour
         }
         else
             m_PolePositionManager.MaxPlayersInGame = numPlayers;
+        m_PolePositionManager.SetMaxConnections();
     }
     private void CheckNumberLaps()
     {
-        if (textTotalLaps.text == "") m_CircuitController.totalLaps = numLaps;
-        else m_CircuitController.totalLaps = int.Parse(textTotalLaps.text);
+        if (textTotalLaps.text == "") m_CircuitController.totalLaps = 4;
+        else
+        {
+            int num = int.Parse(textTotalLaps.text);
+            if (num > 0 && num < 4)
+                m_CircuitController.totalLaps = int.Parse(textTotalLaps.text);
+            else m_CircuitController.totalLaps = 4;
+        }
     }
 
     #endregion
