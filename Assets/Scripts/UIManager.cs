@@ -56,7 +56,8 @@ public class UIManager : MonoBehaviour
     private GameObject lobbyHUD;
     [SerializeField] private Text textPlayersConnected;
     [SerializeField] private Text textPlayerListLobby;
-    [SerializeField] private Button buttonReady;
+    [SerializeField] public Button buttonReady;
+    [SerializeField] public Button buttonMenuServerOnly;
     [SerializeField] private Button buttonCancel;
 
 
@@ -76,6 +77,7 @@ public class UIManager : MonoBehaviour
         m_CircuitController = FindObjectOfType<CircuitController>();
         buttonReady.gameObject.SetActive(false);
         buttonBackMenu.gameObject.SetActive(false);
+        buttonMenuServerOnly.gameObject.SetActive(false);
     }
 
     private void Start()
@@ -94,6 +96,7 @@ public class UIManager : MonoBehaviour
         buttonBackMenu.onClick.AddListener(() => PlayersToMenu());
         buttonBackMenuClient.onClick.AddListener(() => ClientToMenu());
         buttonBackMenuIngame.onClick.AddListener(() => BackFromRace());
+        buttonMenuServerOnly.onClick.AddListener(() => BackToMainMenu());
 
         ChangeHudColor();
         ActivateMainMenu();
@@ -237,18 +240,17 @@ public class UIManager : MonoBehaviour
 
     private void ClientToMenu()
     {
-
         SceneManager.LoadScene("Game");
     }
 
     private void BackToMainMenu()
     {
-        ActivateMainMenu();
+        m_PolePositionManager.ShutDown();
+        SceneManager.LoadScene("Game");
     }
 
     private void BackFromRace()
     {
-
         SceneManager.LoadScene("Game");
         NetworkManager.singleton.StopClient();
     }

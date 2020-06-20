@@ -27,15 +27,13 @@ public class PolePositionManager : NetworkBehaviour
     private System.Timers.Timer countdown;
     public GameObject[] m_DebuggingSpheres { get; set; }
     public Dictionary<int, string> colors = new Dictionary<int, string>();
-    //public int[] previousSegmentsId;
     public int numPlayers;
     public int totalLaps;
-    [SyncVar]
-    public int MaxPlayersInGame;
     public bool startedRace = false;
     private int numPlayerFinished;
-    [SyncVar]
-    private int playersConected=0;
+
+    [SyncVar] public int MaxPlayersInGame;
+    [SyncVar] private int playersConected;
     #endregion
 
     #region Unity Callbacks
@@ -55,8 +53,6 @@ public class PolePositionManager : NetworkBehaviour
             m_DebuggingSpheres[i].GetComponent<SphereCollider>().enabled = false;
             m_DebuggingSpheres[i].GetComponent<MeshRenderer>().enabled = false;
         }
-
-        //previousSegmentsId = new int[] {18, 18, 18, 18};
     }
 
     public void ClientDisconnected(int clientID)
@@ -354,6 +350,7 @@ public class PolePositionManager : NetworkBehaviour
     public void StartRace()
     {
         playersConected = m_Players.Count;
+
         for (int i = 0; i < playersConected; i++)
         {
             if (m_PlayerControllers.Count <= i)
@@ -361,7 +358,9 @@ public class PolePositionManager : NetworkBehaviour
                 m_PlayerControllers.Add(m_Players[i].gameObject.GetComponent<PlayerController>());
             }
         }
+
         UpdateLobbyUI();
+
         if (playersConected == MaxPlayersInGame)
         {
             try
@@ -379,6 +378,9 @@ public class PolePositionManager : NetworkBehaviour
     
     public void StartAllPlayers()
     {
+        m_UIManager.buttonReady.gameObject.SetActive(false);
+        m_UIManager.buttonMenuServerOnly.gameObject.SetActive(true);
+
         for (int i = 0; i < m_Players.Count; i++)
         {
             m_RaceInfo.RpcChooseColor(m_Players[i].ID, colors[m_Players[i].ID]);
@@ -393,8 +395,8 @@ public class PolePositionManager : NetworkBehaviour
         FreezeAllCars(true);
         countdown = new System.Timers.Timer(5000);
         countdown.AutoReset = false;
-        countdown.Elapsed += ((System.Object source, System.Timers.ElapsedEventArgs e) => FreezeAllCars(false));
-        countdown.Elapsed += ((System.Object source, System.Timers.ElapsedEventArgs e) => m_RaceInfo.RpcStartTimer());
+        countdown.Elapsed += ((source, e) => FreezeAllCars(false));
+        countdown.Elapsed += ((source, e) => m_RaceInfo.RpcStartTimer());
         countdown.Enabled = true;
     }
 
@@ -411,5 +413,9 @@ public class PolePositionManager : NetworkBehaviour
         this.m_UIManager.UpdatePlayersConnected(playersConected, MaxPlayersInGame);
     }
 
+    public void ShutDown()
+    {
+        NetworkManager.Shutdown();
+    }
     #endregion
 }
