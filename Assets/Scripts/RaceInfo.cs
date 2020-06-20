@@ -169,12 +169,7 @@ public class RaceInfo : NetworkBehaviour
         m_UIManager.UpdateFinishList(winners);
     }
 
-    // Avisa de que todos los jugadores han terminado la carrera
-    [ClientRpc]
-    public void RpcAllPlayersFinished()
-    {
-        m_UIManager.AllPlayersFinished();
-    }
+
 
     // Actualiza el número total de vueltas de la carrera
     [ClientRpc]
@@ -192,6 +187,24 @@ public class RaceInfo : NetworkBehaviour
     {
         m_UIManager.startedTimer = true;
         m_UIManager.startedGlobalTimer = true;
+    }
+
+
+    // Avisa de que todos los jugadores han terminado la carrera y activa sus botones de vuelta al menú
+    [ClientRpc]
+    public void RpcAllPlayersFinished()
+    {
+        m_UIManager.AllPlayersFinished();
+        if (!isServer)
+        {
+            m_UIManager.buttonBackMenuClient.gameObject.SetActive(true);
+            NetworkManager.singleton.StopClient();
+        }
+        else if (isServer)
+        {
+            m_UIManager.buttonBackMenu.gameObject.SetActive(true);
+        }
+
     }
 
     // Vuelta al menú

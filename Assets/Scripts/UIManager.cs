@@ -1,6 +1,7 @@
 ﻿using System;
 using Mirror;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class UIManager : MonoBehaviour
@@ -47,6 +48,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] private Text textMyPosition;
     [SerializeField] private Text textTime;
     [SerializeField] public Text textTimeLaps;
+    [SerializeField] private Button buttonBackMenuIngame;
 
 
     [Header("Lobby HUD")]
@@ -65,6 +67,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] public Text textTimes;
     [SerializeField] public Text textWaitingPlayers;
     [SerializeField] public Button buttonBackMenu;
+    [SerializeField] public Button buttonBackMenuClient;
 
 
     private void Awake()
@@ -88,8 +91,9 @@ public class UIManager : MonoBehaviour
         buttonpurple.onClick.AddListener(() => myColor="purple");
         buttonpink.onClick.AddListener(()   => myColor="pink");
         buttonReady.onClick.AddListener(() => startRace());
-        buttonCancel.onClick.AddListener(() => BackToMainMenu());
         buttonBackMenu.onClick.AddListener(() => PlayersToMenu());
+        buttonBackMenuClient.onClick.AddListener(() => ClientToMenu());
+        buttonBackMenuIngame.onClick.AddListener(() => BackFromRace());
 
         ChangeHudColor();
         ActivateMainMenu();
@@ -231,9 +235,22 @@ public class UIManager : MonoBehaviour
         m_RaceInfo.RpcBackToMenu();
     }
 
+    private void ClientToMenu()
+    {
+
+        SceneManager.LoadScene("Game");
+    }
+
     private void BackToMainMenu()
     {
         ActivateMainMenu();
+    }
+
+    private void BackFromRace()
+    {
+
+        SceneManager.LoadScene("Game");
+        NetworkManager.singleton.StopClient();
     }
 
     #region CheckInputMainMenu
