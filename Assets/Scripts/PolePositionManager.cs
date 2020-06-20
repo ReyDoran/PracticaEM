@@ -81,6 +81,8 @@ public class PolePositionManager : NetworkBehaviour
         m_RaceInfo.RpcUpdateClasificationText(clasificationText);
         if (numPlayerFinished == MaxPlayersInGame || MaxPlayersInGame==1)
         {
+
+            m_RaceInfo.RpcFinishRace(clasificationText,"WINNER");
             m_RaceInfo.RpcAllPlayersFinished();
             m_UIManager.buttonBackMenu.gameObject.SetActive(true);
 

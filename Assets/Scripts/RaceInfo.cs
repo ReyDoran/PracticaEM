@@ -167,6 +167,7 @@ public class RaceInfo : NetworkBehaviour
     {
         winners += newName + " - " + FinishTime + "\n";
         m_UIManager.UpdateFinishList(winners);
+        if(!isServer)
         m_UIManager.buttonBackMenuClient.gameObject.SetActive(true);
     }
 
