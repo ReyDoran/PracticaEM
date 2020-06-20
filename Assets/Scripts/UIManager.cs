@@ -273,7 +273,7 @@ public class UIManager : MonoBehaviour
         {
             int num = Int16.Parse(textTotalLaps.text);
             {
-                if (num > 0)
+                if (num > 0 && num < 100)
                 {
                     m_CircuitController.totalLaps = numLaps;
                 }
