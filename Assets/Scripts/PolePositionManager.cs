@@ -79,7 +79,7 @@ public class PolePositionManager : NetworkBehaviour
             m_RaceInfo.TargetUpdateClasification(m_Players[i].GetComponent<NetworkIdentity>().connectionToClient, i); ;
         }
         m_RaceInfo.RpcUpdateClasificationText(clasificationText);
-        if (numPlayerFinished == MaxPlayersInGame)
+        if (numPlayerFinished == MaxPlayersInGame || MaxPlayersInGame==1)
         {
             m_RaceInfo.RpcAllPlayersFinished();
             m_UIManager.buttonBackMenu.gameObject.SetActive(true);

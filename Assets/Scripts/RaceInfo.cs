@@ -167,6 +167,7 @@ public class RaceInfo : NetworkBehaviour
     {
         winners += newName + " - " + FinishTime + "\n";
         m_UIManager.UpdateFinishList(winners);
+        m_UIManager.buttonBackMenuClient.gameObject.SetActive(true);
     }
 
 
@@ -197,7 +198,7 @@ public class RaceInfo : NetworkBehaviour
         m_UIManager.AllPlayersFinished();
         if (!isServer)
         {
-            m_UIManager.buttonBackMenuClient.gameObject.SetActive(true);
+            
             NetworkManager.singleton.StopClient();
         }
         else if (isServer)
