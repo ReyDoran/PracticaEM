@@ -264,9 +264,7 @@ public class UIManager : MonoBehaviour
     private void BackFromRace()
     {
         NetworkManager.Shutdown();
-        SceneManager.LoadScene("Game");
-        NetworkManager.singleton.StopClient();
-        //NetworkManager.singleton.StopClient();
+        SceneManager.LoadScene("Game");        
     }
 
     #region CheckInputMainMenu

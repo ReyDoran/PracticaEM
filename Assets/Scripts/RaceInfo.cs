@@ -225,7 +225,7 @@ public class RaceInfo : NetworkBehaviour
     [ClientRpc]
     public void RpcBackToMenu()
     {
-        if (isServer)
+        if (networkManager.mode == NetworkManagerMode.ServerOnly || networkManager.mode == NetworkManagerMode.Host)
         {
             NetworkManager.Shutdown();
         }
