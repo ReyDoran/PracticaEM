@@ -24,7 +24,9 @@ namespace Mirror
     public class NetworkManager : MonoBehaviour
     {
         public delegate void OnServerClientDisconnectedDelegate(int clientID);
+        public delegate void OnClientServerDisconnectedDelegate();
         public event OnServerClientDisconnectedDelegate OnServerClientDisconnectedHandler;
+        public event OnClientServerDisconnectedDelegate OnClientServerDisconnectedHandler;
 
         /// <summary>
         /// A flag to control whether the NetworkManager object is destroyed when the scene changes.
@@ -1382,6 +1384,7 @@ namespace Mirror
         public virtual void OnClientDisconnect(NetworkConnection conn)
         {
             StopClient();
+            OnClientServerDisconnectedHandler();
         }
 
         /// <summary>

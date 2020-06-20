@@ -11,6 +11,7 @@ public class RaceInfo : NetworkBehaviour
     UIManager m_UIManager;
     PlayerController m_PlayerController;
     PlayerInfo m_PlayerInfo;
+    NetworkManager networkManager;
 
     public string clasificationText;
     public string winners ="";
@@ -39,7 +40,14 @@ public class RaceInfo : NetworkBehaviour
         if (m_UIManager == null) m_UIManager = FindObjectOfType<UIManager>();
         if (m_PlayerController == null) m_PlayerController = FindObjectOfType<PlayerController>();
         if (m_PlayerInfo == null) m_PlayerInfo = FindObjectOfType<PlayerInfo>();
+        if (networkManager == null) networkManager = FindObjectOfType<NetworkManager>();
         colors = new Dictionary<int, string>();
+        networkManager.OnClientServerDisconnectedHandler += ServerDisconnected;
+    }
+
+    void ServerDisconnected()
+    {
+        SceneManager.LoadScene("Game");
     }
 
     #region TargetRpc
@@ -200,7 +208,7 @@ public class RaceInfo : NetworkBehaviour
         if (!isServer)
         {
             
-            NetworkManager.singleton.StopClient();
+            //NetworkManager.singleton.StopClient();
         }
         else if (isServer)
         {

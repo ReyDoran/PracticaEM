@@ -245,14 +245,17 @@ public class UIManager : MonoBehaviour
 
     private void BackToMainMenu()
     {
-        m_PolePositionManager.ShutDown();
+        //m_PolePositionManager.ShutDown();
+        NetworkManager.Shutdown();
         SceneManager.LoadScene("Game");
     }
 
     private void BackFromRace()
     {
+        NetworkManager.Shutdown();
         SceneManager.LoadScene("Game");
         NetworkManager.singleton.StopClient();
+        //NetworkManager.singleton.StopClient();
     }
 
     #region CheckInputMainMenu
