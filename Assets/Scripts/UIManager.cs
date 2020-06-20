@@ -97,9 +97,16 @@ public class UIManager : MonoBehaviour
         buttonBackMenuClient.onClick.AddListener(() => ClientToMenu());
         buttonBackMenuIngame.onClick.AddListener(() => BackFromRace());
         buttonMenuServerOnly.onClick.AddListener(() => BackToMainMenu());
+        buttonCancel.onClick.AddListener(() => CancelLobby());
 
         ChangeHudColor();
         ActivateMainMenu();
+    }
+
+    public void CancelLobby()
+    {
+        NetworkManager.Shutdown();
+        SceneManager.LoadScene("Game");
     }
 
     private void Update()
