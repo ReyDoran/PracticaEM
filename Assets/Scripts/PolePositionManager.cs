@@ -76,9 +76,16 @@ public class PolePositionManager : NetworkBehaviour
             m_RaceInfo.TargetUpdateClasification(m_Players[i].GetComponent<NetworkIdentity>().connectionToClient, i + 1); ;
         }
         m_RaceInfo.RpcUpdateClasificationText(clasificationText);
-        if (numPlayerFinished == MaxPlayersInGame || MaxPlayersInGame==1)   // Acaba la partida si no quedan jugadores por terminar
+        if (numPlayerFinished == MaxPlayersInGame)
         {
-            m_RaceInfo.RpcFinishRace(clasificationText,"WINNER");
+            m_RaceInfo.RpcAllPlayersFinished();
+            m_UIManager.buttonBackMenu.gameObject.SetActive(true);
+        }
+        if (MaxPlayersInGame==1)   // Acaba la partida si no quedan jugadores por terminar
+        {
+            m_RaceInfo.RpcFinishRace(clasificationText," ");
+            m_RaceInfo.TargetFinishRace(m_Players[0].GetComponent<NetworkIdentity>().connectionToClient);
+            m_Players[0].GetComponent<PlayerController>().TargetDisableWinner(m_Players[0].GetComponent<NetworkIdentity>().connectionToClient);
             m_RaceInfo.RpcAllPlayersFinished();
             m_UIManager.buttonBackMenu.gameObject.SetActive(true);
         }
