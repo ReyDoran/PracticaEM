@@ -95,6 +95,7 @@ public class UIManager : MonoBehaviour
         ActivateMainMenu();
     }
 
+    // Actualiza los cronómetros
     private void Update()
     {
         if (startedTimer)
@@ -243,6 +244,8 @@ public class UIManager : MonoBehaviour
         if (inputFieldIP.text == "") m_NetworkManager.networkAddress = "localhost";
         else m_NetworkManager.networkAddress = inputFieldIP.text;
     }
+
+    // Obtiene el nº de jugadores, si no puede asigna 1
     private void CheckNPlayers()
     {
         if (inputMaxPlayers.text != "")
@@ -253,15 +256,37 @@ public class UIManager : MonoBehaviour
                 m_PolePositionManager.MaxPlayersInGame = Int16.Parse(inputMaxPlayers.text);
             }
             else
+            {
                 m_PolePositionManager.MaxPlayersInGame = numPlayers;
+            }
         }
         else
+        {
             m_PolePositionManager.MaxPlayersInGame = numPlayers;
+        }
     }
+
+    // Asigna las vueltas, si no puede asigna 4
     private void CheckNumberLaps()
     {
-        if (textTotalLaps.text == "") m_CircuitController.totalLaps = numLaps;
-        else m_CircuitController.totalLaps = int.Parse(textTotalLaps.text);
+        if (textTotalLaps.text == "")
+        {
+            int num = Int16.Parse(textTotalLaps.text);
+            {
+                if (num > 0 && num < 100)
+                {
+                    m_CircuitController.totalLaps = numLaps;
+                }
+                else
+                {
+                    m_CircuitController.totalLaps = 4;
+                }
+            }
+        }
+        else
+        {
+            m_CircuitController.totalLaps = 4;
+        }
     }
 
     #endregion
