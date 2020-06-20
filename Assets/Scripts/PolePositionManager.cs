@@ -57,7 +57,7 @@ public class PolePositionManager : NetworkBehaviour
 
     public void ClientDisconnected(int clientID)
     {
-        Debug.LogWarning("Client disconnect START");
+        //Debug.LogWarning("Client disconnect START");
         MaxPlayersInGame -= 1;
         string name = "";
         for (int i = 0; i < m_Players.Count; i++)
@@ -83,7 +83,7 @@ public class PolePositionManager : NetworkBehaviour
             m_UIManager.buttonBackMenu.gameObject.SetActive(true);
 
         }
-        Debug.LogWarning("Client disconnect END");
+        //Debug.LogWarning("Client disconnect END");
     }
 
     private void Update()
@@ -127,7 +127,7 @@ public class PolePositionManager : NetworkBehaviour
 
     public void UpdateRaceProgress()
     {
-        Debug.Log("Update START");
+        //Debug.Log("Update START");
         NetworkIdentity[] clientID = new NetworkIdentity[m_Players.Count];
         PlayerController[] auxPlayerController = new PlayerController[m_Players.Count];
         Vector3[] carProjs = new Vector3[m_Players.Count];
@@ -151,11 +151,12 @@ public class PolePositionManager : NetworkBehaviour
             }
         }
 
+        GameObject buttonBackMenu = m_UIManager.buttonBackMenu.gameObject;
         Parallel.For(0, m_Players.Count, i =>
         {
             if (m_Players[i] != null)
             {
-                arcLengths[i] = ComputeCarArcLength(i, carPos, clientID, auxPlayerController, out Vector3 carProj, out int segIdx);
+                arcLengths[i] = ComputeCarArcLength(i, carPos, clientID, auxPlayerController, buttonBackMenu, out Vector3 carProj, out int segIdx);
                 carProjs[i] = carProj;
                 segmentsId[i] = segIdx;
 
@@ -228,10 +229,10 @@ public class PolePositionManager : NetworkBehaviour
         {
             m_RaceInfo.RpcUpdateClasificationText(clasificationText);
         }
-        Debug.Log("Update END");
+        //Debug.Log("Update END");
     }
 
-    float ComputeCarArcLength(int id, Vector3[] carPos, NetworkIdentity[] clientID, PlayerController[] auxPlayerController, out Vector3 carProj, out int segIdx)
+    float ComputeCarArcLength(int id, Vector3[] carPos, NetworkIdentity[] clientID, PlayerController[] auxPlayerController, GameObject buttonBackMenu, out Vector3 carProj, out int segIdx)
     {
         // Compute the projection of the car position to the closest circuit 
         // path segment and accumulate the arc-length along of the car along
@@ -253,13 +254,14 @@ public class PolePositionManager : NetworkBehaviour
                         numPlayerFinished++;
                         m_RaceInfo.TargetUpdateTimeLaps(clientID[id].connectionToClient);
                         m_RaceInfo.TargetStopTimer(clientID[id].connectionToClient);
+                        Debug.Log("tiempo " + m_UIManager.globalTime.ToString());
                         m_RaceInfo.RpcFinishRace(m_Players[id].Name, m_UIManager.globalTime.ToString());
                         m_RaceInfo.TargetFinishRace(clientID[id].connectionToClient);
                         auxPlayerController[id].TargetDisableWinner(clientID[id].connectionToClient);                        
                         if (numPlayerFinished == MaxPlayersInGame)
                         {
                             m_RaceInfo.RpcAllPlayersFinished();
-                            m_UIManager.buttonBackMenu.gameObject.SetActive(true);
+                            buttonBackMenu.SetActive(true);
 
                         }
                     }
@@ -396,7 +398,12 @@ public class PolePositionManager : NetworkBehaviour
         countdown = new System.Timers.Timer(5000);
         countdown.AutoReset = false;
         countdown.Elapsed += ((source, e) => FreezeAllCars(false));
-        countdown.Elapsed += ((source, e) => m_RaceInfo.RpcStartTimer());
+        countdown.Elapsed += ((source, e) =>
+        {
+            m_RaceInfo.RpcStartTimer();
+            if (isServerOnly)
+                m_UIManager.startedGlobalTimer = true;
+        });
         countdown.Enabled = true;
     }
 
