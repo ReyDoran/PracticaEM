@@ -45,11 +45,13 @@ public class RaceInfo : NetworkBehaviour
         networkManager.OnClientServerDisconnectedHandler += ServerDisconnected;
     }
 
+    // Vuelve al menú si el servidor se desconecta
     void ServerDisconnected()
     {
         SceneManager.LoadScene("Game");
     }
 
+    // Actualiza la clasificación de un jugador
     #region TargetRpc
     [TargetRpc]
     public void TargetUpdateClasification(NetworkConnection client, int clientClasification)
@@ -57,7 +59,7 @@ public class RaceInfo : NetworkBehaviour
         m_UIManager.UpdateMyPosition(clientClasification);
     }
 
-
+    // Activa el HUD de fin de partida a un jugador
     [TargetRpc]
     public void TargetFinishRace(NetworkConnection con)
     {
@@ -65,6 +67,7 @@ public class RaceInfo : NetworkBehaviour
         timesToString(timeLaps);
     }
 
+    // Actualiza las vueltas restantes de un jugador
     [TargetRpc]
     public void TargetUpdateLaps(NetworkConnection client, int laps)
     {
@@ -72,6 +75,7 @@ public class RaceInfo : NetworkBehaviour
         m_UIManager.UpdateLap(laps);
     }
 
+    // Almacena el tiempo de la vuelta de un jugador
     [TargetRpc]
     public void TargetUpdateTimeLaps(NetworkConnection client)
     {
@@ -81,6 +85,7 @@ public class RaceInfo : NetworkBehaviour
 
     }
 
+    // Actualiza el texto de tiempos de vueltas en partida
     [TargetRpc]
     public void TargetUpdateInGameLaps(NetworkConnection client)
     {
@@ -91,6 +96,7 @@ public class RaceInfo : NetworkBehaviour
         }
     }
 
+    // Detiene el cronómetro
     [TargetRpc]
     public void TargetStopTimer(NetworkConnection con)
     {
@@ -178,8 +184,6 @@ public class RaceInfo : NetworkBehaviour
         if(!isServer)
         m_UIManager.buttonBackMenuClient.gameObject.SetActive(true);
     }
-
-
 
     // Actualiza el número total de vueltas de la carrera
     [ClientRpc]

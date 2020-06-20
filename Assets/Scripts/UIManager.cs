@@ -14,6 +14,7 @@ public class UIManager : MonoBehaviour
     public int numLaps;
     public bool startedTimer;
     public bool startedGlobalTimer;
+    public bool isClient = true;
 
     private NetworkManager m_NetworkManager;
     private CircuitController m_CircuitController;
@@ -92,7 +93,7 @@ public class UIManager : MonoBehaviour
         buttonblack.onClick.AddListener(()  => myColor="black");
         buttonpurple.onClick.AddListener(() => myColor="purple");
         buttonpink.onClick.AddListener(()   => myColor="pink");
-        buttonReady.onClick.AddListener(() => startRace());
+        buttonReady.onClick.AddListener(() => StartRace());
         buttonBackMenu.onClick.AddListener(() => PlayersToMenu());
         buttonBackMenuClient.onClick.AddListener(() => ClientToMenu());
         buttonBackMenuIngame.onClick.AddListener(() => BackFromRace());
@@ -109,17 +110,20 @@ public class UIManager : MonoBehaviour
         SceneManager.LoadScene("Game");
     }
 
+    // Actualiza cronómetros dependiendo de si es cliente o host
     private void Update()
-    {
+    {  
         if (startedTimer)
         {
             time += Time.deltaTime;
             textTime.text = "Time : " + time.ToString("f1");
         }
-
-        if (startedGlobalTimer)
+        if (!isClient)
         {
-            globalTime += Time.deltaTime;
+            if (startedGlobalTimer)
+            {
+                globalTime += Time.deltaTime;
+            }
         }
     }
 
@@ -230,7 +234,7 @@ public class UIManager : MonoBehaviour
         ActivateLobbyHUD();
     }
     
-    private void startRace()
+    private void StartRace()
     {
         m_PolePositionManager.StartAllPlayers();
     }

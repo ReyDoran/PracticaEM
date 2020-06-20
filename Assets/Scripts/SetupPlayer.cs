@@ -89,7 +89,4 @@ public class SetupPlayer : NetworkBehaviour
         m_PlayerInfo.ID = connectionToClient.connectionId;
         m_PolePositionManager.AddPlayer(m_PlayerInfo);
     }
-
-
-
 }

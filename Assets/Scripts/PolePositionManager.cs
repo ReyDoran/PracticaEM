@@ -53,6 +53,7 @@ public class PolePositionManager : NetworkBehaviour
             m_DebuggingSpheres[i].GetComponent<SphereCollider>().enabled = false;
             m_DebuggingSpheres[i].GetComponent<MeshRenderer>().enabled = false;
         }
+        m_UIManager.isClient = false;
     }
 
     public void ClientDisconnected(int clientID)

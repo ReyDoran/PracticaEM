@@ -286,33 +286,23 @@ public class PlayerController : NetworkBehaviour
         CurrentRotation = transform.eulerAngles.y;
     }
 
-    // CAMBIAR A RACEINFO
     [ClientRpc]
     public void RpcActivateMyInGameHUD()
     {
         m_UIManager.ActivateInGameHUD();
     }
 
-    // CAMBIAR A RACEINFO
     [ClientRpc]
     public void RpcUpdatePlayersConnected(int players, int maxplayers)
     {
         m_UIManager.UpdatePlayersConnected(players, maxplayers);
     }
 
-    // CAMBIAR A RACEINFO
     [ClientRpc]
     public void RpcUpdatePlayersListLobby(string playerList)
     {
         m_UIManager.UpdatePlayerListLobby(playerList);
     }
-
-    /* ELIMINAR
-    public void disableWinner()
-    {
-        m_Rigidbody.constraints = RigidbodyConstraints.FreezeAll;
-    }
-    */
 
     // Bloquea y transporta el coche al podio
     [TargetRpc]
@@ -327,15 +317,12 @@ public class PlayerController : NetworkBehaviour
     [TargetRpc]
     public void TargetRpcCheck_REVERSE(NetworkConnection client, bool wrongDir)
     {
-        //Debug.Log("Cambio de dirección");
         if (wrongDir)
         {
-            //Debug.Log("Activo");
             m_UIManager.ActivateReverseHUD();
         }
         else
         {
-            //Debug.Log("Desactivo");
             m_UIManager.DesActivateReverseHUD();
         }
     }
