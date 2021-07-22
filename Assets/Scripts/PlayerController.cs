@@ -14,18 +14,6 @@ using Random = System.Random;
 public class PlayerController : NetworkBehaviour
 {
     #region Variables
-    [Header("Textures")]
-    public Material blueglassMaterial;
-    public Material greyMaterial;
-    public Material greenMaterial;
-    public Material blueMaterial;
-    public Material orangeMaterial;
-    public Material purpleMaterial;
-    public Material pinkMaterial;
-    public Material blackMaterial;
-    public Material redMaterial;
-    public String color;
-
     [Header("Movement")] 
     public List<AxleInfo> axleInfos;
     public float forwardMotorTorque = 100000;
@@ -34,29 +22,32 @@ public class PlayerController : NetworkBehaviour
     public float engineBrake = 1e+12f;
     public float footBrake = 1e+24f;
     public float topSpeed = 200f;
+    public float topSpeedAux;
     public float downForce = 100f;
     public float slipLimit = 0.2f;
 
-    private CircuitController m_CircuitController;
     private float CurrentRotation { get; set; }
     private float InputAcceleration { get; set; }
     private float InputSteering { get; set; }
     private float InputBrake { get; set; }
     private Boolean InputReset { get; set; }
 
+    private CircuitController m_CircuitController;
     private PlayerInfo m_PlayerInfo;
     private Rigidbody m_Rigidbody;
     private float m_SteerHelper = 0.8f;
-    private float m_CurrentSpeed = 0;
+    private float m_CurrentSpeed;
     private UIManager m_UIManager;
-    //private PolePositionManager m_PolePositionManager;
+    private RaceInfo m_RaceInfo;
+    private Vector3 finalPosition;
+    System.Timers.Timer resetTimer;
 
-    private Text textMyName;
-    private int depuracionInt = 0;
+    [SyncVar] public int ID;
 
     public delegate void OnLapChangeDelegate(int newLap);
-
+    public delegate void OnSpeedChangeDelegate(float newVal);
     public event OnLapChangeDelegate OnLapChangeHandler;
+    public event OnSpeedChangeDelegate OnSpeedChangeHandler;
 
     private float Speed
     {
@@ -69,33 +60,21 @@ public class PlayerController : NetworkBehaviour
                 OnSpeedChangeHandler(m_CurrentSpeed);
         }
     }
-
-    public delegate void OnSpeedChangeDelegate(float newVal);
-
-    public event OnSpeedChangeDelegate OnSpeedChangeHandler;
-
     #endregion Variables
 
     #region Unity Callbacks
-
     public void Awake()
     {
         m_Rigidbody = GetComponent<Rigidbody>();
         m_PlayerInfo = GetComponent<PlayerInfo>();
-        //m_PolePositionManager = FindObjectOfType<PolePositionManager>();
         m_UIManager = FindObjectOfType<UIManager>();
         if (m_CircuitController == null) m_CircuitController = FindObjectOfType<CircuitController>();
-        greyMaterial = (Material)Resources.Load("grey", typeof(Material));
-        blueglassMaterial = (Material)Resources.Load("blueglass", typeof(Material));
-        greenMaterial = (Material)Resources.Load("green", typeof(Material));
-        blueMaterial = (Material)Resources.Load("blue", typeof(Material));
-        redMaterial = (Material)Resources.Load("red", typeof(Material));
-        orangeMaterial = (Material)Resources.Load("orange", typeof(Material));
-        blackMaterial = (Material)Resources.Load("black", typeof(Material));
-        purpleMaterial = (Material)Resources.Load("purple", typeof(Material));
-        pinkMaterial = (Material)Resources.Load("pink", typeof(Material));
+        if (m_RaceInfo == null) m_RaceInfo = FindObjectOfType<RaceInfo>();
+        m_Rigidbody.constraints = RigidbodyConstraints.FreezeAll;
 
-        ChangeColor();
+        topSpeedAux = topSpeed;
+        resetTimer = new System.Timers.Timer(100) {AutoReset = false};
+        resetTimer.Elapsed += ((source, e) => { topSpeed = topSpeedAux; });
     }
 
     public void Update()
@@ -103,9 +82,10 @@ public class PlayerController : NetworkBehaviour
         InputAcceleration = Input.GetAxis("Vertical");
         InputSteering = Input.GetAxis(("Horizontal"));
         InputBrake = Input.GetAxis("Jump");
-        InputReset = Input.GetKey(KeyCode.Escape);
-        Speed = m_Rigidbody.velocity.magnitude;
 
+        if (InputReset == false) InputReset = Input.GetKeyDown(KeyCode.Escape);
+
+        Speed = m_Rigidbody.velocity.magnitude;
     }
 
     public void FixedUpdate()
@@ -130,8 +110,7 @@ public class PlayerController : NetworkBehaviour
 
             posReset = this.transform.position;
 
-            float minArcL =
-                this.m_CircuitController.ComputeClosestPointArcLength(posReset, out segIdx, out carProj, out carDist);
+            float minArcL = this.m_CircuitController.ComputeClosestPointArcLength(posReset, out segIdx, out carProj, out carDist);
 
             carProj.y += 0.5f;
 
@@ -146,13 +125,8 @@ public class PlayerController : NetworkBehaviour
             this.m_PlayerInfo.transform.position = carProj;
             this.m_PlayerInfo.transform.eulerAngles = new Vector3(this.m_PlayerInfo.transform.eulerAngles.x, angleReset, 0.0f);
 
-            float templimit = topSpeed;
             topSpeed = 0;
-            System.Threading.Thread HiloEspera = new System.Threading.Thread(() => {
-                System.Threading.Tasks.Task.Delay(1000);
-                topSpeed = templimit;
-            });
-            HiloEspera.Start();
+            resetTimer.Start();
         }
         else
         {
@@ -207,62 +181,6 @@ public class PlayerController : NetworkBehaviour
         TractionControl();
     }
 
-    private void Depuracion()
-    {
-        String[] colores = new String[5] {"pink", "red", "orange", "purple", "black"};
-        m_UIManager.myColor = colores[depuracionInt];
-        depuracionInt++;
-        if (depuracionInt >= 5)
-        {
-            depuracionInt = 0;
-        }
-        this.ChangeColor();
-    }
-
-    public void ChangeColor()
-    {
-        string newColor = m_UIManager.myColor;
-        m_PlayerInfo.Color = newColor;
-
-        GameObject body = transform.Find("raceCarRed").transform.Find("body").gameObject;
-        Material[] Mymaterials = new Material[3];
-        Mymaterials[0] = greyMaterial;
-        Mymaterials[2] = blueglassMaterial;
-
-        switch (newColor)
-        {
-            case "green":
-                Mymaterials[1] = greenMaterial;
-                break;
-            case "blue":
-                Mymaterials[1] = blueMaterial;
-                break;
-            case "red":
-                Mymaterials[1] = redMaterial;
-                break;
-            case "orange":
-                Mymaterials[1] = orangeMaterial;
-                break;
-            case "black":
-                Mymaterials[1] = blackMaterial;
-                break;
-            case "purple":
-                Mymaterials[1] = purpleMaterial;
-                break;
-            case "pink":
-                Mymaterials[1] = pinkMaterial;
-                break;
-            case "":
-                Mymaterials[1] = redMaterial;
-                break;
-            case null:
-                Mymaterials[1] = redMaterial;
-                break;
-
-        }
-        body.GetComponent<Renderer>().materials = Mymaterials;
-    }
-
     #endregion
 
     #region Methods
@@ -306,6 +224,11 @@ public class PlayerController : NetworkBehaviour
         float speed = m_Rigidbody.velocity.magnitude;
         if (speed > topSpeed)
             m_Rigidbody.velocity = topSpeed * m_Rigidbody.velocity.normalized;
+        if (topSpeed == 0)
+        {
+            m_Rigidbody.velocity = 0 * m_Rigidbody.velocity;
+            m_Rigidbody.angularVelocity = 0 * m_Rigidbody.angularVelocity;
+        }
     }
 
     /* Asigna a topSpeed 0 para bloquear el movimiento del coche,
@@ -315,17 +238,10 @@ public class PlayerController : NetworkBehaviour
      [ClientRpc]
     public void RpcFreezeCar(bool freeze)
     {
-        if (freeze == true)
-            m_Rigidbody.constraints = RigidbodyConstraints.FreezeAll;
-        else
-            m_Rigidbody.constraints = RigidbodyConstraints.None;
+        if (freeze) m_Rigidbody.constraints = RigidbodyConstraints.FreezeAll;
+        else m_Rigidbody.constraints = RigidbodyConstraints.None;
     }
 
-    [ClientRpc]
-    public void RpcUpdateClasification(string clasification)
-    {
-        m_UIManager.UpdateClasification(clasification);
-    }
 
 // finds the corresponding visual wheel
 // correctly applies the transform
@@ -352,6 +268,7 @@ public class PlayerController : NetworkBehaviour
             WheelHit[] wheelHit = new WheelHit[2];
             axleInfo.leftWheel.GetGroundHit(out wheelHit[0]);
             axleInfo.rightWheel.GetGroundHit(out wheelHit[1]);
+
             foreach (var wh in wheelHit)
             {
                 if (wh.normal == Vector3.zero)
@@ -359,7 +276,7 @@ public class PlayerController : NetworkBehaviour
             }
         }
 
-// this if is needed to avoid gimbal lock problems that will make the car suddenly shift direction
+        // this if is needed to avoid gimbal lock problems that will make the car suddenly shift direction
         if (Mathf.Abs(CurrentRotation - transform.eulerAngles.y) < 10f)
         {
             var turnAdjust = (transform.eulerAngles.y - CurrentRotation) * m_SteerHelper;
@@ -370,17 +287,6 @@ public class PlayerController : NetworkBehaviour
         CurrentRotation = transform.eulerAngles.y;
     }
 
-    private void GetLap()
-    {
-       
-    }
-    [TargetRpc]
-    public void TargetUpdateMyPosition(NetworkConnection client, int position)
-    {
-
-        m_UIManager.UpdateMyPosition(position);
-    }
-
     [ClientRpc]
     public void RpcActivateMyInGameHUD()
     {
@@ -388,9 +294,9 @@ public class PlayerController : NetworkBehaviour
     }
 
     [ClientRpc]
-    public void RpcUpdatePlayersConnected(int players)
+    public void RpcUpdatePlayersConnected(int players, int maxplayers)
     {
-        m_UIManager.UpdatePlayersConnected(players);
+        m_UIManager.UpdatePlayersConnected(players, maxplayers);
     }
 
     [ClientRpc]
@@ -399,12 +305,33 @@ public class PlayerController : NetworkBehaviour
         m_UIManager.UpdatePlayerListLobby(playerList);
     }
 
-    public void ChangeLap()
+    public void disableWinner()
     {
-        if (OnLapChangeHandler != null)
-            OnLapChangeHandler(this.m_PlayerInfo.CurrentLap);
+        m_Rigidbody.constraints = RigidbodyConstraints.FreezeAll;
     }
 
+    [TargetRpc]
+    public void TargetDisableWinner(NetworkConnection client)
+    {        
+        finalPosition.Set(-57, 0, 66);
+        m_Rigidbody.transform.position = finalPosition;
+        m_Rigidbody.constraints = RigidbodyConstraints.FreezeAll;
+    }
 
+    [TargetRpc]
+    public void TargetRpcCheck_REVERSE(NetworkConnection client, bool wrongDir)
+    {
+        Debug.Log("Cambio de dirección");
+        if (wrongDir)
+        {
+            Debug.Log("Activo");
+            m_UIManager.ActivateReverseHUD();
+        }
+        else
+        {
+            Debug.Log("Desactivo");
+            m_UIManager.DesActivateReverseHUD();
+        }
+    }
     #endregion
 }

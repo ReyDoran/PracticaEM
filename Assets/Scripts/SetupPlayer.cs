@@ -1,6 +1,7 @@
 ﻿using System;
 using Mirror;
 using UnityEngine;
+using UnityEngine.Networking.Types;
 using Random = System.Random;
 
 /*
@@ -28,7 +29,6 @@ public class SetupPlayer : NetworkBehaviour
     public override void OnStartServer()
     {
         base.OnStartServer();
-        m_ID = connectionToClient.connectionId;
     }
 
     /// <summary>
@@ -38,11 +38,8 @@ public class SetupPlayer : NetworkBehaviour
     public override void OnStartClient()
     {
         base.OnStartClient();
-        m_PlayerInfo.ID = m_ID;
-        //m_PlayerInfo.Name = "Player" + m_ID;
         m_PlayerInfo.Name = m_Name;
         m_PlayerInfo.CurrentLap = 0;
-        //m_PolePositionManager.AddPlayer(m_PlayerInfo);
     }
 
     /// <summary>
@@ -52,7 +49,8 @@ public class SetupPlayer : NetworkBehaviour
     public override void OnStartLocalPlayer()
     {
         string name = m_UIManager.GetName();
-        CmdAddPlayer(name);
+        string color = m_UIManager.myColor;
+        CmdAddPlayer(name, color);
 
     }
 
@@ -73,8 +71,6 @@ public class SetupPlayer : NetworkBehaviour
         {
             m_PlayerController.enabled = true;
             m_PlayerController.OnSpeedChangeHandler += OnSpeedChangeEvent;
-            m_PlayerController.OnLapChangeHandler += OnLapChangeEvent;
-            m_PlayerController.ChangeLap();
             ConfigureCamera();
         }
     }
@@ -84,20 +80,17 @@ public class SetupPlayer : NetworkBehaviour
         m_UIManager.UpdateSpeed((int) speed * 5); // 5 for visualization purpose (km/h)
     }
 
-    void OnLapChangeEvent(int lap)
-    {
-        m_UIManager.UpdateLap((int)lap);
-    }
-
     void ConfigureCamera()
     {
         if (Camera.main != null) Camera.main.gameObject.GetComponent<CameraController>().m_Focus = this.gameObject;
     }
 
     [Command]
-    void CmdAddPlayer(string name)
+    void CmdAddPlayer(string name, string color)
     {
         m_PlayerInfo.Name = name;
+        m_PlayerInfo.Color = color;
+        m_PlayerInfo.ID = connectionToClient.connectionId;
         m_PolePositionManager.AddPlayer(m_PlayerInfo);
     }
 

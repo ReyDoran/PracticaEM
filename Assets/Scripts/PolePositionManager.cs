@@ -1,53 +1,79 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading.Tasks;
 using Mirror;
 using Mirror.Examples.Basic;
 using UnityEngine;
 
+
 public class PolePositionManager : NetworkBehaviour
 {
-    public int numPlayers;
-    public bool startedRace = false;
-    private System.Timers.Timer countdown;
+    #region Variables
+    private readonly List<PlayerController> m_PlayerControllers = new List<PlayerController>();
+    private readonly List<PlayerInfo> m_Players = new List<PlayerInfo>();
+    private List<int> clasification = new List<int>();
+
+    private CircuitController m_CircuitController;
+    private RaceInfo m_RaceInfo;
+
     public NetworkManager networkManager;
     public UIManager m_UIManager;
 
-    private int MaxPlayersInGame;
-    private PlayerController[] m_PlayerControllers = new PlayerController[4];
-    private readonly List<PlayerInfo> m_Players = new List<PlayerInfo>(4);
-    private CircuitController m_CircuitController;
+    private System.Timers.Timer countdown;
     public GameObject[] m_DebuggingSpheres { get; set; }
+    public Dictionary<int, string> colors = new Dictionary<int, string>();
+    public int[] previousSegmentsId;
+    public int numPlayers;
+    public int totalLaps;
+    [SyncVar]
+    public int MaxPlayersInGame;
+    public bool startedRace = false;
+    private int numPlayerFinished;
+    [SyncVar]
+    private int playersConected=0;
+    #endregion
 
+    #region Unity Callbacks
     private void Awake()
     {
-        MaxPlayersInGame = 2; //max 4
         if (networkManager == null) networkManager = FindObjectOfType<NetworkManager>();
         if (m_CircuitController == null) m_CircuitController = FindObjectOfType<CircuitController>();
         if (m_UIManager == null) m_UIManager = FindObjectOfType<UIManager>();
+        if (m_RaceInfo == null) m_RaceInfo = FindObjectOfType<RaceInfo>();
 
         m_DebuggingSpheres = new GameObject[networkManager.maxConnections];
         for (int i = 0; i < networkManager.maxConnections; ++i)
         {
             m_DebuggingSpheres[i] = GameObject.CreatePrimitive(PrimitiveType.Sphere);
             m_DebuggingSpheres[i].GetComponent<SphereCollider>().enabled = false;
+            m_DebuggingSpheres[i].GetComponent<MeshRenderer>().enabled = false;
         }
+
+        previousSegmentsId = new int[] {18, 18, 18, 18};
     }
 
     private void Update()
     {
         if (m_Players.Count == 0)
             return;
-        if(startedRace==true)
-        UpdateRaceProgress();
+        if(startedRace) UpdateRaceProgress();
     }
+    #endregion
+
+    #region Methods
 
     public void AddPlayer(PlayerInfo player)
     {
         m_Players.Add(player);
+        numPlayers++;
+        clasification.Add(-1);
+        colors.Add(player.ID, player.Color);
+        player.GetComponent<PlayerController>().ID = player.ID;
         StartRace();
     }
 
@@ -57,7 +83,6 @@ public class PolePositionManager : NetworkBehaviour
 
         public PlayerInfoComparer(float[] arcLengths, List<PlayerInfo> m_Players)
         {
-            //m_ArcLengths = arcLengths;
             for(int i = 0; i < arcLengths.Length; i++)
             {
                 playerLengths.Add(m_Players[i].ID, arcLengths[i]);
@@ -66,87 +91,198 @@ public class PolePositionManager : NetworkBehaviour
 
         public override int Compare(PlayerInfo x, PlayerInfo y)
         {
-            if (this.playerLengths[x.ID] < this.playerLengths[y.ID])
-                return 1;
+            if (this.playerLengths[x.ID] < this.playerLengths[y.ID]) return 1;
             else return -1;
         }
     }
 
     public void UpdateRaceProgress()
     {
-        // Update car arc-lengths
+        NetworkIdentity[] clientID = new NetworkIdentity[m_Players.Count];
+        PlayerController[] auxPlayerController = new PlayerController[m_Players.Count];
+        Vector3[] carProjs = new Vector3[m_Players.Count];
+        Vector3[] carPos = new Vector3[m_Players.Count];
+        bool[] dirChanged = new bool[m_Players.Count];
+        bool[] wrongDir = new bool[m_Players.Count];
         float[] arcLengths = new float[m_Players.Count];
-
-        //for (int i = 0; i < m_Players.Count; ++i)
-        foreach (PlayerInfo player in m_Players){
-            
-            arcLengths[player.ID] = ComputeCarArcLength(player.ID);
-        }
+        int[] segmentsId = new int[m_Players.Count];
         
-        //Debug.Log(m_Players[i].Name + "SU POSICION ES " + m_Players[i].CurrentPosition);
+        bool clasificationHasChanged = false;
+        string clasificationText = "";
 
+        for (int i = 0; i < m_Players.Count; i++)
+        {
+           carPos[i] = this.m_Players[i].transform.position;
+           clientID[i] = m_Players[i].GetComponent<NetworkIdentity>();
+           auxPlayerController[i] = m_Players[i].GetComponent<PlayerController>();
+        }
+
+        Parallel.For(0, m_Players.Count, i =>
+        {
+            arcLengths[i] = ComputeCarArcLength(i, carPos, clientID, auxPlayerController, out Vector3 carProj, out int segIdx);
+            carProjs[i] = carProj;
+            segmentsId[i] = segIdx;
+
+            if (segIdx != previousSegmentsId[i])
+            {
+                dirChanged[i] = true;
+                if (segIdx < previousSegmentsId[i])
+                {
+                    if (segIdx == 0 && previousSegmentsId[i] == 23)
+                    {
+                        wrongDir[i] = false;
+                    }
+                    else
+                    {
+                        wrongDir[i] = true;
+                    }
+                }
+                else
+                {
+                    if (segIdx == 23 && previousSegmentsId[i] == 0)
+                    {
+                        wrongDir[i] = true;
+                    }
+                    else
+                    {
+                        wrongDir[i] = false;
+                    }
+                }
+            }
+            else
+            {
+                dirChanged[i] = false;
+            }
+
+            previousSegmentsId[i] = segIdx;
+        });
+        
         m_Players.Sort(new PlayerInfoComparer(arcLengths, m_Players));
 
-        string myRaceOrder = "";
-        //foreach (var _player in m_Players)
         for (int i = 0; i < m_Players.Count; ++i)
         {
-            myRaceOrder += m_Players[i].Name + " \n";
-            m_Players[i].CurrentPosition = i + 1;
-            NetworkIdentity clientID = m_Players[i].GetComponent<NetworkIdentity>();
-            m_PlayerControllers[i].TargetUpdateMyPosition(clientID.connectionToClient, m_Players[i].CurrentPosition);
-        }
+            this.m_DebuggingSpheres[i].transform.position = carProjs[i];
+            clasificationText += m_Players[i].Name + " \n";
 
-        //m_UIManager.UpdateClasification(myRaceOrder);
-        for (int i = 0; i < m_PlayerControllers.Length; i++)
-        {
-            if (m_PlayerControllers[i] != null)
-                m_PlayerControllers[i].RpcUpdateClasification(myRaceOrder);
+            if (m_Players[i].CurrentPosition != i + 1)
+            {
+                m_Players[i].CurrentPosition = i + 1;
+                clientID[i] = m_Players[i].GetComponent<NetworkIdentity>();
+                m_RaceInfo.TargetUpdateClasification(clientID[i].connectionToClient, m_Players[i].CurrentPosition);
+                clasificationHasChanged = true;
+            }
+
+            if (clasificationHasChanged)
+            {
+                m_RaceInfo.RpcUpdateClasificationText(clasificationText);
+            }
+
+            if (dirChanged[i])
+            {
+                if (wrongDir[i])
+                {
+                    m_Players[i].GetComponent<PlayerController>().TargetRpcCheck_REVERSE(clientID[i].connectionToClient, wrongDir[i]);
+                }
+                else
+                {
+                    m_Players[i].GetComponent<PlayerController>().TargetRpcCheck_REVERSE(clientID[i].connectionToClient, wrongDir[i]);
+                }
+            }
         }
-        //Debug.Log("El orden de carrera es: " + myRaceOrder);
     }
 
-    float ComputeCarArcLength(int ID)
+    float ComputeCarArcLength(int id, Vector3[] carPos, NetworkIdentity[] clientID, PlayerController[] auxPlayerController, out Vector3 carProj, out int segIdx)
     {
         // Compute the projection of the car position to the closest circuit 
         // path segment and accumulate the arc-length along of the car along
         // the circuit.
-        Vector3 carPos = this.m_Players[ID].transform.position;
-        int segIdx;
-        float carDist;
-        Vector3 carProj;
 
-        float minArcL =
-            this.m_CircuitController.ComputeClosestPointArcLength(carPos, out segIdx, out carProj, out carDist);
+        float minArcL = this.m_CircuitController.ComputeClosestPointArcLength(carPos[id], out segIdx, out carProj, out float carDist);
         
-        this.m_DebuggingSpheres[ID].transform.position = carProj;
+        switch (segIdx)
+        {
+            case 0:
+                //Debug.Log("Hilo "+id+" Caso 0");
+                if (m_Players[id].circuitControlPoints[2])  //Caso normal
+                {
+                    m_Players[id].circuitControlPoints[2] = false;
+                    m_Players[id].circuitControlPoints[0] = true;
+                    if (m_Players[id].CurrentLap == 1)  // Fin carrera
+                    {
+                        Debug.Log("HA GANADO EL JUGADOR: " + m_Players[id].Name);
+                        numPlayerFinished++;
+                        m_RaceInfo.TargetUpdateTimeLaps(clientID[id].connectionToClient);
+                        m_RaceInfo.TargetStopTimer(clientID[id].connectionToClient);
+                        m_RaceInfo.RpcFinishRace(m_Players[id].Name, m_UIManager.globalTime.ToString());
+                        m_RaceInfo.TargetFinishRace(clientID[id].connectionToClient);
+                        auxPlayerController[id].TargetDisableWinner(clientID[id].connectionToClient);
 
-        CalculateLap(ID, segIdx);
-        
-        if (this.m_Players[ID].CurrentLap <= -1)
+                        if (numPlayerFinished == MaxPlayersInGame)
+                        {
+                            m_RaceInfo.RpcAllPlayersFinished();
+                            m_UIManager.buttonBackMenu.gameObject.SetActive(true);
+
+                        }
+                    }
+
+                    m_Players[id].CurrentLap--;
+
+                    m_RaceInfo.TargetUpdateLaps(clientID[id].connectionToClient, m_Players[id].CurrentLap);
+                    m_RaceInfo.TargetUpdateInGameLaps(clientID[id].connectionToClient);
+                    m_RaceInfo.TargetUpdateTimeLaps(clientID[id].connectionToClient);
+                    Debug.Log(m_Players[id].Name + " ha dado una vuelta le quedan: " + m_Players[id].CurrentLap);
+                }
+                else if (m_Players[id].circuitControlPoints[1])
+                {
+                    m_Players[id].circuitControlPoints[1] = false;
+                    m_Players[id].circuitControlPoints[0] = true;
+                }
+                break;
+
+            case 1:
+               // Debug.Log("Hilo " + id + " Caso 1");
+                if (m_Players[id].circuitControlPoints[0])  //Caso normal
+                {
+                    m_Players[id].circuitControlPoints[0] = false;
+                    m_Players[id].circuitControlPoints[1] = true;
+                }
+                else if (m_Players[id].circuitControlPoints[2])
+                {
+                    m_Players[id].circuitControlPoints[2] = false;
+                    m_Players[id].circuitControlPoints[1] = true;
+                }
+                break;
+
+            case 2:
+               // Debug.Log("Hilo " + id + " Caso 2");
+                if (m_Players[id].circuitControlPoints[1])  //Caso normal
+                {
+                    m_Players[id].circuitControlPoints[1] = false;
+                    m_Players[id].circuitControlPoints[2] = true;
+                }
+                else if (m_Players[id].circuitControlPoints[0])
+                {
+                    m_Players[id].circuitControlPoints[0] = false;
+                    m_Players[id].circuitControlPoints[2] = true;
+                }
+                break;
+        }
+        if (this.m_Players[id].CurrentLap == 1)
         {
             minArcL -= m_CircuitController.CircuitLength;
+        } else if (this.m_Players[id].CurrentLap == 0)
+        {
+            minArcL = 4 - m_Players[id].CurrentPosition;
         }
         else
         {
-            minArcL = minArcL + m_CircuitController.CircuitLength * m_Players[ID].CurrentLap;
+            minArcL -= m_CircuitController.CircuitLength * m_Players[id].CurrentLap;
         }
-        Debug.Log(minArcL);
-        return minArcL;
-    }
-    
-    public int CalculatePlayers()
-    {
-        int players = m_Players.Count;
-        Debug.Log("Numero de jugadores " + players);
- 
-        for (int i = 0; i < m_Players.Count; i++)
+        if (m_Players[id].circuitControlPoints[0] && minArcL > m_CircuitController.m_CumArcLength[2] - (m_Players[id].CurrentLap) * m_CircuitController.CircuitLength)
         {
-            m_PlayerControllers[i].RpcUpdatePlayersConnected(players);
-            m_PlayerControllers[i].RpcUpdatePlayersListLobby(CalculatePlayersList());
-            
+            minArcL -= m_CircuitController.CircuitLength;
         }
-        return players;
+        return minArcL;
     }
 
     public string CalculatePlayersList()
@@ -159,45 +295,10 @@ public class PolePositionManager : NetworkBehaviour
         return PlayerList;
     }
 
-
-    //Use de ID and the segment of the circuit to check % of lap
-    public void CalculateLap(int ID, int segIdx)
-    {
-        bool finishLap = true;
-        if (segIdx == 0 && this.m_Players[ID].FirstTime)
-        {
-            finishLap = true;
-            this.m_Players[ID].FirstTime = false;
-        }
-        else
-        {
-            if (segIdx == 0 || this.m_Players[ID].controlpoints[segIdx - 1] == true)
-                this.m_Players[ID].controlpoints[segIdx] = true;
-            
-            foreach (bool segment in this.m_Players[ID].controlpoints)
-            {
-                if (!segment)
-                {
-                    finishLap = false;
-                    break;
-                }
-            }  
-        }
-        if (segIdx == 0 && finishLap == true)
-        {
-            this.m_Players[ID].CurrentLap++;
-            for (int i = 0; i < this.m_Players[ID].controlpoints.Length - 1; i++)
-            {
-                this.m_Players[ID].controlpoints[i] = false;
-            }
-            this.m_PlayerControllers[ID].ChangeLap();
-        }
-    }
-
     // Bloquea/desbloquea el movimiento de todos los coches de la escena
     private void FreezeAllCars(bool freeze)
     {
-        for (int i = 0; i < m_PlayerControllers.Length; i++)
+        for (int i = 0; i < m_PlayerControllers.Count; i++)
         {
             if (m_PlayerControllers[i] != null)
             {
@@ -209,25 +310,63 @@ public class PolePositionManager : NetworkBehaviour
     //Bloquea a los coches durante 5 segundos
     public void StartRace()
     {
-        for (int i = 0; i < m_Players.Count; i++)
+        playersConected = m_Players.Count;
+        for (int i = 0; i < playersConected; i++)
         {
-            m_PlayerControllers[i] = m_Players[i].gameObject.GetComponent<PlayerController>();
-        }
-        FreezeAllCars(true);
-
-        if (CalculatePlayers() == MaxPlayersInGame)
-        {
-            for (int i = 0; i < m_Players.Count; i++)
+            if (m_PlayerControllers.Count <= i)
             {
-                m_PlayerControllers[i].RpcActivateMyInGameHUD();
+                m_PlayerControllers.Add(m_Players[i].gameObject.GetComponent<PlayerController>());
             }
-            startedRace = true;
-            FreezeAllCars(true);
-            countdown = new System.Timers.Timer(5000);
-            countdown.AutoReset = false;
-            countdown.Elapsed += ((System.Object source, System.Timers.ElapsedEventArgs e) => FreezeAllCars(false));
-            countdown.Enabled = true;
+        }
+        UpdateLobbyUI();
+        if (playersConected == MaxPlayersInGame)
+        {
+            try
+            {
+                totalLaps = int.Parse(m_UIManager.textTotalLaps.text) + 1;
+            }
+            catch (Exception ex)
+            {
+                Debug.LogWarning(ex);
+                totalLaps = 5;
+            }
+            m_UIManager.ActivateReadyButton();
         }
     }
+    
+    public void StartAllPlayers()
+    {
+        for (int i = 0; i < m_Players.Count; i++)
+        {
+            m_RaceInfo.RpcChangeColor(m_Players[i].ID, colors[m_Players[i].ID]);
+            m_PlayerControllers[i].RpcActivateMyInGameHUD();
+            m_Players[i].CurrentLap = totalLaps;
+        }
 
+        m_RaceInfo.RpcUpdateLaps(totalLaps - 1);
+        m_RaceInfo.RpcSetColors();
+        
+        startedRace = true;
+        FreezeAllCars(true);
+        countdown = new System.Timers.Timer(5000);
+        countdown.AutoReset = false;
+        countdown.Elapsed += ((System.Object source, System.Timers.ElapsedEventArgs e) => FreezeAllCars(false));
+        countdown.Elapsed += ((System.Object source, System.Timers.ElapsedEventArgs e) => m_RaceInfo.RpcStartTimer());
+        countdown.Enabled = true;
+    }
+
+    private void UpdateLobbyUI()
+    {
+        foreach (PlayerController PC in m_PlayerControllers)
+        {
+            PC.RpcUpdatePlayersConnected(playersConected,MaxPlayersInGame);
+            PC.RpcUpdatePlayersListLobby(CalculatePlayersList());
+
+        }
+        //Actualizar UI de ServerOnly
+        this.m_UIManager.UpdatePlayerListLobby(CalculatePlayersList());
+        this.m_UIManager.UpdatePlayersConnected(playersConected, MaxPlayersInGame);
+    }
+
+    #endregion
 }

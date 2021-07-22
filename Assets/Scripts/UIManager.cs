@@ -1,27 +1,33 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Xml.Schema;
 using Mirror;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class UIManager : MonoBehaviour
 {
-    public bool showGUI = true;
+    [Header("Variables")]
     public string myColor;
+    public float time = 0;
+    public float globalTime = 0;
+    public int numPlayers;
+    public int numLaps;
+    public bool startedTimer;
+    public bool startedGlobalTimer;
 
     private NetworkManager m_NetworkManager;
     private CircuitController m_CircuitController;
+    public GameObject m_Reverse_Panel;
+    public RaceInfo m_RaceInfo;
+    public PolePositionManager m_PolePositionManager;
 
     [Header("Main Menu")] [SerializeField] private GameObject mainMenu;
     [SerializeField] private Button buttonHost;
     [SerializeField] private Button buttonClient;
     [SerializeField] private Button buttonServer;
     [SerializeField] private InputField inputFieldIP;
-    [SerializeField] private InputField textTotalLaps;
+    [SerializeField] public InputField textTotalLaps;
     [SerializeField] private InputField inputFieldName;
+    [SerializeField] private InputField inputMaxPlayers;
     [SerializeField] private Button buttongreen;
     [SerializeField] private Button buttonred;
     [SerializeField] private Button buttonorange;
@@ -29,7 +35,6 @@ public class UIManager : MonoBehaviour
     [SerializeField] private Button buttonblue;
     [SerializeField] private Button buttonpurple;
     [SerializeField] private Button buttonpink;
-
 
     [Header("In-Game HUD")]
     [SerializeField]
@@ -40,6 +45,8 @@ public class UIManager : MonoBehaviour
     [SerializeField] private Text textLaps;
     [SerializeField] private Text textPosition;
     [SerializeField] private Text textMyPosition;
+    [SerializeField] private Text textTime;
+    [SerializeField] public Text textTimeLaps;
 
 
     [Header("Lobby HUD")]
@@ -47,12 +54,25 @@ public class UIManager : MonoBehaviour
     private GameObject lobbyHUD;
     [SerializeField] private Text textPlayersConnected;
     [SerializeField] private Text textPlayerListLobby;
+    [SerializeField] private Button buttonReady;
+    [SerializeField] private Button buttonCancel;
+
+
+    [Header("Finish HUD")]
+    [SerializeField]
+    private GameObject finishHUD;
+    [SerializeField] private Text textPlayersfinished;
+    [SerializeField] public Text textTimes;
+    [SerializeField] public Text textWaitingPlayers;
+    [SerializeField] public Button buttonBackMenu;
 
 
     private void Awake()
     {
         m_NetworkManager = FindObjectOfType<NetworkManager>();
         m_CircuitController = FindObjectOfType<CircuitController>();
+        buttonReady.gameObject.SetActive(false);
+        buttonBackMenu.gameObject.SetActive(false);
     }
 
     private void Start()
@@ -60,15 +80,33 @@ public class UIManager : MonoBehaviour
         buttonHost.onClick.AddListener(() => StartHost());
         buttonClient.onClick.AddListener(() => StartClient());
         buttonServer.onClick.AddListener(() => StartServer());
-        buttongreen.onClick.AddListener(() => SetColor("green"));
-        buttonred.onClick.AddListener(() => SetColor("red"));
-        buttonorange.onClick.AddListener(() => SetColor("orange"));
-        buttonblue.onClick.AddListener(() => SetColor("blue"));
-        buttonblack.onClick.AddListener(() => SetColor("black"));
-        buttonpurple.onClick.AddListener(() => SetColor("purple"));
-        buttonpink.onClick.AddListener(() => SetColor("pink"));
+        buttongreen.onClick.AddListener(()  => myColor = "green");
+        buttonred.onClick.AddListener(()    => myColor="red");
+        buttonorange.onClick.AddListener(() => myColor="orange");
+        buttonblue.onClick.AddListener(()   => myColor="blue");
+        buttonblack.onClick.AddListener(()  => myColor="black");
+        buttonpurple.onClick.AddListener(() => myColor="purple");
+        buttonpink.onClick.AddListener(()   => myColor="pink");
+        buttonReady.onClick.AddListener(() => startRace());
+        buttonCancel.onClick.AddListener(() => BackToMainMenu());
+        buttonBackMenu.onClick.AddListener(() => PlayersToMenu());
 
+        ChangeHudColor();
         ActivateMainMenu();
+    }
+
+    private void Update()
+    {
+        if (startedTimer)
+        {
+            time += Time.deltaTime;
+            textTime.text = "Time : " + time.ToString("f1");
+        }
+
+        if (startedGlobalTimer)
+        {
+            globalTime += Time.deltaTime;
+        }
     }
 
     public void UpdateSpeed(int speed)
@@ -97,23 +135,9 @@ public class UIManager : MonoBehaviour
         return name;
     }
 
-    public void UpdatePlayersConnected(int playersConnected)
+    public void UpdatePlayersConnected(int playersConnected, int maxplayers)
     {
-        if (lobbyHUD.activeSelf)
-        {
-            textPlayersConnected.text = ("( " + playersConnected.ToString()+ " / 4 )");
-        }
-    }
-
-
-    public void SetColor(string color)
-    {
-        myColor = color;
-    }
-
-    public string GetColor()
-    {
-        return myColor;
+        textPlayersConnected.text = ("( " + playersConnected.ToString() + " / " + maxplayers  + " )");
     }
 
     public void UpdatePlayerListLobby(string PlayerList)
@@ -121,56 +145,145 @@ public class UIManager : MonoBehaviour
         textPlayerListLobby.text = PlayerList;
     }
 
+    public void UpdateFinishList(string players)
+    {
+        textPlayersfinished.text = players;
+    }
+
     private void ActivateMainMenu()
     {
+        DesactivateHud();
         mainMenu.SetActive(true);
-        inGameHUD.SetActive(false);
-        lobbyHUD.SetActive(false);
+    }
+
+    public void ActivateReadyButton()
+    {
+        buttonReady.gameObject.SetActive(true);
     }
 
     private void ActivateLobbyHUD()
     {
-        mainMenu.SetActive(false);
-        inGameHUD.SetActive(false);
+        DesactivateHud();
+        UpdatePlayersConnected(0, m_PolePositionManager.MaxPlayersInGame);
+        this.ChangeHudColor();
         lobbyHUD.SetActive(true);
     }
 
     public void ActivateInGameHUD()
     {
-        InitNumberLaps();
-        mainMenu.SetActive(false);
+        CheckNumberLaps();
+        DesactivateHud();
         inGameHUD.SetActive(true);
-        lobbyHUD.SetActive(false);
-        
+        DesActivateReverseHUD();
+    }
+
+    public void ActivateFinishHUD()
+    {
+        DesactivateHud();
+        finishHUD.SetActive(true);    
+    }
+
+    public void ActivateReverseHUD()
+    {
+        m_Reverse_Panel.SetActive(true);
+    }
+
+    public void DesActivateReverseHUD()
+    {
+        m_Reverse_Panel.SetActive(false);
     }
 
     private void StartHost()
     {
-        if (inputFieldIP.text == "") m_NetworkManager.networkAddress = "localhost";
-        else m_NetworkManager.networkAddress = inputFieldIP.text;
+        CheckIP();
+        CheckNPlayers();
         m_NetworkManager.StartHost();
         ActivateLobbyHUD();
     }
 
     private void StartClient()
     {
-        if (inputFieldIP.text == "") m_NetworkManager.networkAddress = "localhost";
-        else m_NetworkManager.networkAddress = inputFieldIP.text;
+        CheckIP();
         m_NetworkManager.StartClient();
         ActivateLobbyHUD();
     }
 
     private void StartServer()
     {
-        if (inputFieldIP.text == "") m_NetworkManager.networkAddress = "localhost";
-        else m_NetworkManager.networkAddress = inputFieldIP.text;
+        CheckIP();
+        CheckNPlayers();
         m_NetworkManager.StartServer();
         ActivateLobbyHUD();
     }
-
-    private void InitNumberLaps()
+    
+    private void startRace()
     {
-        if (textTotalLaps.text == "") m_CircuitController.totalLaps = 5;
+        m_PolePositionManager.StartAllPlayers();
+    }
+
+    public void AllPlayersFinished()
+    {
+        textWaitingPlayers.text = "ALL PLAYERS FINISHED THE RACE";
+    }
+
+    private void PlayersToMenu()
+    {
+        m_RaceInfo.RpcBackToMenu();
+    }
+
+    private void BackToMainMenu()
+    {
+        ActivateMainMenu();
+    }
+
+    #region CheckInputMainMenu
+
+    private void CheckIP()
+    {
+        if (inputFieldIP.text == "") m_NetworkManager.networkAddress = "localhost";
+        else m_NetworkManager.networkAddress = inputFieldIP.text;
+    }
+    private void CheckNPlayers()
+    {
+        if (inputMaxPlayers.text != "")
+        {
+            int num = Int16.Parse(inputMaxPlayers.text);
+            if (num > 0 && num <= 4)
+            {
+                m_PolePositionManager.MaxPlayersInGame = Int16.Parse(inputMaxPlayers.text);
+            }
+            else
+                m_PolePositionManager.MaxPlayersInGame = numPlayers;
+        }
+        else
+            m_PolePositionManager.MaxPlayersInGame = numPlayers;
+    }
+    private void CheckNumberLaps()
+    {
+        if (textTotalLaps.text == "") m_CircuitController.totalLaps = numLaps;
         else m_CircuitController.totalLaps = int.Parse(textTotalLaps.text);
+    }
+
+    #endregion
+
+    private void ChangeHudColor()
+    {
+        foreach (Text text in inGameHUD.GetComponentsInChildren<Text>())
+        {
+            if (text.name != "Text_REVERSE")
+                text.color = Color.black;
+        }
+        foreach (var texto in lobbyHUD.GetComponentsInChildren<Text>())
+        {
+            texto.color = Color.white;
+        }
+    }
+
+    private void DesactivateHud()
+    {
+        mainMenu.SetActive(false);
+        inGameHUD.SetActive(false);
+        lobbyHUD.SetActive(false);
+        finishHUD.SetActive(false);
     }
 }
